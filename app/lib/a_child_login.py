@@ -29,8 +29,6 @@ from flask import render_template, request, flash, g
 
 login_manager = app.lm
 
-goog_user = 'a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879'
-
 acct_choices = [('acct1_name', 'acct1_used', 'acct1_comment'),
                 ('acct2_name', 'acct2_used', 'acct2_comment'),
                 ('acct3_name', 'acct3_used', 'acct3_comment'),
