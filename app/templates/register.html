@@ -1,0 +1,59 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+  {% if nocap is defined %}
+      <h1>Account Review/Update</h1>
+      <form action="" method="post" name="parent_account_review">
+  {% else %}
+      <h1>Register</h1>
+      Want to remain anonymous and not give your real email address? <br> Don't worry, just make one up, but keep in mind, you will not be able to recover if you forget your password.
+      <form action="" method="post" name="login">
+  {% endif %}
+  
+      {{ form.hidden_tag() }}
+      <p>{{ form.firstname }} First Name</p>
+      {% if g.isgoogle is not defined  or g.isgoogle == false%}
+        <p>{{ form.email }} Email Address</p>
+      {% else %}
+        <p>{{ form.email(readonly=true, style="background-color: lightgrey;") }} Email Address</p>
+      {% endif %}
+
+      {% if nocap is defined and g.isgoogle != true %}
+        <p>{{ form.oldpassword}} Old Password</p>
+        <h3>Old Password always required, leave Password1/2 blank if you are not changing the password</h3>
+      {% endif %}
+      
+      {% if g.isgoogle != true %}      
+        <p>{{ form.password1 }} Password1</p>
+        <p>{{ form.password2 }} Password2 Retype password</p>
+      {% endif %}
+      <p>{{ form.money_symbol(style="width: 25") }} Symbol for your currency</p>
+      {% if nocap is not defined %}
+                <table border=2>
+                  <tr>
+                  <td> set one </td>
+                  <td>
+                      {% for img in cap.firstnum_links %}
+                          <img src='{{ img }}'/>
+                      {% endfor %}
+                  </td>
+                  <td> set two </td>
+                  <td>
+                      {% for img in cap.secondnum_links %}
+                          <img src='{{ img }}'/>
+                      {% endfor %}
+                  </td>
+                  </tr>
+                </table>
+                <p><h2>{{ cap.operation }}</h2></p>
+                <p>Answer for Captcha {{ form.captcha }}</p>
+        {% endif %}
+      {% if nocap is defined %}
+        <p><input type="submit" value="Update"></p>
+        <p>Delete this <a href="delete_account">account</a>.  You will be taken to a confirmation page.</p>
+      {% else %}
+        <p><input type="submit" value="Sign In"></p>
+      {% endif %}
+  </form>
+{% endblock %}

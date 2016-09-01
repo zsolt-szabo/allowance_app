@@ -1,0 +1,141 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+  <head>
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="920486216021-4lj8j7ptd0ve627gufqvr1d3ho3sgrk8.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  </head>
+  <body>
+    <div class="div1">On this page you can:
+    <ul>
+    <li>Add an allowance</li>
+    <li>Review allowances</li>
+    <li>Delete an allowance</li>
+    <li>Update?: <i>Once created, an allowance cannot be adjusted, just remove and add a new one</i></li>
+    </ul>
+    </div>
+    {# ################## Review existing allowances ############### #}
+    <hr><h2>&nbsp;</h2><h2>Review allowance(s) for <i>{{kid_info.firstname}} {{kid_info.animal1}}-{{kid_info.animal2}}</h2></i>
+    Child <a href="kid_manage?kid={{kid_info.firstname}}:{{kid_info.animal1}}:{{kid_info.animal2}}">Account Info</a><br>
+    Child <a href="/ledger?kid={{kid_info.firstname}}:{{kid_info.animal1}}:{{kid_info.animal2}}">Account Book</a>
+    <hr>
+    <div style="background-color: #80ffe5;">
+    <table class="thinborder">
+      <tr><th>Nickname</th><th>Allowance Amount</th><th>Day(s) of the month<br> payouts occur</th><th>Date Created</th><th>Sub-Accounts <br>Percentages</th><th>Storage<br>Percentages</th>
+          {% if g.is_child != True %}<th>Remove</th>{% endif %}
+      </tr>
+      {% for allow in allow_data %}
+        <tr>
+          <td align="center">{{ allow.nickname }}</td>
+          <td  align="center">{{g.money_symbol}} {{ allow.amount }}</td>
+          <td><ul>
+            {% for date in allow.DATES %}
+                <li> {{date}} </li>
+            {% endfor %}
+            </ul>
+          </td>
+          <td  align="center">{{ allow.creation_date.strftime('%Y-%m-%d') }}</td>
+          
+          <td>
+           <table>
+             <tr>
+             {% for i in [1,2,3,4,5] %}
+               {% if kid_info.__dict__['acct' + i|string + '_used'] == true %}
+                  <th> {{ kid_info.__dict__['acct' + i|string + '_name'] }}</th>
+               {% endif %}
+             {% endfor %}
+             </tr>
+             <tr>
+             {% for i in [1,2,3,4,5] %}
+               {% if kid_info.__dict__['acct' + i|string + '_used'] == true %}
+                  <td> {{ allow.__dict__['account' + i|string + '_perc'] }}</td>
+               {% endif %}
+             {% endfor %}
+             </tr>
+           </table>  
+          </td>
+          
+          <td>
+           <table>
+             <tr>
+             {% for i in [1,2,3,4,5,6,7] %}
+               {% if kid_info.__dict__['location' + i|string + '_used'] == true %}
+                  <th> {{ kid_info.__dict__['location' + i|string + '_name'] }}</th>
+               {% endif %}
+             {% endfor %}
+             </tr>
+             <tr>
+             {% for i in [1,2,3,4,5] %}
+               {% if kid_info.__dict__['location' + i|string + '_used'] == true %}
+                  <td> {{ allow.__dict__['location' + i|string + '_perc'] }} </td>
+               {% endif %}
+             {% endfor %}
+             </tr>
+           </table>             
+          </td>
+          {% if g.is_child != True %}
+          <td  align="center"><a href="remove_allowance?allow_id={{allow.id}}" onclick="return confirm('Are you sure you want to remove');">remove</a></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </table>
+    </div>
+    {% if g.is_child != True %}
+    {# #######  FORM to add new allowances ####### #}
+    <hr><h2>Add an allowance for <i>{{kid_info.firstname}} {{kid_info.animal1}}-{{kid_info.animal1}}</h2>
+    <form action="allowance" method="POST">
+      {{form.hidden_tag() }}
+      <input type="hidden" name="">
+       <p>(amount) How much {{g.money_symbol}} {{ form.amount(style="width: 40px;") }}</p>
+       <p> {{ form.nickname.label }} {{ form.nickname(style="width: 220px;") }}</p>
+       <p>(payout_days) Pick what month day(s) this payout will occur (Limited to first 28 days):</p>
+       <table>
+        <tr>
+          {% for e_choice in form.payout_days.choices %}
+             {% set checked = '' %}
+             {% if form.payout_days.data is not none and  e_choice[1] in form.payout_days.data %}
+                 {% set checked = 'checked' %}
+             {% endif %}
+             {% if (e_choice[0]|int) % 2 == 0 %}
+              <td style="background-color: #99dfff"> <input style="width: 2em" id="payout_days-{{e_choice[1]}}" name="payout_days" type="checkbox" value="{{e_choice[1]}}" {{checked}}> </td>
+               <td style="background-color: #99dfff"> {{e_choice[0]}} </td>
+             {% else %}
+               <td> <input style="width: 2em" id="payout_days-{{e_choice[1]}}" name="payout_days" type="checkbox" value="{{e_choice[1]}}" {{checked}}> </td>
+               <td> {{e_choice[0]}} </td>
+             {% endif %}
+             {#  ###### New line every 10 checkboxes ###### #}
+             {% if (e_choice[0]|int) % 10 == 0 %}
+               </tr><tr>
+             {% endif %}
+          {% endfor %}
+        </tr>
+        </table>
+       <br>
+       <input type="submit" value="Submit"> 
+
+    <h3>Pick sub-accounts (Must add up to 100%)</h3>
+    <table>
+
+    {% for i in [1, 2, 3, 4, 5] %}
+      {% if form.__dict__['check_acct' + i|string + '_used'] == true %}
+            <tr><td> {{form.__dict__['label_acct' + i|string ]}}</td> <td> {{form.__dict__['acct' + i|string + '_perc'](style="width: 4em")}} <i>(acct{{i}}_perc)</i></td>
+      {% endif %}
+    {% endfor %}
+    </table>
+    
+    <h3>Pick where the money is to be stored (Must add up to 100%)</h3>
+    <table>
+
+    {% for i in [1, 2, 3, 4, 5, 6, 7] %}
+      {% if form.__dict__['check_location' + i|string + '_used'] == true %}
+            <tr><td> {{form.__dict__['label_location' + i|string ]}}</td> <td> {{form.__dict__['location' + i|string + '_perc'](style="width: 4em")}}  <i>(location{{i}}_perc)</i></td></td>
+      {% endif %}
+    {% endfor %}
+    </table>
+    </form>
+    {% endif %} {# End is_child != True #}
+  </body>
+{% endblock %}

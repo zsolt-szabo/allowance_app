@@ -1,0 +1,179 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block content %}
+ 
+    
+     <script>
+      function unhide_buckets() {
+        var accounts = $(".accounts");
+        var storage = $(".store");
+        // Hide all but one unchecked field
+        var unhide = true;
+        for (i = 0; i < accounts.length; i++){
+          var account = accounts[i];
+          var active_input = $( account ).find(".activated");
+          //alert(active_input[0].checked);
+          if (active_input[0].checked == true){
+            account.style.display = 'table-row';
+          } else if (unhide == true) {
+            account.style.display = 'table-row';
+            unhide = false;
+          }
+        }
+        // Hide all but one unchecked store field
+        unhide = true;
+        for (i = 0; i < storage.length; i++){
+          var store = storage[i];
+          var active_input = $( store ).find(".activated");
+          //alert(active_input[0].checked);
+          if (active_input[0].checked == true){
+            store.style.display = 'table-row';
+          } else if (unhide == true) {
+            store.style.display = 'table-row';
+            unhide = false;
+          }
+        }
+      }
+     </script>
+
+     <script>
+      {# ########### Hide all animal selections after doc loads########### #}
+      {# ########### Unhide appropriate account/location ########### #}
+      $( document ).ready(function() {
+        unhide_buckets();
+        })
+     </script>
+     
+  <h1>child account {{form.firstname.data}}</h1>
+  Child <a href="allowance?kid={{form.firstname.data}}:{{form.animal1.data}}:{{form.animal2.data}}">allowance info</a>
+  <hr>
+
+  <a name="gotoform"/>
+  <div>
+        <p>
+        <table><tr>
+        <td>{{ form.firstname(onkeyup="showuserchoice();", style="background-color: lightgrey;", readonly=true,) }} First Name (Nickname) &nbsp</td></tr>
+        <tr><td>{{ form.password(onkeyup="showuserchoice();", style="background-color: lightgrey;", readonly=true) }} Password </td>
+        <td></td>
+        <td> </td>
+        </tr></table>
+        </p>
+        <p>
+          <table class="animals">
+            <tr>
+              
+              <td>
+                 animal1<br>
+                 {% for each_animal in form.animal1.iter_choices() %}
+                     {% if form.animal1.data == each_animal[0] %}
+                        <img src="/{{ each_animal[1] }}">
+                     {% endif %}
+                 {% endfor %}
+
+              </td>
+              
+              <td>
+                 animal2 <br>
+                 {% for each_animal in form.animal2.iter_choices() %}
+                     {% if form.animal2.data == each_animal[0] %}
+                        <img src="/{{ each_animal[1] }}">
+                     {% endif %}
+                 {% endfor %}
+
+              </td>
+              
+              <td id="nickname_alert"> Nickname animals</td>
+              
+            </tr>
+          </table>
+        </p>
+        <p>
+          <table class="animals" >
+            <tr>
+              
+              <td>
+                 animal3 <br>
+                 {% for each_animal in form.animal3.iter_choices() %}
+                     {% if form.animal3.data == each_animal[0] %}
+                        <img src="/{{ each_animal[1] }}">
+                     {% endif %}
+                 {% endfor %}
+              </td>
+              
+              <td>
+                 animal4 <br>
+                 {% for each_animal in form.animal4.iter_choices() %}
+                     {% if form.animal4.data == each_animal[0] %}
+                        <img src="/{{ each_animal[1] }}">
+                     {% endif %}
+                 {% endfor %}
+              </td>
+              
+              <td> Password animals</td>
+              
+            </tr>
+          </table>
+        </p>
+        <div class="base1">
+          <table border=1>
+              <tr>
+                  <td><h3>Login:</h3></td>
+                  <td id="login_update">{{form.firstname.data}} -{{form.animal1.data}}, {{form.animal2.data}}</td>
+                  <td><h3>Password:</h3></td>
+                  <td id="password_update">{{form.password.data}} -{{form.animal3.data}}, {{form.animal4.data}}</td>
+              </tr>
+          </table>
+        </div>
+        <p>
+        </p>
+        </div>
+        <br>
+        <script>
+          var sub_account = "Sub accounts are ways to divide up what you are\n";
+          sub_account += "saving your money for.  For example you might create\n";
+          sub_account += "an account to save up for a new toy.  Sub accounts should\n";
+          sub_account += "only be deactivated once the balance is zeroed out.\n";
+          sub_account += "There must ALWAYS be at least one sub account. The limit is 5.\n\n";
+          sub_account += "We recommend you start with default, you can change in the future."
+          
+          var loc_account = "Money Location accounts are ways to divide up where your\n";
+          loc_account += "money is located.  For example you might have some\n";
+          loc_account += "of your money with Mom and Dad while the rest is in your piggy bank.\n";
+          loc_account += "This can be useful for tracking gift cards.\n";
+          loc_account += "There must ALWAYS be at least one 'where' account. The limit is 7.\n\n";
+          loc_account += "We recommend you start with default, you can change in the future."
+        </script>
+        <div class="animals">
+          <p>
+            <table>
+              <tr><td><b>Active Sub Accounts </b>(<a href="#" onclick="alert(sub_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              {% for each in acct_choices %}
+              {% if form._fields[each[1]].data == True %}
+               <tr class="accounts">
+                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em;background-color: lightgrey;", readonly=true,) }}</td>
+                 <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]](style="background-color: lightgrey;", readonly=true,) }}</td>
+               </tr
+              {% endif %}
+              {% endfor %}
+              
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td><b>Active Locations Where Money is Stored </b>(<a href="#" onclick="alert(loc_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+
+              {% for each in loc_choices %}
+              {% if form._fields[each[1]].data == True %}
+               <tr class="accounts">
+                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em;background-color: lightgrey;", readonly=true,) }}</td>
+                 <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]](style="background-color: lightgrey;", readonly=true,) }}</td>
+               </tr>
+              {% endif %}
+              {% endfor %}
+            </table>
+          </p>
+        </div>
+  </div>
+  <div style="height: 30em;"></div>
+  <script>
+  showuserchoice();  
+  </script>
+
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+ {% if name is defined and name != '' %}
+ {# ############################################################## #}
+ {# ###################### Logged in as parent ################### #}
+ {# ############################################################## #}
+     <h1>Hi {{ name }}! </h1>
+     {% if is_child != true %}
+          <div class="div2">
+      <a name="kids"/>
+      <table>
+         <tr><th>Your kid accounts <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/child_register1">(Register</a> a new child)</th><th>&nbsp;</th></th></th></th></tr>
+         {% for kid in kids %}
+             <tr>
+               <td style="background-color: white"> <a href='ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>{{ kid.firstname }} ({{ kid.animal1 }}/{{ kid.animal2 }})</a></td>
+               <td>&nbsp;</td>
+               <td>&nbsp;</td>
+               <td>&nbsp;</td>
+               <td>
+               <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+                   <option value="">Select action...</option>
+                   <option value="allowance?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}">Allowance Settings</option>
+                   <option value="kid_manage?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}">Sub-account and Password Settings</option>
+                   <option value="ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}">Add/Subtract Money and review balance</option>
+                   <option value="delete_kid?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}">Delete This account (you will be asked to confirm)</option>
+               </select>
+               </td>
+             </tr>
+         {% endfor %}
+         </tr>
+      </table>
+     </div>
+     <hr>
+     <div>
+      Total balance for all your kid accounts: <font size="+2" color="#804000">{{money_symbol}}{{total_owed}}</font> <br>
+      Your total monthly allowance payout:&nbsp;&nbsp; <font size="+2" color="#804000">{{money_symbol}}{{monthly_outlay}}</font>
+     </div>
+     <hr>
+     {% else %}
+     {# ############################################################## #}
+     {# ###################### Logged in as child ################### #}
+     {# ############################################################## #}
+      <table>
+         {% for kid in kids %}
+             <tr>
+               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+               <td><a href='ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/ledger.jpg"></a></td>
+               <td><a href='ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>Add/Subtract or Review balance</a></td></td>
+             </tr><tr>
+               <td>&nbsp;</>
+               <td><a href='allowance?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/allowance.jpg"></a></td>
+               <td>Review <a href='allowance?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>Allowance settings</a></td>
+            </tr><tr>
+               <td>&nbsp;</td>
+               <td><a href='kid_manage?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/Settings.jpg"></a></td>
+               <td><a href='kid_manage?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>Password and Account settings</a></td>
+             </tr>
+         {% endfor %}
+         </tr>
+      </table>
+
+     {% endif %}
+     <div style="height: 50em;"></div>
+     
+ {% else %}
+     {# ############################################################## #}
+     {# ######################### NOT LOGGED IN ###################### #}
+     {# ############################################################## #}
+     <p></p>
+     <div class='base1'>
+        <p>
+        Welcome to your online allowance tracking application<br>
+        Please login with your <a href="/login">parent</a> account to configure your kids accounts/allowences or add/remove money.
+        </p>
+        <p> Login with your
+        <a href="/child_login">child</a> account to review balances or add/remove money.
+        </p>
+        <p>
+        You can also <a href="/register">register</a> a new parent account
+        </p>
+     </div>
+     
+ {% endif %}
+
+{% endblock %}

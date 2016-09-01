@@ -1,0 +1,3 @@
+-jquery:       /*! jQuery v1.12.3 | (c) jQuery Foundation | jquery.org/license */   
+
+-msDropdown:   /Copyright (c) 2009 Marghoob Suleman, http://www.marghoobsuleman.com/  MIT License

@@ -1,0 +1,8 @@
+{
+  "clientId": "CONFIG_FOR_GOOGLE",
+  "projectId": "CONFIG_FOR_GOOGLE",
+  "serviceAccountEmail": "CONFIG_FOR_GOOGLE",
+  "serviceAccountPrivateKeyFile": "CONFIG_FOR_GOOGLE",
+  "widgetUrl": "CONFIG_FOR_GOOGLE",
+  "cookieName": "gtoken"
+}

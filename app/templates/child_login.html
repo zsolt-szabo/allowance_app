@@ -1,0 +1,134 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+        <script src="/static/ms-Dropdown-master/js/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+        <script src="/static/ms-Dropdown-master/js/msdropdown/jquery.dd.js" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="/static/ms-Dropdown-master/css/msdropdown/dd.css" />
+
+  <body>
+        <script language="javascript">
+          $(document).ready(function(e) {
+            try {
+              $("body select").msDropDown();
+            } catch(e) {
+              alert(e.message);
+            }
+          });
+        </script>    
+    <div>
+      <h4>Child Login</h4>
+      <table>
+      <ol>Suggestion:
+      <li>Type your nickname and hit the &lt;tab&gt; button.</li>
+      <li>Start by typing the first letter of your animal, it should show up.</li>
+      <li> Click that animal, hit tab and continue the proces.</li>
+      </ul>
+    </div>
+    <hr>
+    <div id="div1">
+     <table><tr>
+       <td>
+        <form action="child_login" method="post">
+          {{form.hidden_tag() }}
+           <p>{{ form.firstname(style="width: 8em; font-size:20px; background-color: #eee6ff") }}<font size=+1> Nickname</font> </p>
+
+          <table class="animals">
+            <tr>
+              <td>
+               <select name="animal1" id="animal1" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+                 {% for each_animal in form.animal1.iter_choices() %}
+
+                 <option value="" data-description="Chose your first nickname animal">Animal 1</option>
+                     {% if form.animal1.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+
+                 {% endfor %}
+               </select>
+              </td>
+              <td>
+               <select name="animal2" id="animal2" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+                 {% for each_animal in form.animal2.iter_choices() %}
+
+                 <option value="" data-description="Chose your second nickname animal">Animal 1</option>
+                     {% if form.animal2.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td id="nickname_alert"> Nickname animals</td>
+              
+            </tr>
+          </table>
+
+           <p>{{ form.password(style="width: 8em; font-size:20px; background-color: #eee6ff") }}<font size=+1> Password</font></p>
+          <table class="animals" >
+            <tr>
+              
+              <td>
+               <select name="animal3" id="animal3" style="width:300px;" onchange="showuserchoice()">
+                 {% for each_animal in form.animal3.iter_choices() %}
+
+                 <option value="" data-description="Chose your first password animal">Animal 1</option>
+                     {% if form.animal3.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td>
+               <select name="animal4" id="animal4" style="width:300px;" onchange="showuserchoice()">
+                 {% for each_animal in form.animal4.iter_choices() %}
+
+                 <option value="" data-description="Chose your second password animal">Animal 1</option>
+                     {% if form.animal4.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td> Password animals</td>
+              
+            </tr>
+          </table>
+           <input type="submit" value="Log in">  <i>Child log in</i>
+        </form>
+      </td>
+     </tr></table>
+    </div>
+    <hr>
+    <div id="div2">
+  </body>
+{% endblock %}

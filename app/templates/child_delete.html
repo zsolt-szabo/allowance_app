@@ -1,0 +1,20 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block content %}
+
+  <div>
+    <form action="" method="post" name="kid_delete">
+        {{ form.hidden_tag() }}
+        <p><h2>You are about to delete child "{{kid_name}}"</h2>
+        All transactions associated with that child will be deleted as well.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hit 'Delete' button to continue or Back to cancel.</p>
+        <p>
+        <div class="animals"><input type=submit value="Delete" style="background-color: #b37700; color: #ffffff; position: absolute; left: 30%;"></div>
+        </p>
+        </div>
+          {{form.really_means_it.label}}{{form.really_means_it(style="width:2em;")}}
+    </form>
+  </div>
+  <div style="height: 30em;"></div>
+
+{% endblock %}

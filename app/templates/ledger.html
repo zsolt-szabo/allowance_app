@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="/static/ms-Dropdown-master/js/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+<script language="javascript">
+  $(document).ready(function() {
+     var vals = $('.deltas');
+     for (i = 0; i < vals.length; i++){
+        var num = vals[i].innerHTML.replace(/\$/,'');
+        if (num < 0) {
+            vals[i].innerHTML = '<font color="red">{{parent.money_symbol}}' + num + '</font>';
+        }
+   
+     }
+  });
+  
+</script>
+<h2>Ledger for {{kid_data[0]}}-{{kid_data[1]}}-{{kid_data[2]}}</h2>
+<hr>
+<div>
+<h3> Total value for all accounts: &nbsp; &nbsp;<font size="+3">{{parent.money_symbol}}{{total_all}}</font></h3>
+Child <a href="allowance?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">Allowance Info</a> <br>
+Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">Account Info</a>
+<table id="Ledger_Page_Wrapper">
+<tr> <!-- Ledger_Page_Wraper TR-->
+<td style="padding-right: 9em;"> <!-- Ledger_Page_Wrapper TD -->
+<table>
+    <thead>
+    <tr>
+    {% if ledger|length == 0 %}
+    <td><h2>No ledger data yet</h2></td>
+    {% else %}
+        <th>&nbsp;</th>
+        {% if 1 not in hidden_columns%}
+        <th class="rotate"><div><span>{{kid.acct1_name}}</div></th>
+        {% endif %}
+        {% if 2 not in hidden_columns%}
+        <th class="rotate"><div><span>{{kid.acct2_name}}</div></th>
+        {% endif %}
+        {% if 3 not in hidden_columns%}
+        <th class="rotate"><div><span>{{kid.acct3_name}}</div></th>
+        {% endif %}
+        {% if 4 not in hidden_columns%}
+        <th class="rotate"><div><span>{{kid.acct4_name}}</div></th>
+        {% endif %}
+        {% if 5 not in hidden_columns%}
+        <th class="rotate"><div><span>{{kid.acct5_name}}</div></th>
+        {% endif %}
+        
+        <th class="rotate"><div><span>
+            {% if kid is not none %}
+                <font color="brown">Date</font>
+            {% endif %}
+        </div></th>
+    {% endif %}
+    </thead>
+{% set firstcol = True %}
+{% for entry in ledger %}
+  {% if firstcol == True %}
+  <tr bgcolor="#e6b3cc">
+  {% else %}
+  <tr>
+  {% endif %}
+        <td class="borderlines">Totals</td>
+        {% if 1 not in hidden_columns %}
+        <td class="borderlines">
+          {% if firstcol == True %}
+          <font size="+2">
+          {{parent.money_symbol}}{{entry.total_acc1}}
+          </font>
+          {% else %}
+          {{parent.money_symbol}}{{entry.total_acc1}}
+          {% endif %}
+        </td>
+        {% endif %}
+        {% if 2 not in hidden_columns %}
+        <td class="borderlines">
+          {% if firstcol == True %}
+          <font size="+2">
+          {{parent.money_symbol}}{{entry.total_acc2}}
+          </font>
+          {% else %}
+          {{parent.money_symbol}}{{entry.total_acc2}}
+          {% endif %}
+        </td>
+        {% endif %}
+        {% if 3 not in hidden_columns %}
+        <td class="borderlines">
+          {% if firstcol == True %}
+          <font size="+2">
+          {{parent.money_symbol}}{{entry.total_acc3}}
+          </font>
+          {% else %}
+          {{parent.money_symbol}}{{entry.total_acc3}}
+          {% endif %}
+        {% endif %}
+        {% if 4 not in hidden_columns %}
+        <td class="borderlines">
+          {% if firstcol == True %}
+          <font size="+2">
+          {{parent.money_symbol}}{{entry.total_acc4}}
+          </font>
+          {% else %}
+          {{parent.money_symbol}}{{entry.total_acc4}}
+          {% endif %}
+        </td>
+        {% endif %}
+        {% if 5 not in hidden_columns %}
+        <td class="borderlines">
+          {% if firstcol == True %}
+          <font size="+2">
+          {{parent.money_symbol}}{{entry.total_acc3}}
+          </font>
+          {% else %}
+          {{parent.money_symbol}}{{entry.total_acc3}}
+          {% endif %}
+        </td>
+        {% endif %}
+        
+        <td class="borderlines">{{entry.last_ledger_update.strftime('%Y-%m-%d')}}</td>
+  </tr>
+  <tr>
+        <td class="deltas">Changes</td>
+        {% if 1 not in hidden_columns %}
+        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc1}}</td>
+        {% endif %}
+        {% if 2 not in hidden_columns %}
+        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc2}}</td>
+        {% endif %}
+        {% if 3 not in hidden_columns %}
+        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc3}}</td>
+        {% endif %}
+        {% if 4 not in hidden_columns %}
+        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc4}}</td>
+        {% endif %}
+        {% if 5 not in hidden_columns %}
+        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc5}}</td>
+        {% endif %}
+
+        <td class="deltas">{{entry.comment}}</td>
+        <td class="deltas">{{entry.adjuster_name}}</td>
+  </tr>
+  {% set firstcol = False %}
+{% endfor %}
+</table>
+
+</td> <!-- close table Ledger_Page_Wrapper TD -->
+<td style="padding-left: 1em; padding-right: 8em; vertical-align: top; border:1px solid black;"> <!-- table Ledger_Page_Wrapper TD -->
+    Add New Ledger Entry (use negative numbers to subtract):
+    <form action="ledger" method="POST" name="ledger">
+        {{ form.hidden_tag() }}
+        <br>
+        Comment:  {{form.comment}}
+        <table>
+            <thead>
+                {# ###### List rotated headers ############ #}
+                <th>&nbsp;</th>
+                {% if 1 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location1_name}}</div></th>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location2_name}}</div></th>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location3_name}}</div></th>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location4_name}}</div></th>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location5_name}}</div></th>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location6_name}}</div></th>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <th class="rotate"><div><span>{{kid.location7_name}}</div></th>
+                {% endif %}
+            </thead>
+            {% if ledger|length > 0 %}
+            {# ###### show how much money in each location ############ #}
+            <tr><td><font color="brown"><b>Account funds Available</b></font></td>
+                {% if 1 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc1}}</td>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc2}}</td>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc3}}</td>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc4}}</td>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc5}}</td>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc6}}</td>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{ledger[0].total_loc7}}</td>
+                {% endif %}
+            </tr>
+           {% endif %}
+            {% if 1 not in hidden_columns %}
+            <tr><td>{{kid.acct1_name}} ({{parent.money_symbol}}{{display_account_totals[1]}})</td>
+                {% if 1 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc1(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc2(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc3(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc4(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc5(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc6(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct1_loc7(style="width: 4em")}}</td>
+                {% endif %}
+            </tr>
+            {% endif %}
+            {% if 2 not in hidden_columns %}
+            <tr><td>{{kid.acct2_name}} ({{parent.money_symbol}}{{display_account_totals[2]}})</td>
+                {% if 1 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc1(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc2(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc3(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc4(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc5(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc6(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct2_loc7(style="width: 4em")}}</td>
+                {% endif %}
+            </tr>
+            {% endif %}
+            {% if 3 not in hidden_columns %}
+            <tr><td>{{kid.acct3_name}} ({{parent.money_symbol}}{{display_account_totals[3]}})</td>
+                {% if 1 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc1(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc2(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc3(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc4(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc5(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc6(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct3_loc7(style="width: 4em")}}</td>
+                {% endif %}
+            </tr>
+            {% endif %}
+            {% if 4 not in hidden_columns %}
+            <tr><td>{{kid.acct4_name}} ({{parent.money_symbol}}{{display_account_totals[4]}})</td>
+                {% if 1 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc1(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc2(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc3(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc4(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc5(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc6(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct4_loc7(style="width: 4em")}}</td>
+                {% endif %}
+           </tr>
+           {% endif %}
+           {% if 5 not in hidden_columns %}
+            <tr><td>{{kid.acct5_name}} ({{parent.money_symbol}}{{display_account_totals[5]}})</td>
+                {% if 1 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc1(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 2 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc2(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 3 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc3(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 4 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc4(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 5 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc5(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 6 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc6(style="width: 4em")}}</td>
+                {% endif %}
+                {% if 7 not in hidden_locs%}
+                <td>{{parent.money_symbol}}{{form.acct5_loc7(style="width: 4em")}}</td>
+                {% endif %}
+            </tr>
+            {% endif %}
+            <tr>
+                <td><input onClick="$(this).parents('form').submit(); this.disabled=true; this.value='Sending…';" type=submit value="add new ledger entry" style="background-color: #ff9933; color: #ffffff; left: 30%;"></td>
+            </tr>
+        </table>
+    </form>
+</td> <!-- Ledger_Page_Wrapper TD -->
+</tr> <!-- close table Ledger_Page_Wrapper TR -->
+</table> <!-- close table Ledger_Page_Wrapper -->
+</div>
+
+
+{%endblock %}
+

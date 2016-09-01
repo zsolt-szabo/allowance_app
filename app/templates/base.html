@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <meta name="google-signin-client_id" content="920486216021-4lj8j7ptd0ve627gufqvr1d3ho3sgrk8.apps.googleusercontent.com">
+    <link rel="stylesheet" type="text/css" href="static/f7basestyle.css">
+    {% if title %}
+    <title>{{ title }} - money tracker</title>
+    {% else %}
+    <title>Money Tracker</title>
+    {% endif %}
+    
+    {% if g.isgoogle == true or g.force_google_logout == true %}
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+      function signOutBase() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+          console.log('User signed out.');
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout');
+          xhr.send();
+          /**setTimeout(function(){window.location.href='index'},750);**/
+        });
+      }
+    </script>
+    {% endif %}
+    
+    {% if g.isgoogle == true %}
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+      function signOutGoogleForce() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+          console.log('User signed out.');
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout');
+          xhr.send();
+        });
+      }
+    </script>
+    {% endif %}
+        
+  </head>
+  
+  <body>
+    <div><a href="/index">Home</a>&nbsp;/&nbsp;
+    {% if g.user is defined and g.isgoogle == false or g.is_child %}
+      <a href="/logout">Logout</a>&nbsp;/&nbsp;
+    {% elif g.user is defined and g.isgoogle == true %}
+      <a href="/logout" onclick="signOutBase();">Logout</a>&nbsp;
+      <div hidden="True" class="g-signin2" data-onsuccess="onSignIn" data-theme="dark">  </div>
+    {% endif %}
+    {% if g.user is defined %}
+        <a href="parent_account_review">Acct(parent)</a>
+    {% endif %}
+    {% if g.user is not defined and g.is_child is not defined %}
+      <a href="/login">Parent login</a>&nbsp;/&nbsp;
+      <a href="/child_login">Child login</a>&nbsp;/&nbsp;
+      <a href="/register">Register</a>&nbsp;/&nbsp;
+    {% endif %}
+
+    {% if request.path != "/index" %}
+        &nbsp;&nbsp;<a href="index">&lt;&lt;Back</a>
+    {% endif %}
+    &nbsp;&nbsp;&nbsp;&nbsp;<font color="brown">Alpha release (allowances calculated 28 days ahead)</font>
+    <hr>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+            {% if message.find('ERROR:')> -1 %}
+                <li><b><font color="red" size="+1">{{ message }}</font></b></li>
+            {% else %}
+                <li>{{ message }} </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </body>
+</html>

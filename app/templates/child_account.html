@@ -1,0 +1,312 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block content %}
+        <script src="/static/ms-Dropdown-master/js/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+        <script src="/static/ms-Dropdown-master/js/msdropdown/jquery.dd.js" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="/static/ms-Dropdown-master/css/msdropdown/dd.css" />
+        <script>
+          {# ########### NEXT BUTTON CODE ########### #}
+          var chosen_animals;
+          function getanimals() {
+            $('#one_moment').html('<font color=green><b> One Moment ... </b></font>');
+            var username = $('#firstname').val();
+            
+            var xhr = new XMLHttpRequest();
+            var animal_list;
+            xhr.open('GET', 'animals?firstname={{form.firstname.data}}');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send();
+            xhr.onload = function() {
+              chosen_animals = xhr.responseText;
+              $('#one_moment').html('&nbsp;');
+            };
+          }
+          getanimals();
+        </script>        
+        <script language="javascript">
+        {#  ########### DROP DOWN MENU CODE ############ #}
+          $(document).ready(function(e) {
+            try {
+              $("body select").msDropDown();
+            } catch(e) {
+              alert(e.message);
+            }
+          });
+          
+        </script>
+
+        {# ########### Disallow hitting return from submitting form ########### #}
+        <script type="text/javascript">
+          function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+          }
+          
+          document.onkeypress = stopRKey;
+        </script>
+    
+     <script>
+      function unhide_buckets() {
+        var accounts = $(".accounts");
+        var storage = $(".store");
+        // Hide all but one unchecked field
+        var unhide = true;
+        for (i = 0; i < accounts.length; i++){
+          var account = accounts[i];
+          var active_input = $( account ).find(".activated");
+          //alert(active_input[0].checked);
+          if (active_input[0].checked == true){
+            account.style.display = 'table-row';
+          } else if (unhide == true) {
+            account.style.display = 'table-row';
+            unhide = false;
+          }
+        }
+        // Hide all but one unchecked store field
+        unhide = true;
+        for (i = 0; i < storage.length; i++){
+          var store = storage[i];
+          var active_input = $( store ).find(".activated");
+          //alert(active_input[0].checked);
+          if (active_input[0].checked == true){
+            store.style.display = 'table-row';
+          } else if (unhide == true) {
+            store.style.display = 'table-row';
+            unhide = false;
+          }
+        }
+      }
+     </script>
+
+     <script>
+      {# ########### Hide all animal selections after doc loads########### #}
+      {# ########### Unhide appropriate account/location ########### #}
+      $( document ).ready(function() {
+        unhide_buckets();
+        })
+     </script>
+
+     <script>
+    {# ########### Display Login and password as it is being selected ########### #}
+     function showuserchoice() {
+         var login = $('#firstname').val();
+         var pw = $('#password').val();
+         a1 = $("#animal1").val();
+         a2 = $("#animal2").val();
+         a3 = $("#animal3").val();
+         a4 = $("#animal4").val();
+         $('#login_update').html('&nbsp;' + login + '&nbsp;-' + a1 + ',&nbsp;' + a2);
+         $('#password_update').html('&nbsp;' + pw + '&nbsp;-' + a3 + ',&nbsp;' + a4);
+     }      
+     </script>
+     
+     <script>
+      {# ########### Ensure choices are not already taken ########### #}
+      function checkChoices() {
+       a1 = $("#animal1").val();
+       a2 = $("#animal2").val();
+       var animal_key = a1 + "," + a2;
+       animal_hash = JSON.parse(chosen_animals)[0];
+       {# alert(animal_hash); #}
+       {# alert(animal_key); #}
+       {# alert(JSON.stringify(animal_hash)); #}
+       if ( a2 != '' && !(animal_key in animal_hash) ) {
+          choice_list = "<font color='red'>(" + animal_key + ") This "
+          choice_list += "combination of animals and <br>nickname already taken, here are some suggested choices: <br>"
+          var i = 0;
+          for (var choice in animal_hash) {
+            choice_list += "&nbsp;&nbsp;&nbsp;<b>" + choice + "</b></br>"
+            i += 1;
+            if (i >= 5) { break; }
+          }
+          choice_list += "</font>";
+          $("#nickname_alert").html(choice_list);
+          
+       } else {
+        $('#nickname_alert').html('Nickname animals');
+       }
+      }
+     </script>
+     
+  <h1>child account {{form.firstname.data}}</h1>
+  Child <a href="allowance?kid={{form.firstname.data}}:{{form.animal1.data}}:{{form.animal2.data}}">Allowance Info</a><br>
+  Child <a href="/ledger?kid={{form.firstname.data}}:{{form.animal1.data}}:{{form.animal2.data}}">Account Book</a>
+  <hr>
+  <div class='base1'>
+    <p>
+    You can adjust your childs login credentials here.
+    </p>
+    Steps:
+    <ul>
+    <li>Give your child a short <b><u>easy</u></b> to remember password</li>
+    <li>Select two animals associated with the nickname</li>
+    <li>Select two animals associated with the password</li>
+    </ul>
+    <p>
+         (password) happy, [rabbit,elephant]</p>
+  </div>
+  <a name="gotoform"/>
+  <div>
+    <form action="" method="post" name="kid_manage">
+        {{ form.hidden_tag() }}
+        {# <input type="hidden" id="initial_animal1" name="initial_animal1" value="{{form.animal1.data}}"> #}
+        {# <input type="hidden" id="initial_animal2" name="initial_animal2" value="{{form.animal2.data}}"> #}
+        <p>
+        <table><tr>
+        <td>{{ form.firstname(onkeyup="showuserchoice();", style="background-color: lightgrey;", readonly=true,) }} First Name (Nickname) &nbsp</td></tr>
+        <tr><td>{{ form.password(onkeyup="showuserchoice();") }} Password </td>
+        <td></td>
+        <td id='one_moment'> </td>
+        </tr></table>
+        </p>
+        <p>
+          <table class="animals">
+            <tr>
+              
+              <td>
+               <select name="animal1" id="animal1" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+                 {% for each_animal in form.animal1.iter_choices() %}
+                 <option value="" data-description="Chose your first nickname animal">Animal 1</option>
+                     {% if form.animal1.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td>
+               <select name="animal2" id="animal2" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+                 {% for each_animal in form.animal2.iter_choices() %}
+                 <option value="" data-description="Chose your second nickname animal">Animal 2</option>
+                     {% if form.animal2.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td id="nickname_alert"> Nickname animals</td>
+              
+            </tr>
+          </table>
+        </p>
+        <p>
+          <table class="animals" >
+            <tr>
+              
+              <td>
+               <select name="animal3" id="animal3" style="width:300px;" onchange="showuserchoice()">
+                  {% for each_animal in form.animal1.iter_choices() %}
+                 <option value="" data-description="Chose your first nickname animal">Animal 3</option>
+                     {% if form.animal3.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td>
+               <select name="animal4" id="animal4" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+                 {% for each_animal in form.animal4.iter_choices() %}
+                 <option value="" data-description="Chose your second nickname animal">Animal 4</option>
+                     {% if form.animal4.data == each_animal[0] %}
+                        <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% else %}
+                        <option value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
+                            {{ each_animal[0] }}
+                        </option>
+                     {% endif %}
+                 {% endfor %}
+               </select>
+              </td>
+              
+              <td> Password animals</td>
+              
+            </tr>
+          </table>
+        </p>
+        <div class="base1">
+          <table border=1>
+              <tr>
+                  <td><h3>Login:</h3></td>
+                  <td id="login_update">&nbsp;</td>
+                  <td><h3>Password:</h3></td>
+                  <td id="password_update">&nbsp;</td>
+              </tr>
+          </table>
+        </div>
+
+        <br>
+        <script>
+          var sub_account = "Sub accounts are ways to divide up what you are\n";
+          sub_account += "saving your money for.  For example you might create\n";
+          sub_account += "an account to save up for a new toy.  Sub accounts should\n";
+          sub_account += "only be deactivated once the balance is zeroed out.\n";
+          sub_account += "There must ALWAYSs be at least one sub account. The limit is 5.\n\n";
+          sub_account += "We recommend you start with default, you can change in the future."
+          
+          var loc_account = "Money Location accounts are ways to divide up where your\n";
+          loc_account += "money is located.  For example you might have some\n";
+          loc_account += "of your money with Mom and Dad while the rest is in your piggy bank.\n";
+          loc_account += "This can be useful for tracking gift cards.\n";
+          loc_account += "There must ALWAYSs be at least one 'where' account. The limit is 7.\n\n";
+          loc_account += "We recommend you start with default, you can change in the future."
+        </script>
+        <div class="animals">
+          <p>
+            <table>
+              <tr><td><b>Sub Accounts </b>(<a href="#" onclick="alert(sub_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              {% for each in acct_choices %}
+               <tr class="accounts" style="display: none;">
+                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
+                 <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
+                 <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
+               </tr>
+              {% endfor %}
+              
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td><b>Where Money is Stored </b>(<a href="#" onclick="alert(loc_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+
+              {% for each in loc_choices %}
+               <tr class="store" style="display: none;">
+                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
+                 <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
+                 <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
+               </tr>
+              {% endfor %}
+            </table>
+          </p>
+        </div>
+  </div>
+  <p>
+  <div class="animals"><input type=submit value="Change" style="background-color: #b37700; color: #ffffff; position: absolute; left: 30%;"></div>
+  </div>
+  </p>
+  </form>
+  <div style="height: 30em;"></div>
+  <script>
+  showuserchoice();  
+  </script>
+
+{% endblock %}

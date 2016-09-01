@@ -1,0 +1,109 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+  <head>
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="920486216021-4lj8j7ptd0ve627gufqvr1d3ho3sgrk8.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+      var msg ="It appears you setup your google email to sign in (section 1) of this page.";
+      msg += " It also appears you are activley signed-in to google (section 2) and gave permission to google";
+      msg += " to authenticate on this website.  To prevent conflict we have temporarily disabled";
+      msg += " Google sign in so you do not get automatically logged in. Do NOT sign in using section 2.";
+      msg += " Use section 1 to sign in."
+    </script>
+  </head>
+  <body>
+    
+    <div>
+      <h4>On this login page, you can:</h4>
+    </div>
+    <hr>
+    <div id="div1">
+      {% set option_counter = 1 %}
+     <table><tr>
+     <td>{{option_counter}})</td>
+     {% set option_counter = 1 + option_counter %}
+       <td><h2>Standard Login</h2>
+        <form action="login" method="post">
+          {{form.hidden_tag() }}
+           <p>{{ form.email }} Email Address</p>
+           <p>{{ form.password }} Password</p>
+           <input type="submit" value="Log in">  <i>Standard log in</i>
+        </form>
+      </td>
+     </tr></table>
+    </div>
+    {% if enable_google == true %}
+    <hr>
+    <div id="div2">
+    <p>
+      <table>
+        <tr>
+          <td>{{option_counter}})</td>
+          {% set option_counter = 1 + option_counter %}
+          <td>
+            <td><h2>Google Login</h2>
+             {% if g.force_google_logout == true %}
+                 Google Login Disabled <font color="red">Temporarily</font> <a href="#" onclick="alert(msg);">why?</a><br>
+                 <input type="Submit" onclick="signOut();location.reload();" name="Fix" value="Click to Sign-out and stop problem">(Use Standard Login afterwards)
+                  <script>
+                    function signOut() {
+                      var auth2 = gapi.auth2.getAuthInstance();
+                      auth2.signOut().then(function () {
+                        console.log('User signed out.');
+                      });
+                    }
+                  </script>
+                  <div style="display: none;" class="g-signin2"  data-theme="dark">  </div>
+             {% else %}   
+                <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark">  </div>
+             {% endif %}
+          </td>
+          <td> <i>Let google handle your user</i><br>
+          Google does all the secure work and only tells us your email address/name if you give permission.
+          It's like google is your friend standing a the door who we trust.  If they tell us you are good to go, we accept that and let you in.</td>
+        </tr>
+      </table>
+    </p>
+    </div>
+    <script>
+      function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        {#  THIS IS COMMENT #}
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        var given_name = profile.getGivenName();
+        var family_name = profile.getFamilyName();
+        var image_url = profile.getImageUrl();
+        var email = profile.getEmail();
+        console.log("ID Token: " + id_token);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://CONFIG_FOR_GOOGLE/google_signin');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            console.log('Signed in as: ' + xhr.responseText);
+        };
+        xhr.send("id_token=" + id_token + "&given_name=" + given_name +
+                 "&family_name=" + family_name + "&image_url=" + image_url +
+                 "&email=" + email);
+        setTimeout(function(){window.location.href='index'},750);
+      };
+    </script>
+    {% endif %} {# end enable_google #}
+    <hr>
+     <table><tr><td>{{ option_counter }})</td><td><a href="/register">register new user</a></a></td></tr></table>
+
+  </body>
+{% endblock %}

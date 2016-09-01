@@ -1,0 +1,95 @@
+body {
+    background-color: lightblue;
+}
+
+h1 {
+    color: navy;
+    margin-left: 20px;
+}
+
+input {
+    width: 400px;
+}
+
+input[type=submit] {
+    padding:5px 15px;
+    background:#ccc; 
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    width: 200px;
+}
+
+.div1 {
+    width:60em;
+    height:8em;
+    margin-left: 20px;
+    margin-right: auto;
+    background-color: #e6ffff;
+}
+
+.div2 {
+    width:60em;
+    height:11em;
+    margin-left: 20px;
+    margin-right: auto;
+    background-color: #e6e6ff;
+}
+
+.base1 {
+    width: 50em;
+    border-radius: 25px;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: larger;
+    color: #b3ecff;
+    letter-spacing: 1.25px;
+    line-height: 1.5;
+    background: #180710;
+    padding: 5px;
+    margin: auto 15px;
+}
+
+.thinborder {
+    border-colapse: collapse;
+}
+
+.base1 a:link { color: #70DB93; }
+.base1 a:visited { color: #70DB93; }
+.base1 h3 { color: #CFA7DF; letter-spacing: 1.25px; line-height: 1.5; padding: 5px; margin: auto 15px;}
+.base1 table{ color:#b3ecff; }
+
+.thinborder td {border: 1px solid black;}
+.thinborder th {border: 1px solid black;text-align:center}
+
+td.borderlines {
+    border:1px solid black;
+}
+
+td.deltas {
+    border:1px;
+    font=style: courier;
+    padding-left: 1em;
+    color: #262673;
+}
+
+
+th.rotate {
+  /* Something you can count on */
+  height: 140px;
+  white-space: nowrap;
+}
+
+th.rotate > div {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, 51px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 30px;
+}
+th.rotate > div > span {
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
