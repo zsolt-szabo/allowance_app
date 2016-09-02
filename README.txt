@@ -1,7 +1,7 @@
 This application is currently running on http://kidallowance.net
 The source code is hosted at https://github.com/zsolt-szabo/allowance_app
 
-Currently this application has only been tested on linux
+This application has only been tested on linux
 
 System requirements
    python|virtualenv|sqlite3
