@@ -86,22 +86,3 @@ if __name__ == "__main__":
         parser.print_usage()
         print "\nERROR: --configfile [file] parma requires " + \
             "--deployed_location [path]"
-        
-        
-xTemplate='''
-# EXAMPLE:
-# app/lib/somefile::foobar = 78::foobar = 99
-
-# FILEPATH::REGEXTOREPLACE::NEWVAL
-app/lib/a_login.py::goog_user = 'a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879'::goog_user = 'a1a2yahoo_userb6b8xzxxzyaa15332TuyvkbarU879'
-config.py::SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'::SECRET_KEY = 'you-will-never-guess'
-
-# BEGIN GOOGLE CONFIG
-config.py::ENABLE_GOOGLE_LOGIN = FALSE::ENABLE_GOOGLE_LOGIN = False
-gitkit-server-config.json::"clientId:: "CONFIG_FOR_GOOGLE"::"clientId": "920486216021-4lj8j7ptd0ve627gufqvr1d3ho3sgrk8.apps.googleusercontent.com"
-gitkit-server-config.json::"projectId": "CONFIG_FOR_GOOGLE"::"projectId": "genericauthid02"
-gitkit-server-config.json::"serviceAccountEmail": "CONFIG_FOR_GOOGLE"::"serviceAccountEmail": "zsoltbot@gmail.com"
-gitkit-server-config.json::"serviceAccountPrivateKeyFile": "CONFIG_FOR_GOOGLE"::"serviceAccountPrivateKeyFile": "/var/www/html/identity-toolkit-python-master/genericauthid02-6f0213defa2c.p12"
-gitkit-server-config.json::"widgetUrl": "CONFIG_FOR_GOOGLE"::"widgetURL": "http://kidallowance.net/google_signin"
-app/templates/base.html::xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout')::xhr.open('GET', 'http://kidsallowance.net/logout')
-'''        
