@@ -13,8 +13,17 @@ To get started using the application
     1) In the allowance_app directory type 'virtualenv flaskenv' 
         you need to have python virtualenv installed 
         http://docs.python-guide.org/en/latest/dev/virtualenvs/
+        
+        WARNING: If you want to make a staging area that ultimately
+            copies your allowance_app directory to a WSGI web server
+            location, you need to put your virtualenv outside of the
+            allowance_app directory and run through the setup of that
+            directory from there.  That is because the virtualenv
+            scripts will hardcode their locations and moving the
+            directory to a new location creates problems.
+        
     2) Enable the virtual environment '. flaskenv/bin/activate' 
-    3) install libraries 'pip install -r py_requirements.txt' --relocatable
+    3) install libraries 'pip install -r py_requirements.txt' 
     4) create the database './db_create.py' 
     5) run the server './run.py'
 
@@ -30,3 +39,6 @@ To utilize google authentication
        all values of CONFIG_FOR_GOOGLE with the appropriate values.
     4) finally change ENABLE_GOOGLE_LOGIN in the file config.py to the value
        of True
+    5) NOTE: the script local_deployment_params.py is helpful, in making this
+           process configurable and repeatable but you still need a basic
+           understanding.
