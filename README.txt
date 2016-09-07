@@ -14,7 +14,7 @@ To get started using the application
         you need to have python virtualenv installed 
         http://docs.python-guide.org/en/latest/dev/virtualenvs/
     2) Enable the virtual environment '. flaskenv/bin/activate' 
-    3) install libraries 'pip install -r py_requirements.txt'
+    3) install libraries 'pip install -r py_requirements.txt' --relocatable
     4) create the database './db_create.py' 
     5) run the server './run.py'
 

@@ -199,7 +199,7 @@ class Allowance(Form):
     payout_days = MultiCheckboxField(u'payout_days', choices=days_of_month,
                                      validators=[Required()])
     nickname = StringField(
-        '(nickname) Way to remind you what <br>is being payed ' +
+        '(nickname) Way to remind you what <br>is being paid ' +
         'out in the ledger', default='Allowance')
     acct1_perc = FloatField(
         'account_perc1',

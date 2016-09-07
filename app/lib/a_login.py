@@ -223,13 +223,14 @@ def do_google_token_signin():
         if each in request.form:
             google_log += each + ':' + request.form[each] + "\n"
     app.logger.info(google_log)
+    check = None
     if 'id_token' in request.form:
         check = requests.get(
             'https://' +
             'www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s' %
             request.form['id_token'])
     # Check from google that this token is legit.
-    if check.status_code == 200:
+    if check != None and check.status_code == 200:
         user_list = models.User.query.filter(
             models.User.email == request.form['email']).all()
         if len(user_list) > 0:
