@@ -21,9 +21,8 @@ gitkit-server-config.json::"serviceAccountEmail": "CONFIG_FOR_GOOGLE"::<UPDATEME
 gitkit-server-config.json::"serviceAccountPrivateKeyFile": "CONFIG_FOR_GOOGLE"::<UPDATEME>
 gitkit-server-config.json::"widgetUrl": "CONFIG_FOR_GOOGLE"::<UPDATEME>
 app/templates/base.html::xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout')::<UPDATEME>
-
-
-
+app/templates/base.html::name="google-signin-client_id" content="CONFIG_FOR_GOOGLE"::<UPDATEME>
+app/templates/login.html::name="google-signin-client_id" content="CONFIG_FOR_GOOGLE"::<UPDATEME>
 '''
 
 if __name__ == "__main__":
@@ -38,7 +37,11 @@ if __name__ == "__main__":
     parser.add_argument('--configfile', "-c",
                         help='File with all the local value definitions.')
     parser.add_argument('--deployed_location', "-d",
-                        help='Location of application (where config.py) lives.')
+                        help='Location of application (where config.py) ' +
+                        'lives.')
+    parser.add_argument('--test_run', '-t', action='store_true',
+                        help='Run through entire process, but ' +
+                        "don't write to files.")
 
     args = parser.parse_args()
 
@@ -46,14 +49,14 @@ if __name__ == "__main__":
         print Template
     elif args.configfile is not None and args.deployed_location is not None:
         failure_occurred = False
-        with open(os.path.join(args.deployed_location,args.configfile)) as f:
+        with open(args.configfile) as f:
             contents = f.readlines()
         for eachline in contents:
             if not re.search('^#', eachline.strip()) and not \
                     re.search('^\s*$', eachline, re.S):
                 linesplit = eachline.split('::')
                 fpath = os.path.join(args.deployed_location, linesplit[0])
-                regex = linesplit[1].replace('(','\(').replace(')','\)')
+                regex = linesplit[1].replace('(', '\(').replace(')', '\)')
                 if os.path.isfile(fpath):
                     with open(fpath) as change_file:
                         to_change = change_file.read()
@@ -66,20 +69,28 @@ if __name__ == "__main__":
                     print "Error in config, file %s not found! " % fpath
                     print "    for line '%s'" % eachline
         if failure_occurred is False:
+            counter = 0
             for eachline in contents:
+                counter += 1
                 if not re.search('^#', eachline.strip()) and not \
                         re.search('^\s*$', eachline, re.S):
                     linesplit = eachline.split('::')
                     if linesplit[2] == "<UPDATEME>":
+                        print "Skipping line %s in %s as it is undefined" % \
+                            (counter, args.configfile)
                         continue  # Not updating anything
                     fpath = os.path.join(args.deployed_location, linesplit[0])
-                    regex = linesplit[1].replace('(','\(').replace(')','\)')
+                    regex = linesplit[1].replace('(', '\(').replace(')', '\)')
                     with open(fpath) as change_file:
                         to_change = change_file.read()
                     newcontent = re.sub(regex, linesplit[2], to_change)
-                    #with open(fpath, 'w') as fixfile:
-                    #   fixfile.write(newcontent)
-                    print '  * adjusted file ' + fpath
+                    if not args.test_run:
+                        with open(fpath, 'w') as fixfile:
+                            fixfile.write(newcontent)
+                        print '  * adjusted file ' + fpath
+                    else:
+                        print '  * TESTRUN on file ' + fpath
+
     elif args.configfile is None and args.deployed_location is None:
         parser.print_usage()
     else:
