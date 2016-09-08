@@ -108,6 +108,8 @@ if __name__ == "__main__":
                     else:
                         print '  * TESTRUN on file ' + fpath
                         sys.exit(11)
+        else:
+            sys.exit(15)
 
     elif args.configfile is None and args.deployed_location is None:
         parser.print_usage()
