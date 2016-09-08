@@ -106,10 +106,13 @@ if __name__ == "__main__":
                         print '  * adjusted file ' + fpath
                     else:
                         print '  * TESTRUN on file ' + fpath
+                        sys.exit(11)
 
     elif args.configfile is None and args.deployed_location is None:
         parser.print_usage()
+        sys.exit(13)
     else:
         parser.print_usage()
         print "\nERROR: --configfile [file] parma requires " + \
             "--deployed_location [path]"
+        sys.exit(17)
