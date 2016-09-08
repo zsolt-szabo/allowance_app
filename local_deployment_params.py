@@ -18,6 +18,7 @@
 import argparse
 import re
 import os
+import sys
 
 Template='''
 # You MUST update entire REGEXTOREPLACE, not just the value you want to adjust.
