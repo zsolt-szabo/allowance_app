@@ -2,7 +2,8 @@ import os
 import getpass
 
 WTF_CSRF_ENABLED = True
-SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'
+SECRET_KEY = 'you-should-always-guess-wheelbarrow'
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -20,3 +21,10 @@ FLASK_LOG_MAXSIZE = 100000000
 FLASK_LOG_RETAIN = 10
 
 ENABLE_GOOGLE_LOGIN = False
+
+#  Prepend to system password for google user, change for your
+#  your local copy and don't check it in.
+GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"
+GOOG_CLIENT_ID = "CONFIG_FOR_GOOGLE"
+GOOG_CALLBACK_URL = "CONFIG_FOR_GOOGLE"
+

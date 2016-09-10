@@ -25,6 +25,7 @@ import config
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.jinja_env.globals.update(config=config)  #  Config avail to Templates
 
 db = SQLAlchemy(app)
 db.engine.execute('pragma foreign_keys=on')

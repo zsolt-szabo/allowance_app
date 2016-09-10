@@ -26,12 +26,14 @@ from flask import redirect
 from flask import url_for
 import random
 import requests
+import config
 
 from flask import render_template, request, session, flash
 
 login_manager = app.lm
 
-goog_user = 'a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879'
+goog_pw = config.GOOG_PW
+
 
 
 def get_captcha():
@@ -254,9 +256,9 @@ def do_google_token_signin():
                                firstname=request.form['given_name'],
                                isgoogle=True)
             # Google user will get an internal password, but we will make
-            # it virtually uncrackable thus not useable
+            # it tough to guess
             suffix = random.randint(1000, 10000)
-            user.set_password(goog_user + str(suffix))
+            user.set_password(goog_pw + str(suffix))
             db.session.add(user)
             db.session.commit()
             login_user(user)

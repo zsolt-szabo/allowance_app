@@ -1,6 +1,7 @@
 <html>
   <head>
-    <meta name="google-signin-client_id" content="CONFIG_FOR_GOOGLE">
+    <meta name="google-signin-client_id" content="{{config.GOOG_CLIENT_ID}}"
+>
     <link rel="stylesheet" type="text/css" href="static/f7basestyle.css">
     {% if title %}
     <title>{{ title }} - money tracker</title>
@@ -16,7 +17,8 @@
         auth2.signOut().then(function () {
           console.log('User signed out.');
           var xhr = new XMLHttpRequest();
-          xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout');
+          xhr.open('GET', '{{config.GOOG_CALLBACK_URL}}/logout')
+;
           xhr.send();
           /**setTimeout(function(){window.location.href='index'},750);**/
         });
@@ -32,7 +34,8 @@
         auth2.signOut().then(function () {
           console.log('User signed out.');
           var xhr = new XMLHttpRequest();
-          xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout');
+          xhr.open('GET', '{{config.GOOG_CALLBACK_URL}}}/logout')
+;
           xhr.send();
         });
       }

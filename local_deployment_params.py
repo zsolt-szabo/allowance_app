@@ -27,19 +27,19 @@ Template='''
 # Leave value to <UPDATEME> if you are not updating a specfic field
 
 # FILEPATH::REGEXTOREPLACE::NEWVAL
-app/lib/a_login.py::goog_user = 'a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879'::<UPDATEME>
 config.py::SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'::<UPDATEME>
 
 # BEGIN GOOGLE CONFIG
+config.py::GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"::<UPDATEME>
 config.py::ENABLE_GOOGLE_LOGIN = False::<UPDATEME>
+config.py::GOOG_CLIENT_ID = "CONFIG_FOR_GOOGLE"::<UPDATEME>
+config.py::GOOG_CALLBACK_URL = "CONFIG_FOR_GOOGLE"::<UPDATEME>
+
 gitkit-server-config.json::"clientId:: "CONFIG_FOR_GOOGLE"::<UPDATEME>
 gitkit-server-config.json::"projectId": "CONFIG_FOR_GOOGLE"::<UPDATEME>
 gitkit-server-config.json::"serviceAccountEmail": "CONFIG_FOR_GOOGLE"::<UPDATEME>
 gitkit-server-config.json::"serviceAccountPrivateKeyFile": "CONFIG_FOR_GOOGLE"::<UPDATEME>
 gitkit-server-config.json::"widgetUrl": "CONFIG_FOR_GOOGLE"::<UPDATEME>
-app/templates/base.html::xhr.open('GET', 'http://CONFIG_FOR_GOOGLE/logout')::<UPDATEME>
-app/templates/base.html::name="google-signin-client_id" content="CONFIG_FOR_GOOGLE"::<UPDATEME>
-app/templates/login.html::name="google-signin-client_id" content="CONFIG_FOR_GOOGLE"::<UPDATEME>
 '''
 
 if __name__ == "__main__":
