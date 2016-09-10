@@ -2,7 +2,7 @@ import os
 import getpass
 
 WTF_CSRF_ENABLED = True
-SECRET_KEY = 'you-should-always-guess-wheelbarrow'
+SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
