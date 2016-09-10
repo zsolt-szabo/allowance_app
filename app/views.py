@@ -22,6 +22,7 @@ from lib import a_login
 from lib import a_child_login
 from lib import a_finance
 from flask.ext.login import login_required
+from flask import render_template
 
 
 @lm.user_loader
@@ -136,3 +137,8 @@ def delete_kid():
 @login_required
 def delete_user():
     return a_login.delete_user()
+
+
+@app.route('/help')
+def help():
+    return render_template('help.html')

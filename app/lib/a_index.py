@@ -74,9 +74,9 @@ def check_and_update_allowances(allowances=[]):
     for each in allowances:
         msg += "All_ID: %s,  ALL_Day_ID: %s\n" % (each[0].id, each[1].id)
     app.logger.debug(msg)
-    today = datetime.utcnow() + timedelta(days=28)
-    print "ALERT REMOVE JUMP BACK IN TIME (28 days)"
+    today = datetime.utcnow()
     update_occurred = False
+
     if len(allowances) > 0:
         last_allow_id = None
         for each_payout in allowances:
