@@ -600,7 +600,7 @@ def login():
 
 
 def delete_kid():
-    form = forms.ChildDelete()
+    form = forms.UserDelete()
     kid_data = request.args.get('kid')
     if kid_data is not None:
         kid_split = kid_data.split(":")
@@ -638,9 +638,9 @@ def delete_kid():
                 for ea_allow in allowances.all():
                     allowdays = models.AllowanceDays.query.filter_by(
                         allowance_id=ea_allow.id)
+                    if allowdays:
+                        allowdays.delete()
                 ledger = models.Ledger.query.filter_by(kid_id=kid.id)
-                if allowdays:
-                    allowdays.delete()
                 allowances.delete()
                 ledger.delete()
                 kid_query.delete()

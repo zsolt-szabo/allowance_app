@@ -130,3 +130,9 @@ def ledger():
 @login_required
 def delete_kid():
     return a_child_login.delete_kid()
+
+
+@app.route('/delete_account', methods=['GET', 'POST'])
+@login_required
+def delete_user():
+    return a_login.delete_user()

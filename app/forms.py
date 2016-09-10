@@ -282,5 +282,5 @@ class Ledger(Form):
             exec(field)
 
 
-class ChildDelete(Form):
+class UserDelete(Form):
     really_means_it = BooleanField('Yes! really delete')

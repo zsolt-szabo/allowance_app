@@ -230,7 +230,7 @@ def do_google_token_signin():
             'www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s' %
             request.form['id_token'])
     # Check from google that this token is legit.
-    if check != None and check.status_code == 200:
+    if check is not None and check.status_code == 200:
         user_list = models.User.query.filter(
             models.User.email == request.form['email']).all()
         if len(user_list) > 0:
@@ -355,3 +355,81 @@ def register():
                                title='Sign In',
                                form=form,
                                cap=cap)
+
+
+def delete_user():
+    form = forms.UserDelete()
+    user_query = models.User.query.filter_by(id=g.user_id)
+    user_list = user_query.all()
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            if form.really_means_it.data is None or \
+                    form.really_means_it.data is False and \
+                    len(user_list) > 0:
+                flash("ERROR: You must click the box declaring" +
+                      " you really mean it")
+                return render_template('adult_delete.html',
+                                       title='Delete Yourself',
+                                       user_name=user_list[0].firstname,
+                                       form=form,), 401
+            if len(user_list) == 1:
+                user = user_list[0]
+                kids = models.Kid.query.filter_by(parent_id=user.id)
+                allowdays = None
+                for each_kid in kids.all():
+                    allowances = models.Allowance.query.filter_by(
+                        kid_id=each_kid.id)
+                    for ea_allow in allowances.all():
+                        allowdays = models.AllowanceDays.query.filter_by(
+                            allowance_id=ea_allow.id)
+                        if allowdays:
+                            allowdays.delete()
+                    ledger = models.Ledger.query.filter_by(kid_id=each_kid.id)
+
+                    allowances.delete()
+                    ledger.delete()
+
+                logout_user()
+                g.user = None
+                g.isgoogle = False
+                kids.delete()
+                user_query.delete()
+                app.db.session.commit()
+                flash('User deleted.')
+            elif len(user_list) > 1:
+                msg = "Issue deleting user, problem logged to be fixed"
+                app.logger.warn(msg + "len userlist %s for %s" %
+                                (len(user_list), ))
+                flash("ERROR: " + msg)
+            else:
+                flash('ERROR: This user not found?!?!, nothing to delete?')
+                app.logger.warn("WE SHOULD NEVER be here! a88987")
+        else:
+            user_name = '<user not found>'
+            try:
+                user_name = user_list[0]
+            except:
+                pass  # User not logged in? wont matter.
+
+            for e_field in form.errors.keys():
+                msglist = ''
+                for emsg in form.errors[e_field]:
+                    msglist += emsg + ", "
+                flash('ERROR:(%s) %s' % (e_field, msglist[:-2]))
+            return render_template('adult_delete.html',
+                                   title='Delete yourself.',
+                                   user_name=user.firstname,
+                                   form=form,), 401
+
+        return redirect(url_for('index'))
+
+    else:
+        user_name = '<user not found>'
+        try:
+            user_name = user_list[0]
+        except:
+            pass  # User not logged in? wont matter.
+        return render_template('adult_delete.html', form=form,
+                               user_name=user_name,
+                               title="Delete child data")
