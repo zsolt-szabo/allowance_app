@@ -26,14 +26,12 @@ from flask import redirect
 from flask import url_for
 import random
 import requests
-import config
 
 from flask import render_template, request, session, flash
 
 login_manager = app.lm
 
 goog_pw = config.GOOG_PW
-
 
 
 def get_captcha():

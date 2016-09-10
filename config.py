@@ -1,5 +1,4 @@
 import os
-import getpass
 
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'
@@ -27,4 +26,3 @@ ENABLE_GOOGLE_LOGIN = False
 GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"
 GOOG_CLIENT_ID = "CONFIG_FOR_GOOGLE"
 GOOG_CALLBACK_URL = "CONFIG_FOR_GOOGLE"
-
