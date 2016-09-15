@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+ <script>
+   var credentials = "EMAIL:";
+   credentials += " anonymous@";
+   credentials += "coward.com";
+   credentials += "    PASSWORD:";
+   credentials += "slashdot"
+ </script>
  {% if name is defined and name != '' %}
  {# ############################################################## #}
  {# ###################### Logged in as parent ################### #}
@@ -78,6 +85,7 @@
         <p>
         You can also <a href="/register">register</a> a new parent account
         </p>
+        <p>Or if you want to just spin the wheels, log in with <a href="" onClick="alert(credentials);">these</a> credentials.</p>
      </div>
      
  {% endif %}

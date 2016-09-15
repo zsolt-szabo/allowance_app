@@ -69,7 +69,7 @@ td.borderlines {
 
 td.deltas {
     border:1px;
-    font=style: courier;
+    font-family: courier;
     padding-left: 1em;
     color: #262673;
 }
