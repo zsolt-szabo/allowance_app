@@ -168,13 +168,19 @@ def parent_account_review():
                                    form=form,
                                    nocap=True), 401
         if form.validate_on_submit():
-            update_dict = dict(email=email,
-                               money_symbol=money_symbol,
-                               firstname=firstname)
+            if g.user_id == config.ANON_C:
+                update_dict = dict(money_symbol=money_symbol,
+                                   firstname=firstname)
+            else:
+                update_dict = dict(email=email,
+                                   money_symbol=money_symbol,
+                                   firstname=firstname)
             models.User.query.filter_by(
                 id=g.user_id).update(update_dict)
             db.session.commit()
-            if len(password1) > 0 and not g.isgoogle:
+
+            if len(password1) > 0 and not g.isgoogle and \
+                    g.user_id != config.ANON_C:
                 update_user = models.User.query.filter_by(
                     id=g.user_id)
                 update_user[0].set_password(password1)

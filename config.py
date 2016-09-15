@@ -21,6 +21,8 @@ FLASK_LOG_RETAIN = 10
 
 ENABLE_GOOGLE_LOGIN = False
 
+ANON_C = 9999999999  # The database id for anonymous@coward.com
+
 #  Prepend to system password for google user, change for your
 #  your local copy and don't check it in.
 GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"

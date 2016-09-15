@@ -20,7 +20,7 @@ import re
 import os
 import sys
 
-Template='''
+Template = '''
 # You MUST update entire REGEXTOREPLACE, not just the value you want to adjust.
 # EXAMPLE:
 # app/lib/somefile::foobar = 78::foobar = 99
@@ -28,6 +28,9 @@ Template='''
 
 # FILEPATH::REGEXTOREPLACE::NEWVAL
 config.py::SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'::<UPDATEME>
+# Database id for user anonymous@coward.com so we can prevent public users from changing the
+# email and password
+config.py::ANON_C = 9999999999::<UPDATEME>
 
 # BEGIN GOOGLE CONFIG
 config.py::GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"::<UPDATEME>

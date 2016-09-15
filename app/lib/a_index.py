@@ -3,7 +3,7 @@ from flask.ext import login
 from app import models
 import app
 from app import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 
 def process_view():
@@ -64,6 +64,9 @@ def check_and_update_allowances(allowances=[]):
     '''
     returns True if any allowances were added to the ledger, otherwise
         returns false.
+    Date Comparison logic.  Allowance has a last_ledger_update field.
+      When determining if number of days since we last updated, we strip
+      out the time field from today as well as the last update
     Params
     ------
     allowances:  Array of tuples (models.Allowance, models.AllowanceDays)
@@ -74,7 +77,8 @@ def check_and_update_allowances(allowances=[]):
     for each in allowances:
         msg += "All_ID: %s,  ALL_Day_ID: %s\n" % (each[0].id, each[1].id)
     app.logger.debug(msg)
-    today = datetime.utcnow()
+    today_now = datetime.utcnow()
+    today = date(today_now.year, today_now.month, today_now.day)
     update_occurred = False
 
     if len(allowances) > 0:
@@ -96,7 +100,9 @@ def check_and_update_allowances(allowances=[]):
                     models.Ledger.kid_id == a.kid_id). \
                     order_by(models.Ledger.id.desc()).first()
 
-                last_update = a.last_ledger_update
+                last_update = date(
+                    a.last_ledger_update.year, a.last_ledger_update.month,
+                    a.last_ledger_update.day)
                 day_count = today - last_update
                 day_array = range(1, day_count.days + 1)
                 last_allow_id = a.id
@@ -106,7 +112,9 @@ def check_and_update_allowances(allowances=[]):
                 ll = models.Ledger.query.filter(
                     models.Ledger.kid_id == a.kid_id). \
                     order_by(models.Ledger.id.desc()).first()
-                last_update = a.last_ledger_update
+                last_update = date(
+                    a.last_ledger_update.year, a.last_ledger_update.month,
+                    a.last_ledger_update.day)
                 day_count = today - last_update
                 day_array = range(1, day_count.days + 1)
 
@@ -198,9 +206,21 @@ def check_and_update_allowances(allowances=[]):
                     db.session.add(ledge_entry)
                     update_occurred = True
             #  Final Commit for the last allowance entered
-            msg = "Final allowance commit for id %s" % a.id
-            update_allow_ts = models.Allowance.query.filter_by(
-                id=a.id).first()
-            update_allow_ts.last_ledger_update = today
-            db.session.commit()
+            # TODO, we used to update this field regardless if an update
+            # occurred.  This created a bug where the last check was
+            # less than 24 hours from the next check, thus the check would
+            # not happen for the next day even if it needed a payout since
+            # < 24 is not one day.  I think I have fixed this issue by only
+            # working with dates instead of datetimes, but for now, I will
+            # not remove the update_occurred check.  This results in us
+            # needlessly looping over all days since last payout which could
+            # result in performance issues.  This shall be revisited once
+            # data has been collected.
+            if update_occurred is True:
+                msg = "Final allowance commit for id %s" % a.id
+                update_allow_ts = models.Allowance.query.filter_by(
+                    id=a.id).first()
+                update_allow_ts.last_ledger_update = datetime.combine(
+                    today, datetime.min.time())
+                db.session.commit()
         return update_occurred
