@@ -364,6 +364,10 @@ def register():
 
 
 def delete_user():
+    if g.user_id == config.ANON_C:
+        flash(
+            "ERROR: Come on!  Did you want to delete the evaluation user?")
+        return redirect(url_for('index'))
     form = forms.UserDelete()
     user_query = models.User.query.filter_by(id=g.user_id)
     user_list = user_query.all()
