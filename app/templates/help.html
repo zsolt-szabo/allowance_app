@@ -2,5 +2,113 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>HAVE NO FEAR!  Help is on the way ...</h2>
+<a name="h0">
+<h2>Kid Allowance help</h2>
+<ul>
+<li><a href="#h1">Creating a parent account</a></li>
+<li><a href="#h2">Create your children accounts</a></li>
+<li><a href="#h3">Adding an allowance</a></li>
+<li><a href="#h4">Adding or subracting Money</a></li>
+<li><a href="#h5">What can children do when they log in?</a></li>
+<li><a href="#h6">What's with locations and sub accounts?</a></li>
+<li><a href="#h7">What if I have suggestions?</a></li>
+</ul>
+<hr>
+
+<a name="h1"/>
+<h3>Creating a parent account <a href="#h0"> (top)</a></h3>
+The parent acount is the starting point for any interaction with this application.  There are two ways to create a parent account
+<ol>
+    <li>Log in through the google button.</li>
+    Logging in through google will automatically set up your parent account.  It does so by sending you to the google website to give permission to this application to see your name, email and if you have a photo associated with that account, that as well.  Currently we do not use the photo.
+    The application gets no other information from google and google is the one to tell us whether you have logged in or not.
+    <li>Register with the application as a new user.</li>
+    Registering requires 6 pieces of information
+    <ul>
+        <li>Firstname or your nickname</li>
+        <li>Your email</li>
+        If you want to be anonymous, you can use a fake email.  Understand that this means we will not be able to recover your account if you forget the password.
+        <li>Your chosen password</li>
+        <li>Your chosen password repeated to make sure you got it right</li>
+        <li>Your currency symbol</li>
+        <li>Captcha</li>
+        What is a captcha?  It is a way to prove you are more likely human than not.  This Captcha is a simple algorithm where you are given two sets of numbers and asked enter the particular manipulation of these two sets in some faction (Add, subtract, write them in order, or reverse.)
+    </ul>
+</ol>
+<hr>
+
+<a name="h2"/>
+<h3>Create your children accounts <a href="#h0"> (top)</a></h3>
+Once you have created your parent account, go back to your home page (Top Left link).
+You will see an empty block with a link to Register a new child.  Click on that link.
+<h4>Registering your child</h4>
+You should follow the directions on the register page but here is the summary of actions
+<ul>
+    <li>Give a simple nickname</li>
+    <li>Give an easy password</li>
+    <li>Click next</li>
+    <li>Select Animal1 and Animal2</li>
+    These animals will be associated with the nickname for your kid to log in
+    <li>Select Animal3 and Animal4</li>
+    These animals will be associated with the password for your kid to log in
+    <li>Advanced settings:  Ignore if you don't have the need</li>
+        For the advance Settings, see <a href="h6">What's with locations and sub accounts?</a>
+    Once you have created a child account, you can visit the ledger and add an allowance.
+</ul>
+
+<a name="h3"/>
+<h3>Adding an allowance <a href="#h0"> (top)</a></h3>
+This is where you define the monthly recurring payments to your children.  Take note that any allowances that already exist will appear in the table below the 'Review allowance(s)' header.  An allowance cannot be adjusted.  It must be removed and redefine
+    <li>amount</li>
+    How much will each payment be
+    <li>nickname</li>
+    This nickname will be used in the ledger comments to explain where the money is coming from.
+    <li>payout_days</li>
+    These are the days of the month the allowance amount will be paid out.  The app only allows the first 28 days in order to avoid having to deal with different month lengths.
+    <li>sub-accounts and location</li>
+    Once you are familiar with <a href="h6">locations/sub accounts</a> and decide you want to use them, you have the option to split out how and where the payouts get split out.
+    The app will ensure your distribution percentages add up to 100%.  You need to make sure the distributions make sense.  For instance, if you have a $5 monthly allowance payment but place 40%in the piggy bank, it's on you to physically put the money in the piggy bank on that day.
+</ul>
+
+<a name="h4"/>
+<h3>Adding or subracting Money <a href="#h0"> (top)</a></h3>
+The ledger or account book is where you and your child can figure out how much money they have and where it belongs and finally add and subtract money from these accounts.
+The very top value shows all the money they child has outstanding in all accounts. The top Totals entry (Colored pink) on the ledger is always the most recent entry and total.
+<h4>Adding new ledger entry</h4>
+For the most part, ledger entries are straight forward.  You add and subtract, providing a comment so that the entries make sense to you at a future date. They can get a bit more complex
+if you have multiple accounts coupled with multiple locations for the money.  For instance, if you have $40 total in spending which you want to take out but only $30 in your piggybank, you will have to spread out
+the withdraw to something like -$10 from mom and dads wallet and -$30 from piggy bank.
+
+<a name="h5"/>
+<h3>What can children do when they log in? <a href="#h0"> (top)</a></h3>
+Children can perform the following
+<ul>
+    <li>Review (readonly) their account settings</li>
+    <li>Review (readonly) their allowance settings</li>
+    <li>Review and withdraw money from their ledger.</li>
+    Only Mom and Dad can add money to their accounts
+</ul>
+
+<a name="h6"/>
+<h3>What's with locations and sub accounts? <a href="#h0"> (top)</a></h3>
+Sub accounts are straight forward.  Maybe the kid has a goal to save a certain amount of money for something. They can use a sub-account to track progress.
+<h4>What happens when we've met the goal and withdraw the money?</h4>
+<ul>
+    <li>On the childs subaccounts and password settings link you can deselect 'Active'</li>
+    <li>The account will still appear on the ledger until you zero it out</li>
+    As soon as there is no money left, it will disappear from the ledger
+    <li>You can always change the name of the accounts and re-activate as well</li>
+    <li>What if the account is on an allowance distribution</li>
+    The application will insist that you delete the allowance prior to deactivating.
+</ul>
+
+<a name="h6"/>
+<h3>What if I have suggestions? <a href="#h0"> (top)</a></h3>
+<ul>
+    <li>Unless you are a developer on github, it might make sense to add a commont to the blog link with your suggestion</li>
+</ul>
+
+<div style="height: 30em;"></div>
+
+
 {% endblock %}

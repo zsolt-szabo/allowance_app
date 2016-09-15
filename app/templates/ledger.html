@@ -22,7 +22,7 @@ Child <a href="allowance?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">Al
 Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">Account Info</a>
 <table id="Ledger_Page_Wrapper">
 <tr> <!-- Ledger_Page_Wraper TR-->
-<td style="padding-right: 9em;"> <!-- Ledger_Page_Wrapper TD -->
+<td width="50%" style="padding-right: 2em;"> <!-- Ledger_Page_Wrapper TD -->
 <table>
     <thead>
     <tr>
@@ -144,13 +144,16 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
 </table>
 
 </td> <!-- close table Ledger_Page_Wrapper TD -->
-<td style="padding-left: 1em; padding-right: 8em; vertical-align: top; border:1px solid black;"> <!-- table Ledger_Page_Wrapper TD -->
-    Add New Ledger Entry (use negative numbers to subtract):
+<td style="padding-left: 1em; vertical-align: top;"> <!-- table Ledger_Page_Wrapper TD -->
     <form action="ledger" method="POST" name="ledger">
         {{ form.hidden_tag() }}
-        <br>
-        Comment:  {{form.comment}}
-        <table>
+        Add New Ledger Entry (use negative numbers to subtract):
+        <table style="border:1px solid black; padding-right: 8em;">
+            <tr>
+             <td>
+              Comment:  {{form.comment}}
+             </td>
+            </tr>
             <thead>
                 {# ###### List rotated headers ############ #}
                 <th>&nbsp;</th>

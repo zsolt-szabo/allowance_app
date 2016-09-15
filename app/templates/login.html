@@ -15,6 +15,14 @@
       msg += " Google sign in so you do not get automatically logged in. Do NOT sign in using section 2.";
       msg += " Use section 1 to sign in."
     </script>
+    <script>
+      var forgot="Please send an email to kidallowance";
+      forgot += "@";
+      forgot += "gmail";
+      forgot += ".com from the email you created your account. The subject should be 'Forgot Password'. ";
+      forgot += "Because this process is not automated yet";
+      forgot += " you may have to wait up to two days."
+    </script>
   </head>
   <body>
     
@@ -33,6 +41,7 @@
            <p>{{ form.email }} Email Address</p>
            <p>{{ form.password }} Password</p>
            <input type="submit" value="Log in">  <i>Standard log in</i>
+           <font size="-1"><a href="" onClick="alert(forgot);">Forgot Password</a></font>
         </form>
       </td>
      </tr></table>

@@ -57,7 +57,7 @@
                <select name="animal2" id="animal2" style="width:300px;" onchange="showuserchoice(); checkChoices();">
                  {% for each_animal in form.animal2.iter_choices() %}
 
-                 <option value="" data-description="Chose your second nickname animal">Animal 1</option>
+                 <option value="" data-description="Chose your second nickname animal">Animal 2</option>
                      {% if form.animal2.data == each_animal[0] %}
                         <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
                             {{ each_animal[0] }}
@@ -85,7 +85,7 @@
                <select name="animal3" id="animal3" style="width:300px;" onchange="showuserchoice()">
                  {% for each_animal in form.animal3.iter_choices() %}
 
-                 <option value="" data-description="Chose your first password animal">Animal 1</option>
+                 <option value="" data-description="Chose your first password animal">Animal 3</option>
                      {% if form.animal3.data == each_animal[0] %}
                         <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
                             {{ each_animal[0] }}
@@ -104,7 +104,7 @@
                <select name="animal4" id="animal4" style="width:300px;" onchange="showuserchoice()">
                  {% for each_animal in form.animal4.iter_choices() %}
 
-                 <option value="" data-description="Chose your second password animal">Animal 1</option>
+                 <option value="" data-description="Chose your second password animal">Animal 4</option>
                      {% if form.animal4.data == each_animal[0] %}
                         <option selected value="{{ each_animal[0] }}" data-image="/{{ each_animal[1] }}">
                             {{ each_animal[0] }}
