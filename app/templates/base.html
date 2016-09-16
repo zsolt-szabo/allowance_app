@@ -1,10 +1,10 @@
 <html>
   <head>
-    <meta name="google-signin-client_id" content="{{config.GOOG_CLIENT_ID}}"
->
+    <meta name="google-signin-client_id" content="{{config.GOOG_CLIENT_ID}}">
     <link rel="stylesheet" type="text/css" href="static/f7basestyle.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     {% if title %}
-    <title>{{ title }} - money tracker</title>
+    <title>{{ title }} - kidallowance.com</title>
     {% else %}
     <title>Money Tracker</title>
     {% endif %}
