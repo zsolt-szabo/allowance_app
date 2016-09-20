@@ -45,7 +45,7 @@
   </head>
   
   <body>
-    <div><img style="width:28px;height:30px;" src="static/favicon.ico"> &nbsp;&nbsp;&nbsp;&nbsp; <a href="/index">Home</a>&nbsp;/&nbsp;
+    <div> <a href="/index"><img alt="home" title="home" style="width:28px;height:30px;" src="static/favicon.ico"></a>&nbsp;&nbsp;
     {% if g.user is defined and g.isgoogle == false or g.is_child %}
       <a href="/logout">Logout</a>&nbsp;/&nbsp;
     {% elif g.user is defined and g.isgoogle == true %}

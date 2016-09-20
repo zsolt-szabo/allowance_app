@@ -39,7 +39,7 @@ def load_user(id):
     # as to what to do when viewed as child or adult,
     # but the different variables will prevent accidental
     # viewing of other account information.
-    print "load_user triggered, id is %s" % str(id)
+    app.logger.info("load_user triggered, id is %s" % str(id))
     if type(id).__name__ == 'tuple':
         user = models.Kid.query.get(int(id[1]))
         g.is_child = True
