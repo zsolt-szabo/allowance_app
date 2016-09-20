@@ -4,6 +4,7 @@ import tempfile
 import sys
 import logging
 import copy
+import os
 
 required_paths = [
     '../']
@@ -217,6 +218,9 @@ class kidAllowanceTestCase(unittest.TestCase):
 #        with open('out.html', 'w') as f:
 #            f.write(rv.data)
 
+    def test_99_teardown(self):
+        os.close(gd.db_fd)
+        os.unlink(gd.unit_db)
 
 if __name__ == "__main__":
     print "=" * 80
