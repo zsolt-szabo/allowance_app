@@ -268,6 +268,7 @@ class Ledger(Form):
         'acc1_loc7',
         validators=[Optional(), NumberRange(min=-1000, max=1000)],
         render_kw={"placeholder": "0"})
+    no_comment = BooleanField('no comment required', validators=[Optional()])
     comment = TextAreaField(
         'comment', id='comment', validators=[Optional(),
                                              Length(min=1, max=200)])

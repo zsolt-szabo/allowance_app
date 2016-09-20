@@ -135,6 +135,10 @@ def check_and_update_allowances(allowances=[]):
             if ll is None:
                 ll = fakeLedger()
 
+            def r(n):
+                '''Shortcut for rounding to two digits'''
+                return round(n, 2)
+
             # Update allowance data to be committed by walking from last
             # day updated until today
             for day in day_array:
@@ -161,43 +165,45 @@ def check_and_update_allowances(allowances=[]):
                         kid_id=a.kid_id, adjusted_by_parent=True,
                         adjuster_name='ALLOWANCE',
 
-                        total_acc1=ll.total_acc1 + a.amount *
-                        a.account1_perc / 100.0,
-                        change_acc1=a.amount * a.account1_perc / 100.0,
-                        total_acc2=ll.total_acc2 + a.amount *
-                        a.account2_perc / 100.0,
-                        change_acc2=a.amount * a.account2_perc / 100.0,
-                        total_acc3=ll.total_acc3 + a.amount *
-                        a.account3_perc / 100.0,
-                        change_acc3=a.amount * a.account3_perc / 100.0,
-                        total_acc4=ll.total_acc4 + a.amount *
-                        a.account4_perc / 100.0,
-                        change_acc4=a.amount * a.account4_perc / 100.0,
+                        total_acc1=r(ll.total_acc1 + a.amount *
+                                     a.account1_perc / 100.0),
+                        change_acc1=r(a.amount * a.account1_perc / 100.0),
+                        total_acc2=r(ll.total_acc2 + a.amount *
+                                     a.account2_perc / 100.0),
+                        change_acc2=r(a.amount * a.account2_perc / 100.0),
+                        total_acc3=r(ll.total_acc3 + a.amount *
+                                     a.account3_perc / 100.0),
+                        change_acc3=r(a.amount * a.account3_perc / 100.0),
+                        total_acc4=r(ll.total_acc4 + a.amount *
+                                     a.account4_perc / 100.0),
+                        change_acc4=r(a.amount * a.account4_perc / 100.0),
 
-                        total_acc5=ll.total_acc5 + remainder_a,
-                        change_acc5=remainder_a,
+                        total_acc5=r(ll.total_acc5 + remainder_a),
+                        change_acc5=r(remainder_a),
 
-                        total_loc1=ll.total_loc1 + a.amount *
-                        a.location1_perc / 100.0, change_loc1=a.amount *
-                        a.location1_perc / 100.0,
-                        total_loc2=ll.total_loc2 + a.amount *
-                        a.location2_perc / 100.0,
-                        change_loc2=a.amount * a.location2_perc / 100.0,
-                        total_loc3=ll.total_loc3 + a.amount *
-                        a.location3_perc / 100.0,
-                        change_loc3=a.amount * a.location3_perc / 100.0,
-                        total_loc4=ll.total_loc4 + a.amount *
-                        a.location4_perc / 100.0,
-                        change_loc4=a.amount * a.location4_perc / 100.0,
-                        total_loc5=ll.total_loc5 + a.amount *
-                        a.location5_perc / 100.0,
-                        change_loc5=a.amount * a.location5_perc / 100.0,
-                        total_loc6=ll.total_loc6 + a.amount *
-                        a.location6_perc / 100.0, change_loc6=a.amount *
-                        a.location6_perc / 100.0,
+                        total_loc1=r(
+                            ll.total_loc1 + a.amount * a.location1_perc /
+                            100.0, change_loc1=a.amount * a.location1_perc /
+                            100.0),
+                        total_loc2=r(ll.total_loc2 + a.amount *
+                                     a.location2_perc / 100.0),
+                        change_loc2=r(a.amount * a.location2_perc / 100.0),
+                        total_loc3=r(ll.total_loc3 + a.amount *
+                                     a.location3_perc / 100.0),
+                        change_loc3=r(a.amount * a.location3_perc / 100.0),
+                        total_loc4=r(ll.total_loc4 + a.amount *
+                                     a.location4_perc / 100.0),
+                        change_loc4=r(a.amount * a.location4_perc / 100.0),
+                        total_loc5=r(ll.total_loc5 + a.amount *
+                                     a.location5_perc / 100.0),
+                        change_loc5=r(a.amount * a.location5_perc / 100.0),
+                        total_loc6=r(
+                            ll.total_loc6 + a.amount * a.location6_perc /
+                            100.0, change_loc6=a.amount * a.location6_perc /
+                            100.0),
 
-                        total_loc7=ll.total_loc5 + remainder_a,
-                        change_loc7=remainder_l,
+                        total_loc7=r(ll.total_loc5 + remainder_a,
+                                     change_loc7=remainder_l),
                         comment=comment)
                     ll = ledge_entry  # We cannot query our database again for
                     # ll because we have not commited, so

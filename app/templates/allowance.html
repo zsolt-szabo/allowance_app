@@ -25,7 +25,7 @@
       {% for allow in allow_data %}
         <tr>
           <td align="center">{{ allow.nickname }}</td>
-          <td  align="center">{{g.money_symbol}} {{ allow.amount }}</td>
+          <td  align="center">{{g.money_symbol}} {{ '%0.2f' % allow.amount }}</td>
           <td><ul>
             {% for date in allow.DATES %}
                 <li> {{date}} </li>

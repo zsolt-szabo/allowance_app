@@ -343,19 +343,30 @@ def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
             l = ledger[0]  # Shortcut variable
         else:
             l = fakeLedger()
+        if form.comment.data is None or form.comment.data == "" and \
+                form.no_comment.data is not True:
+            msg = "You need to select 'no comment' if you want to commit "
+            msg += "without a comment"
+            flash("ERROR: " + msg)
+            return False
+
+        def r(n):
+            '''Shortcut for rounding to two digits'''
+            return round(n, 2)
+
         ledger_update_data = {
             'change_acc1': 0, 'change_acc2': 0, 'change_acc3': 0,
             'change_acc4': 0, 'change_acc5': 0,
-            'total_acc1': l.total_acc1, 'total_acc2': l.total_acc2,
-            'total_acc3': l.total_acc3, 'total_acc4': l.total_acc4,
-            'total_acc5': l.total_acc5,
+            'total_acc1': r(l.total_acc1), 'total_acc2': r(l.total_acc2),
+            'total_acc3': r(l.total_acc3), 'total_acc4': r(l.total_acc4),
+            'total_acc5': r(l.total_acc5),
             'change_loc1': 0, 'change_loc2': 0, 'change_loc3': 0,
             'change_loc4': 0, 'change_loc5': 0, 'change_loc6': 0,
             'change_loc7': 0,
-            'total_loc1': l.total_loc1, 'total_loc2': l.total_loc2,
-            'total_loc3': l.total_loc3, 'total_loc4':  l.total_loc4,
-            'total_loc5':  l.total_loc5, 'total_loc6':  l.total_loc6,
-            'total_loc7':  l.total_loc7,
+            'total_loc1': r(l.total_loc1), 'total_loc2': r(l.total_loc2),
+            'total_loc3': r(l.total_loc3), 'total_loc4': r(l.total_loc4),
+            'total_loc5': r(l.total_loc5), 'total_loc6': r(l.total_loc6),
+            'total_loc7': r(l.total_loc7),
             'adjuster_name': adjuster_name,
             'adjusted_by_parent': adjusted_by_parent, 'kid_id': kid.id,
             'comment': form.comment.data
@@ -380,16 +391,16 @@ def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
 
                 all_entries += entry
 
-                ledger_update_data['change_acc%s' % i] += entry
-                ledger_update_data['change_loc%s' % j] += entry
-                ledger_update_data['total_acc%s' % i] += entry
-                ledger_update_data['total_loc%s' % j] += entry
+                ledger_update_data['change_acc%s' % i] += r(entry)
+                ledger_update_data['change_loc%s' % j] += r(entry)
+                ledger_update_data['total_acc%s' % i] += r(entry)
+                ledger_update_data['total_loc%s' % j] += r(entry)
         for ea_loc in loc_math:
             if loc_math[ea_loc] > 0 and hasattr(g, 'is_child') and \
                     g.is_child is True:
                 flash("ERROR: Only Parent can add money, kids can subtract")
                 return False
-            if loc_math[ea_loc] + getattr(l, 'total_' + ea_loc) < 0:
+            if r(loc_math[ea_loc] + getattr(l, 'total_' + ea_loc)) < 0:
                 msg = "You attempted to take too much from money storage '%s'"
                 msg = msg % getattr(
                     kid, ea_loc.replace('loc', 'location') + "_name")
@@ -400,12 +411,13 @@ def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
                     g.is_child is True:
                 flash("ERROR: Only Parent can add money, kids can subtract")
                 return False
-            if acc_math[ea_acc] + getattr(l, 'total_' + ea_acc) < 0:
+            if r(acc_math[ea_acc] + getattr(l, 'total_' + ea_acc)) < 0:
                 msg = "You attempted to take too much from account '%s'"
                 msg = msg % getattr(
                     kid, ea_acc.replace('acc', 'acct') + "_name")
                 flash("ERROR: " + msg)
                 return False
+
         if all_entries == 0:
             flash('No account changes to update')
             return False

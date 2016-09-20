@@ -39,8 +39,8 @@
      </div>
      <hr>
      <div>
-      Total balance for all your kid accounts: <font size="+2" color="#804000">{{money_symbol}}{{total_owed}}</font> <br>
-      Your total monthly allowance payout:&nbsp;&nbsp; <font size="+2" color="#804000">{{money_symbol}}{{monthly_outlay}}</font>
+      Total balance for all your kid accounts: <font size="+2" color="#804000">{{money_symbol}}{{'%0.2f' % total_owed}}</font> <br>
+      Your total monthly allowance payout:&nbsp;&nbsp; <font size="+2" color="#804000">{{money_symbol}}{{'%0.2f' % monthly_outlay}}</font>
      </div>
      <hr>
      {% else %}

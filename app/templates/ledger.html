@@ -17,7 +17,7 @@
 <h2>Ledger for {{kid_data[0]}}-{{kid_data[1]}}-{{kid_data[2]}}</h2>
 <hr>
 <div>
-<h3> Total value for all accounts: &nbsp; &nbsp;<font size="+3">{{parent.money_symbol}}{{total_all}}</font></h3>
+<h3> Total value for all accounts: &nbsp; &nbsp;<font size="+3">{{parent.money_symbol}}{{'%0.2f' % total_all}}</font></h3>
 Child <a href="allowance?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">Allowance Info</a> <br>
 Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">Account Info</a>
 <table id="Ledger_Page_Wrapper">
@@ -65,10 +65,10 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <td class="borderlines">
           {% if firstcol == True %}
           <font size="+2">
-          {{parent.money_symbol}}{{entry.total_acc1}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc1}}
           </font>
           {% else %}
-          {{parent.money_symbol}}{{entry.total_acc1}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc1}}
           {% endif %}
         </td>
         {% endif %}
@@ -76,10 +76,10 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <td class="borderlines">
           {% if firstcol == True %}
           <font size="+2">
-          {{parent.money_symbol}}{{entry.total_acc2}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc2}}
           </font>
           {% else %}
-          {{parent.money_symbol}}{{entry.total_acc2}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc2}}
           {% endif %}
         </td>
         {% endif %}
@@ -87,20 +87,20 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <td class="borderlines">
           {% if firstcol == True %}
           <font size="+2">
-          {{parent.money_symbol}}{{entry.total_acc3}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc3}}
           </font>
           {% else %}
-          {{parent.money_symbol}}{{entry.total_acc3}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc3}}
           {% endif %}
         {% endif %}
         {% if 4 not in hidden_columns %}
         <td class="borderlines">
           {% if firstcol == True %}
           <font size="+2">
-          {{parent.money_symbol}}{{entry.total_acc4}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc4}}
           </font>
           {% else %}
-          {{parent.money_symbol}}{{entry.total_acc4}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc4}}
           {% endif %}
         </td>
         {% endif %}
@@ -108,10 +108,10 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <td class="borderlines">
           {% if firstcol == True %}
           <font size="+2">
-          {{parent.money_symbol}}{{entry.total_acc3}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc5}}
           </font>
           {% else %}
-          {{parent.money_symbol}}{{entry.total_acc3}}
+          {{parent.money_symbol}}{{'%0.2f' % entry.total_acc5}}
           {% endif %}
         </td>
         {% endif %}
@@ -121,19 +121,19 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
   <tr>
         <td class="deltas">Changes</td>
         {% if 1 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc1}}</td>
+        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc1}}</td>
         {% endif %}
         {% if 2 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc2}}</td>
+        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc2}}</td>
         {% endif %}
         {% if 3 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc3}}</td>
+        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc3}}</td>
         {% endif %}
         {% if 4 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc4}}</td>
+        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc4}}</td>
         {% endif %}
         {% if 5 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{entry.change_acc5}}</td>
+        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc5}}</td>
         {% endif %}
 
         <td class="deltas">{{entry.comment}}</td>
@@ -143,7 +143,10 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
 {% endfor %}
 </table>
 
-</td> <!-- close table Ledger_Page_Wrapper TD -->
+</td> <!-- close td in table Ledger_Page_Wrapper TD -->
+{#   ####################################################################    #}
+{#   ####################### Begin Ledger entry form ####################    #}
+{#   ####################################################################    #}
 <td style="padding-left: 1em; vertical-align: top;"> <!-- table Ledger_Page_Wrapper TD -->
     <form action="ledger" method="POST" name="ledger">
         {{ form.hidden_tag() }}
@@ -151,6 +154,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <table style="border:1px solid black; padding-right: 8em;">
             <tr>
              <td>
+              {{form.no_comment(style="width: 14px;")}}{{form.no_comment.label}}<br>
               Comment:  {{form.comment}}
              </td>
             </tr>
@@ -183,30 +187,30 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
             {# ###### show how much money in each location ############ #}
             <tr><td><font color="brown"><b>Account funds Available</b></font></td>
                 {% if 1 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc1}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc1}}</td>
                 {% endif %}
                 {% if 2 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc2}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc2}}</td>
                 {% endif %}
                 {% if 3 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc3}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc3}}</td>
                 {% endif %}
                 {% if 4 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc4}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc4}}</td>
                 {% endif %}
                 {% if 5 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc5}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc5}}</td>
                 {% endif %}
                 {% if 6 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc6}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc6}}</td>
                 {% endif %}
                 {% if 7 not in hidden_locs%}
-                <td>{{parent.money_symbol}}{{ledger[0].total_loc7}}</td>
+                <td>{{parent.money_symbol}}{{'%0.2f' % ledger[0].total_loc7}}</td>
                 {% endif %}
             </tr>
            {% endif %}
             {% if 1 not in hidden_columns %}
-            <tr><td>{{kid.acct1_name}} ({{parent.money_symbol}}{{display_account_totals[1]}})</td>
+            <tr><td>{{kid.acct1_name}} ({{parent.money_symbol}}{{'%0.2f' % display_account_totals[1]}})</td>
                 {% if 1 not in hidden_locs%}
                 <td>{{parent.money_symbol}}{{form.acct1_loc1(style="width: 4em")}}</td>
                 {% endif %}
@@ -231,7 +235,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
             </tr>
             {% endif %}
             {% if 2 not in hidden_columns %}
-            <tr><td>{{kid.acct2_name}} ({{parent.money_symbol}}{{display_account_totals[2]}})</td>
+            <tr><td>{{kid.acct2_name}} ({{parent.money_symbol}}{{'%0.2f' % display_account_totals[2]}})</td>
                 {% if 1 not in hidden_locs%}
                 <td>{{parent.money_symbol}}{{form.acct2_loc1(style="width: 4em")}}</td>
                 {% endif %}
@@ -256,7 +260,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
             </tr>
             {% endif %}
             {% if 3 not in hidden_columns %}
-            <tr><td>{{kid.acct3_name}} ({{parent.money_symbol}}{{display_account_totals[3]}})</td>
+            <tr><td>{{kid.acct3_name}} ({{parent.money_symbol}}{{'%0.2f' % display_account_totals[3]}})</td>
                 {% if 1 not in hidden_locs%}
                 <td>{{parent.money_symbol}}{{form.acct3_loc1(style="width: 4em")}}</td>
                 {% endif %}
@@ -281,7 +285,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
             </tr>
             {% endif %}
             {% if 4 not in hidden_columns %}
-            <tr><td>{{kid.acct4_name}} ({{parent.money_symbol}}{{display_account_totals[4]}})</td>
+            <tr><td>{{kid.acct4_name}} ({{parent.money_symbol}}{{'%0.2f' % display_account_totals[4]}})</td>
                 {% if 1 not in hidden_locs%}
                 <td>{{parent.money_symbol}}{{form.acct4_loc1(style="width: 4em")}}</td>
                 {% endif %}
@@ -306,7 +310,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
            </tr>
            {% endif %}
            {% if 5 not in hidden_columns %}
-            <tr><td>{{kid.acct5_name}} ({{parent.money_symbol}}{{display_account_totals[5]}})</td>
+            <tr><td>{{kid.acct5_name}} ({{parent.money_symbol}}{{'%0.2f' % display_account_totals[5]}})</td>
                 {% if 1 not in hidden_locs%}
                 <td>{{parent.money_symbol}}{{form.acct5_loc1(style="width: 4em")}}</td>
                 {% endif %}
