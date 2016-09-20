@@ -183,7 +183,8 @@ def check_and_update_allowances(allowances=[]):
 
                         total_loc1=r(
                             ll.total_loc1 + a.amount * a.location1_perc /
-                            100.0, change_loc1=a.amount * a.location1_perc /
+                            100.0),
+                        change_loc1=r(a.amount * a.location1_perc /
                             100.0),
                         total_loc2=r(ll.total_loc2 + a.amount *
                                      a.location2_perc / 100.0),
@@ -199,11 +200,12 @@ def check_and_update_allowances(allowances=[]):
                         change_loc5=r(a.amount * a.location5_perc / 100.0),
                         total_loc6=r(
                             ll.total_loc6 + a.amount * a.location6_perc /
-                            100.0, change_loc6=a.amount * a.location6_perc /
+                            100.0),
+                        change_loc6=r(a.amount * a.location6_perc /
                             100.0),
 
-                        total_loc7=r(ll.total_loc5 + remainder_a,
-                                     change_loc7=remainder_l),
+                        total_loc7=r(ll.total_loc5 + remainder_a),
+                        change_loc7=r(remainder_l),
                         comment=comment)
                     ll = ledge_entry  # We cannot query our database again for
                     # ll because we have not commited, so
