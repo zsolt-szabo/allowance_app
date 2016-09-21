@@ -24,8 +24,9 @@ To get started using the application
         
     2) Enable the virtual environment '. flaskenv/bin/activate' 
     3) install libraries 'pip install -r py_requirements.txt' 
-    4) create the database './db_create.py' 
-    5) run the server './run.py'
+    4) create the database './db_create.py'
+    5) Run unit tests.  'cd unit',  './test_group_01.py'
+    6) run the server './run.py'
 
 To utilize google authentication
     1) You need to have some knowledge about how google auth works
