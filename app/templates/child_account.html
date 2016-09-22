@@ -276,23 +276,25 @@
         <div class="animals">
           <p>
             <table>
-              <tr><td><b>Sub Accounts </b>(<a href="#" onclick="alert(sub_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td><b>Sub Accounts </b>(<a href="#" onclick="alert(sub_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; Used by allowance(s)<sup>[1]</sup></sup>:</td></tr>
               {% for each in acct_choices %}
                <tr class="accounts" style="display: none;">
                  <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
                  <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
                  <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
+                 <td><br>&nbsp; <font color="brown">{{form.used_by_allowance[each[0]]}}</font></td>
                </tr>
               {% endfor %}
               
               <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-              <tr><td><b>Where Money is Stored </b>(<a href="#" onclick="alert(loc_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td><b>Where Money is Stored </b>(<a href="#" onclick="alert(loc_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
 
               {% for each in loc_choices %}
                <tr class="store" style="display: none;">
                  <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
                  <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
                  <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
+                 <td>&nbsp;</td>
                </tr>
               {% endfor %}
             </table>
@@ -304,6 +306,10 @@
   </div>
   </p>
   </form>
+    <br><br>
+  <p><font size="-1"><sup>[1]</sup> If you deactivate an account/location that is part of the allowance, the portion of that allowance will be evenly distributed among the
+  rest of the remaining sub-categories.  IE allowance split 80% Spending, 10% Savings, 10% Charity and you deactivate charity.  The allowance will be reallocated to
+  %85 Spending, and 15% Savings.  Even if you later reactivate Charity, you will have to remove the prior allowance and recreate to use Charity again.</font></p>
   <div style="height: 30em;"></div>
   <script>
   showuserchoice();  

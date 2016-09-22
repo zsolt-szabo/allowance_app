@@ -63,7 +63,7 @@
              {% endfor %}
              </tr>
              <tr>
-             {% for i in [1,2,3,4,5] %}
+             {% for i in [1,2,3,4,5,6,7] %}
                {% if kid_info.__dict__['location' + i|string + '_used'] == true %}
                   <td> {{ allow.__dict__['location' + i|string + '_perc'] }} </td>
                {% endif %}

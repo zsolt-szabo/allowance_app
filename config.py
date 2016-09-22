@@ -23,6 +23,9 @@ ENABLE_GOOGLE_LOGIN = False
 
 ANON_C = 9999999999  # The database id for anonymous@coward.com
 
+# If not changed, tech support password will not work
+TECH_SUPPORT = "<UPDATEME>"  # Must be 12 characters or longer!
+
 #  Prepend to system password for google user, change for your
 #  your local copy and don't check it in.
 GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"

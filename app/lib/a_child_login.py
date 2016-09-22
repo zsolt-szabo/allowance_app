@@ -91,6 +91,8 @@ def kid_account_review():
                 (form.firstname.data, form.animal1.data, form.animal2.data))
         f = form  # Shortcut to save space for form.
 
+        allowances = models.Allowance.query.filter_by(
+            kid_id=kid_list[0].id).all()
         if f.validate_on_submit():
             ##################################################################
             #   BEGIN Check and adjust all related allowances
@@ -102,8 +104,7 @@ def kid_account_review():
             #        3) This can be problematic for accounts only distributing
             #           to one bucket.
             ##################################################################
-            allowances = models.Allowance.query.filter_by(
-                kid_id=kid_list[0].id).all()
+
             for ea_allow in allowances:
                 tot_a = 0  # Total of all sub account percentages
                 a_to_adjust = []
@@ -116,28 +117,26 @@ def kid_account_review():
 
                 for i in range(1, 6):
                     # allowance percentage definied, not 0 and active
-                    if ea_allow.__getattribute__('account%s_perc' % i) is \
-                            not None and \
+                    accX_per = ea_allow.__getattribute__('account%s_perc' % i)
+                    if accX_per is not None and \
                             f.__dict__['acct%s_used' % i].data is True and \
-                            ea_allow.__getattribute__('account%s_perc' % i) \
-                            != 0:
+                            accX_per != 0:
                         a_to_adjust.append(i)
                         stmt = a_line % i
-                        exec(stmt)
+                        exec(stmt)  # tot_a += each_allow.accountX_perc
                     else:
                         update_dict["account%s_perc" % i] = 0
 
                 for i in range(1, 8):
                     # location percentage definied, not 0 and active
-                    if ea_allow.__getattribute__('location%s_perc' % i) is \
-                            not None and \
-                            f.__dict__['location%s_used' % i].data \
-                            is True and \
-                            ea_allow.__getattribute__('location%s_perc' % i) \
-                            != 0:
+                    locX_per = \
+                        ea_allow.__getattribute__('location%s_perc' % i)
+                    if locX_per is not None and \
+                            f.__dict__['location%s_used' % i].data is \
+                            True and locX_per != 0:
                         l_to_adjust.append(i)
                         stmt = l_line % i
-                        exec(stmt)
+                        exec(stmt)  # tot_l += each_allow.locationX_perc
                     else:
                         update_dict["location%s_perc" % i] = 0
 
@@ -285,8 +284,10 @@ def kid_account_review():
                                            acct_choices=acct_choices,
                                            loc_choices=loc_choices), 401
         return redirect(url_for('index'))
-    else:
+    # #################################################
+    else:  # We are at the http GET section of the code.
         kid_data = request.args.get('kid')
+        kid_list = []
         if kid_data is not None:
             kid_split = kid_data.split(":")
             if len(kid_split) == 3:
@@ -321,6 +322,35 @@ def kid_account_review():
             app.logger.warning('argument for populating kid data was empty')
             flash('No kid data given for review.')
             return redirect(url_for('index'))
+
+        #  Add dictionary to form 'used_by_allowance' so we can mark accounts
+        #  and locations if they are used.
+        if len(kid_list) > 0:
+            allowances = models.Allowance.query.filter_by(
+                kid_id=kid_list[0].id).all()
+        form.used_by_allowance = {}
+        for ea_allow in allowances:
+            for i in range(1, 6):
+                stmnt = 'form.used_by_allowance.setdefault("acct%s_name", "")'
+                stmnt = stmnt % i
+                exec(stmnt)
+                accX_per = ea_allow.__getattribute__('account%s_perc' % i)
+                if accX_per is not None and accX_per != 0:
+                    stmnt = 'form.used_by_allowance["acct%s_name"] += "%s, "'
+                    stmnt = stmnt % (i, str(ea_allow.nickname))
+                    exec(stmnt)
+            for i in range(1, 8):
+                stmnt = \
+                    'form.used_by_allowance.setdefault("location%s_name", "")'
+                stmnt = stmnt % i
+                exec(stmnt)
+                locX_per = ea_allow.__getattribute__('location%s_perc' % i)
+                if locX_per is not None and locX_per != 0:
+                    stmnt = \
+                        'form.used_by_allowance["location%s_name"] += "%s, "'
+                    stmnt = stmnt % (i, str(ea_allow.nickname))
+                    exec(stmnt)
+
         form.animal1.data = kid_list[0].animal1
         form.animal2.data = kid_list[0].animal2
         form.animal3.data = kid_list[0].animal3

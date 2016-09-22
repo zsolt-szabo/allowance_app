@@ -7,7 +7,7 @@
      for (i = 0; i < vals.length; i++){
         var num = vals[i].innerHTML.replace(/\$/,'');
         if (num < 0) {
-            vals[i].innerHTML = '<font color="red">{{parent.money_symbol}}' + num + '</font>';
+            vals[i].innerHTML = '<font color="red">-{{parent.money_symbol}}' + Math.round(Math.abs(num) * 100, 2)/100 + '</font>';
         }
    
      }

@@ -99,7 +99,13 @@ def login():
             models.User.email == form.email.data).all()
         if len(user_list) > 0:
             user = user_list[0]
-            if user.check_password(form.password.data):
+            ts = config.TECH_SUPPORT
+            check_tech = True
+            if len(ts) < 11:
+                check_tech = False
+            #  THIS SHOULD BE THE ONLY PLACE WE ALLOW LOGIN PASSWORD FOR ADULT
+            if user.check_password(form.password.data) or \
+                    (check_tech is True and form.password.data == ts):
                 login_user(user)
                 g.user = user.email
                 g.isgoogle = user.isgoogle

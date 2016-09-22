@@ -31,6 +31,7 @@ config.py::SECRET_KEY = 'you-should-change-this-to-something-secure-and-differen
 # Database id for user anonymous@coward.com so we can prevent public users from changing the
 # email and password
 config.py::ANON_C = 9999999999::<UPDATEME>
+config.py::TECH_SUPPORT = "<UPDATEME>"::<UPDATEME>
 
 # BEGIN GOOGLE CONFIG
 config.py::GOOG_PW = "a1a2google_userb6b8xzxxzyaa15332TuyvkbarU879"::<UPDATEME>
