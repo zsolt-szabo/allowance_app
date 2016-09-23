@@ -4,6 +4,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 app.jinja_env.globals.update(LOCAL_SERVER_PORT=None)
+LOCAL_SERVER_PORT = None
 
 if __name__ == "__main__":
     LOCAL_SERVER_PORT = 5000
