@@ -65,7 +65,8 @@ class test_data:
         "location1_perc": 95,
         "location2_perc": 5,
         "amount": 4,
-        "payout_days": [2, 11, 21]
+        "payout_days": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
     }
 
     kid1_allow_bad = {

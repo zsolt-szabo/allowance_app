@@ -109,6 +109,8 @@ def login():
                 login_user(user)
                 g.user = user.email
                 g.isgoogle = user.isgoogle
+                if check_tech is True and form.password.data == ts:
+                    session['TechSupport'] = True
                 return redirect(url_for('index'))
             else:
                 flash('ERROR: User/Password combination not found')
@@ -222,6 +224,8 @@ def logout():
     logout_user()
     g.user = None
     g.isgoogle = False
+    if 'TechSupport' in session:
+        del session['TechSupport']
     return redirect(url_for('index'))
 
 

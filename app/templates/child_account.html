@@ -294,7 +294,7 @@
                  <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
                  <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
                  <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
-                 <td>&nbsp;</td>
+                 <td>&nbsp; <font color="brown">{{form.used_by_allowance[each[0]]}}</font></td>
                </tr>
               {% endfor %}
             </table>

@@ -5,6 +5,8 @@ import sys
 import logging
 import copy
 import os
+import datetime
+from local_data import test_data
 
 required_paths = [
     '../']
@@ -14,8 +16,9 @@ for each_path in required_paths:
 
 import app
 
+from app import models
 from app import app as flask_obj
-from local_data import test_data
+
 
 logging.getLogger().setLevel(logging.ERROR)
 
@@ -217,6 +220,36 @@ class kidAllowanceTestCase(unittest.TestCase):
 
 #        with open('out.html', 'w') as f:
 #            f.write(rv.data)
+
+    def test_21_allowance_payout_check(self):
+        all_allowances = app.db.session.query(
+            models.Allowance, models.AllowanceDays).filter(
+            models.Allowance.id == models.AllowanceDays.allowance_id).all()
+        retval = app.lib.a_index.check_and_update_allowances(all_allowances)
+        day = datetime.datetime.utcnow().day
+        if retval is False and day < 29:
+            msg = "Failure to update an allowance when today not "
+            msg += "greater than the 28th"
+            raise Exception(msg)
+        elif day > 28:
+            print "Test is a NOOP today since today is greater than the 28th"
+
+    def test_97_delete_user_fail(self):
+        data = {'really_means_it': ''}
+        rv = gd.app.post(
+            '/delete_account',
+            data=dict(**data),
+            follow_redirects=True)
+        assert 'ERROR: You must click the box declaring you' in rv.data
+
+    def test_98_delete_user_succeed(self):
+        data = {'really_means_it': 'y'}
+        rv = gd.app.post(
+            '/delete_account',
+            data=dict(**data),
+            follow_redirects=True)
+        assert "User deleted" in rv.data
+        assert "Welcome to your online allowance" in rv.data
 
     def test_99_teardown(self):
         os.close(gd.db_fd)

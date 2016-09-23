@@ -8,7 +8,10 @@
     {% else %}
     <title>Money Tracker</title>
     {% endif %}
-    
+    {% if session['TechSupport'] == true %}<font color="red" size="+4"><b>TECH SUPPORT</b></font>{% endif %}
+    {% if LOCAL_SERVER_PORT is not none %}
+    &nbsp;&nbsp;&nbsp;&nbsp;<font color="orange" size="+1"><I>SERVER PORT:</I>{{LOCAL_SERVER_PORT}}</font>
+    {% endif %}
     {% if g.isgoogle == true or g.force_google_logout == true %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script>
