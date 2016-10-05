@@ -37,8 +37,7 @@
         auth2.signOut().then(function () {
           console.log('User signed out.');
           var xhr = new XMLHttpRequest();
-          xhr.open('GET', '{{config.GOOG_CALLBACK_URL}}}/logout')
-;
+          xhr.open('GET', '{{config.GOOG_CALLBACK_URL}}}/logout');
           xhr.send();
         });
       }
@@ -48,27 +47,24 @@
   </head>
   
   <body>
-    <div> <a href="/index"><img alt="home" title="home" style="width:28px;height:30px;" src="static/favicon.ico"></a>&nbsp;&nbsp;
+    <div> <a href="/index"><img alt="home" title="home" style="width:150px;height:150px;" src="static/piggybank.svg"></a>&nbsp;
     {% if g.user is defined and g.isgoogle == false or g.is_child %}
-      <a href="/logout">Logout</a>&nbsp;/&nbsp;
+      <a href="/logout"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="static/Logout.svg"></a>&nbsp;
     {% elif g.user is defined and g.isgoogle == true %}
-      <a href="/logout" onclick="signOutBase();">Logout</a>&nbsp;
+      <a href="/logout" onclick="signOutBase();"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="static/Logout.svg"></a>&nbsp;
       <div hidden="True" class="g-signin2" data-onsuccess="onSignIn" data-theme="dark">  </div>
     {% endif %}
     {% if g.user is defined %}
-        <a href="parent_account_review">Acct(parent)</a>
+        <a href="parent_account_review"><img alt="Parent Account" title="Parent Account" style="width:150px;height:150px;" src="static/ParentAccount.svg"></a>
     {% endif %}
     {% if g.user is not defined and g.is_child is not defined %}
-      <a href="/login">Parent login</a>&nbsp;/&nbsp;
-      <a href="/child_login">Child login</a>&nbsp;/&nbsp;
-      <a href="/register">Register</a>&nbsp;/&nbsp;
+      <a href="/login"><img alt="Parent Login" title="Parent Login" style="width:150px;height:150px;" src="static/ParentLogin.svg"></a>&nbsp;
+      <a href="/child_login"><img alt="Child Login" title="Child Login" style="width:150px;height:150px;" src="static/ChildLogin.svg"></a>&nbsp;
+      <a href="/register"><img alt="Register" title="Register" style="width:150px;height:150px;" src="static/Register.svg"></a>&nbsp;
     {% endif %}
 
-    {% if request.path != "/index" %}
-        &nbsp;&nbsp;<a href="index">&lt;&lt;Back</a>
-    {% endif %}
-     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://kidallowance.blogspot.com/">Blog</a>
-    &nbsp;&nbsp;&nbsp;<a href="help">Help</a>
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://kidallowance.blogspot.com/"><img alt="Blog" title="Blog" style="width:100px;height:100px;" src="static/Blog.svg"></a>
+    &nbsp;&nbsp;&nbsp;<a href="help"><img alt="Help" title="Help" style="width:100px;height:100px;" src="static/Help.svg"></a>
     <hr>
     {% with messages = get_flashed_messages() %}
       {% if messages %}

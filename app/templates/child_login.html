@@ -36,7 +36,7 @@
           <table class="animals">
             <tr>
               <td>
-               <select name="animal1" id="animal1" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+               <select name="animal1" id="animal1" style="width:150px;" onchange="showuserchoice(); checkChoices();">
                  {% for each_animal in form.animal1.iter_choices() %}
 
                  <option value="" data-description="Chose your first nickname animal">Animal 1</option>
@@ -54,7 +54,7 @@
                </select>
               </td>
               <td>
-               <select name="animal2" id="animal2" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+               <select name="animal2" id="animal2" style="width:150px;" onchange="showuserchoice(); checkChoices();">
                  {% for each_animal in form.animal2.iter_choices() %}
 
                  <option value="" data-description="Chose your second nickname animal">Animal 2</option>
@@ -82,7 +82,7 @@
             <tr>
               
               <td>
-               <select name="animal3" id="animal3" style="width:300px;" onchange="showuserchoice()">
+               <select name="animal3" id="animal3" style="width:150px;" onchange="showuserchoice()">
                  {% for each_animal in form.animal3.iter_choices() %}
 
                  <option value="" data-description="Chose your first password animal">Animal 3</option>
@@ -101,7 +101,7 @@
               </td>
               
               <td>
-               <select name="animal4" id="animal4" style="width:300px;" onchange="showuserchoice()">
+               <select name="animal4" id="animal4" style="width:150px;" onchange="showuserchoice()">
                  {% for each_animal in form.animal4.iter_choices() %}
 
                  <option value="" data-description="Chose your second password animal">Animal 4</option>

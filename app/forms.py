@@ -30,7 +30,7 @@ import os
 images = [(os.path.basename(each).split('_')[1][:-4],
            'static/' + os.path.basename(each))
           for each in glob.glob(config.basedir +
-                                "/app/static/animal[0-9][0-9]_*.png")]
+                                "/app/static/animal[0-9][0-9]_*.svg")]
 combo_list = []
 for i in images:
     for j in images:

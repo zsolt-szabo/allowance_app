@@ -165,7 +165,7 @@
             <tr>
               
               <td>
-               <select name="animal1" id="animal1" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+               <select name="animal1" id="animal1" style="width:150px;" onchange="showuserchoice(); checkChoices();">
                  {% for each_animal in form.animal1.iter_choices() %}
                  <option value="" data-description="Chose your first nickname animal">Animal 1</option>
                      {% if form.animal1.data == each_animal[0] %}
@@ -182,7 +182,7 @@
               </td>
               
               <td>
-               <select name="animal2" id="animal2" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+               <select name="animal2" id="animal2" style="width:150px;" onchange="showuserchoice(); checkChoices();">
                  {% for each_animal in form.animal2.iter_choices() %}
                  <option value="" data-description="Chose your second nickname animal">Animal 2</option>
                      {% if form.animal2.data == each_animal[0] %}
@@ -208,7 +208,7 @@
             <tr>
               
               <td>
-               <select name="animal3" id="animal3" style="width:300px;" onchange="showuserchoice()">
+               <select name="animal3" id="animal3" style="width:150px;" onchange="showuserchoice()">
                   {% for each_animal in form.animal1.iter_choices() %}
                  <option value="" data-description="Chose your first nickname animal">Animal 3</option>
                      {% if form.animal3.data == each_animal[0] %}
@@ -225,7 +225,7 @@
               </td>
               
               <td>
-               <select name="animal4" id="animal4" style="width:300px;" onchange="showuserchoice(); checkChoices();">
+               <select name="animal4" id="animal4" style="width:150px;" onchange="showuserchoice(); checkChoices();">
                  {% for each_animal in form.animal4.iter_choices() %}
                  <option value="" data-description="Chose your second nickname animal">Animal 4</option>
                      {% if form.animal4.data == each_animal[0] %}
