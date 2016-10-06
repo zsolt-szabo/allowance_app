@@ -23,6 +23,7 @@ from lib import a_child_login
 from lib import a_finance
 from flask.ext.login import login_required
 from flask import render_template
+import traceback
 
 
 @lm.user_loader
@@ -40,17 +41,22 @@ def load_user(id):
     # but the different variables will prevent accidental
     # viewing of other account information.
     app.logger.info("load_user triggered, id is %s" % str(id))
-    if type(id).__name__ == 'tuple':
-        user = models.Kid.query.get(int(id[1]))
-        g.is_child = True
-        g.kid_id = user.id
-    else:
-        user = models.User.query.get(int(id))
-    if not type(id).__name__ == 'tuple' and user is not None:
-        g.user = user.email
-        g.isgoogle = user.isgoogle
-        g.user_id = user.id
-        g.money_symbol = user.money_symbol
+    user = None
+    try:
+        if type(id).__name__ == 'tuple':
+            user = models.Kid.query.get(int(id[1]))
+            g.is_child = True
+            g.kid_id = user.id
+        else:
+            user = models.User.query.get(int(id))
+        if not type(id).__name__ == 'tuple' and user is not None:
+            g.user = user.email
+            g.isgoogle = user.isgoogle
+            g.user_id = user.id
+            g.money_symbol = user.money_symbol
+    except:
+        msg = traceback.format_exc()
+        app.logger.error(msg + "User loading failed")
     return user
 
 

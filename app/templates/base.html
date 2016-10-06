@@ -47,7 +47,7 @@
   </head>
   
   <body>
-    <div> <a href="/index"><img alt="home" title="home" style="width:150px;height:150px;" src="static/piggybank.svg"></a>&nbsp;
+    <div> <a href="/index"><br><img alt="home" title="home" style="width:150px;height:150px;" src="static/piggybank_home.svg"></a>&nbsp;
     {% if g.user is defined and g.isgoogle == false or g.is_child %}
       <a href="/logout"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="static/Logout.svg"></a>&nbsp;
     {% elif g.user is defined and g.isgoogle == true %}

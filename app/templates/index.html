@@ -51,15 +51,15 @@
          {% for kid in kids %}
              <tr>
                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-               <td><a href='ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/ledger.jpg"></a></td>
+               <td><a href='ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img width="150px" height="150px" src="static/Ledger.svg"></a></td>
                <td><a href='ledger?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>Add/Subtract or Review balance</a></td></td>
              </tr><tr>
                <td>&nbsp;</>
-               <td><a href='allowance?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/allowance.jpg"></a></td>
+               <td><a href='allowance?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/Happy Child.svg"></a></td>
                <td>Review <a href='allowance?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>Allowance settings</a></td>
             </tr><tr>
                <td>&nbsp;</td>
-               <td><a href='kid_manage?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/Settings.jpg"></a></td>
+               <td><a href='kid_manage?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'><img src="static/gear.svg"></a></td>
                <td><a href='kid_manage?kid={{ kid.firstname }}:{{ kid.animal1 }}:{{ kid.animal2 }}'>Password and Account settings</a></td>
              </tr>
          {% endfor %}
