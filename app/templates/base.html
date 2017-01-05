@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta name="google-signin-client_id" content="{{config.GOOG_CLIENT_ID}}">
-    <link rel="stylesheet" type="text/css" href="static/f7basestyle.css">
+    <link rel="stylesheet" type="text/css" href="/static/f7basestyle.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     {% if title %}
     <title>{{ title }} - kidallowance.net</title>
@@ -47,24 +47,25 @@
   </head>
   
   <body>
-    <div> <a href="/index"><br><img alt="home" title="home" style="width:150px;height:150px;" src="static/piggybank_home.svg"></a>&nbsp;
+    <div> <a href="/index"><br><img alt="home" title="home" style="width:150px;height:150px;" src="/static/piggybank_home.svg"></a>&nbsp;
     {% if g.user is defined and g.isgoogle == false or g.is_child %}
-      <a href="/logout"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="static/Logout.svg"></a>&nbsp;
+      <a href="/logout"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="/static/Logout.svg"></a>&nbsp;
     {% elif g.user is defined and g.isgoogle == true %}
-      <a href="/logout" onclick="signOutBase();"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="static/Logout.svg"></a>&nbsp;
+      <a href="/logout" onclick="signOutBase();"><img alt="Logout" title="Logout" style="width:150px;height:150px;" src="/static/Logout.svg"></a>&nbsp;
       <div hidden="True" class="g-signin2" data-onsuccess="onSignIn" data-theme="dark">  </div>
     {% endif %}
     {% if g.user is defined %}
-        <a href="parent_account_review"><img alt="Parent Account" title="Parent Account" style="width:150px;height:150px;" src="static/ParentAccount.svg"></a>
+        <a href="parent_account_review"><img alt="Parent Account" title="Parent Account" style="width:150px;height:150px;" src="/static/ParentAccount.svg"></a>
     {% endif %}
     {% if g.user is not defined and g.is_child is not defined %}
-      <a href="/login"><img alt="Parent Login" title="Parent Login" style="width:150px;height:150px;" src="static/ParentLogin.svg"></a>&nbsp;
-      <a href="/child_login"><img alt="Child Login" title="Child Login" style="width:150px;height:150px;" src="static/ChildLogin.svg"></a>&nbsp;
-      <a href="/register"><img alt="Register" title="Register" style="width:150px;height:150px;" src="static/Register.svg"></a>&nbsp;
+      <a href="/login"><img alt="Parent Login" title="Parent Login" style="width:150px;height:150px;" src="/static/ParentLogin.svg"></a>&nbsp;
+      <a href="/child_login"><img alt="Child Login" title="Child Login" style="width:150px;height:150px;" src="/static/ChildLogin.svg"></a>&nbsp;
+      <a href="/register"><img alt="Register" title="Register" style="width:150px;height:150px;" src="/static/Register.svg"></a>&nbsp;
     {% endif %}
 
-     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://kidallowance.blogspot.com/"><img alt="Blog" title="Blog" style="width:100px;height:100px;" src="static/Blog.svg"></a>
-    &nbsp;&nbsp;&nbsp;<a href="help"><img alt="Help" title="Help" style="width:100px;height:100px;" src="static/Help.svg"></a>
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://kidallowance.blogspot.com/"><img alt="Blog" title="Blog" style="width:100px;height:100px;" src="/static/Blog.svg"></a>
+    &nbsp;&nbsp;&nbsp;<a href="help"><img alt="Help" title="Help" style="width:100px;height:100px;" src="/static/Help.svg"></a>
+    &nbsp;<a href="/bodi"><img alt="Bodi's stuff" title="Bodi" style="width:75px;height:75px;" src="/static/Bodi.svg"></a>
     <hr>
     {% with messages = get_flashed_messages() %}
       {% if messages %}

@@ -148,3 +148,7 @@ def delete_user():
 @app.route('/help')
 def help():
     return render_template('help.html')
+
+@app.route('/bodi')
+def bodi():
+    return render_template('bodi.html')
