@@ -1,0 +1,75 @@
+<html>
+    <body>
+         <head>
+            <title>Bodi's Hi Low Program</title>
+            <style>
+                body {background-color: lightblue;}
+                
+                h1 {
+                    position: absolute;
+                    left: 150px;
+                    top: 300px;
+                     
+                }
+                
+                #submit {
+                    position: absolute;
+                    left:530px;
+                    top:250px;
+                }
+                
+                #guess {
+                    position: absolute;
+                    left:400px;
+                    top:250px;
+                }
+                
+                h4 {
+                    position:absolute;
+                    left:300px;
+                    top:700px;
+                }
+                
+                
+                
+            </style>
+            <script type="text/javascript">
+
+            var num = Math.floor(Math.random() *1000000);
+            console.log(num);
+            
+            var button = document.createElement("button")
+            
+            button.innerHTML="restart"
+            
+            function domything() {
+                var data = document.getElementById("guess").value;
+                document.getElementById("instructions").innerHTML = data; 
+            }
+            
+            function checkmything() {
+                guess = document.getElementById("guess").value;
+                if (guess > num){
+                    document.getElementById("instructions").innerHTML = "Guess too high";
+                }
+                
+                if (guess < num){
+                    document.getElementById("instructions").innerHTML = "Guess too low";
+                }
+                if (guess == num){
+                    document.getElementById("instructions").innerHTML = "COOOOOORRRRRRRRRECT!!!";
+                    }
+            } 
+            
+            </script>
+         </head>
+         <h1 id="instructions"> I'm thinking of a number between 1 and 1,000,000, try to guess it.</h1>
+         <h4 id="objective">Objective: Guess a number between 1 and 1,000,000</h4>
+         <div>
+            <input id="guess" type="text"/><br>
+            <input id="submit" type="submit" onclick="checkmything();">
+            <button id="restart" value="submit" onclick="location.reload();" type="submit">Restart Game</button>
+             
+         </div>
+    </body>
+</html>
