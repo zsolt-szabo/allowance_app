@@ -8,6 +8,8 @@
 // healthbar
 // powerups/new ammo
 
+var ghost = false;
+
 var kazuyaMode = false;
 
 var kazuyaCheat = 0;
@@ -289,6 +291,7 @@ function keyDown(event) {
 				if(password == "kazuya") {
 					kazuyaMode = true;
 					alert("kazuya mode activated");
+					alert("press the upp arrow to have your bullets go through the ground and press the down arrow to have them slide along the ground")
 				} else {
 					cheat = 0;
 				}
@@ -302,6 +305,14 @@ function keyDown(event) {
 				maxSpeed = 10;
 			}
 		} break;
+		
+		case 38: {
+			ghost = true;
+		} break;
+		
+		case 40: {
+			ghost = false;
+		}
 		
 		case 79: {
 			cheat --;
@@ -603,7 +614,10 @@ function update() {
 						if(kazuyaMode == false) {
 						gameObject.destroy();
 						} else {
-							gameObject.velocity.y = 0;
+						if(ghost == false) {
+						gameObject.velocity.y = 0;	
+						}
+						
 						}
 					} else if(collider.tags.indexOf('enemy') != -1 && cheat > 1) {
 						collider.changeHealth (-100);
