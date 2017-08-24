@@ -1,4 +1,7 @@
 // opacity
+// green tank that shoots
+
+// enemies that shoot at you
 
 // metalboss
 	// always charge player
@@ -8,7 +11,11 @@
 // healthbar
 // powerups/new ammo
 
+var isacMode = false;
+
 var ghost = false;
+
+var imortal = false;
 
 var kazuyaMode = false;
 
@@ -21,6 +28,8 @@ var coinAmount = 0;
 var healthBoosts = 0;
 
 var cheat = 0;
+
+var enemies = [];
 
 var activeWeapon = null;
 var equipment = {
@@ -65,7 +74,21 @@ function randomEnemy() {
     new Enemy(enemyX, -100, 50, 50, type, image);
 }
 
+function fort() {
+	var fortWall = new GameObject(player.position.x - 200, player.position.y + 800, 25, 200);
+	fortWall.tags.push("fortWall");
 
+	var fortWall = new GameObject(player.position.x + 200, player.position.y + 900, 25, 200);
+	fortWall.tags.push("fortWall");
+
+	var fortWall = new GameObject(player.position.x - 200, player.position.y + 1000, 425, 25);
+	fortWall.tags.push("fortRoof");
+}
+
+function nuke() {
+	var nuke = new GameObject(player.position.x, player.position.y + 500, 100, 100, "images/nuke.png");
+	nuke.tags.push('nuke');
+}
 
 function Character(x,y,w,h,image) {
     GameObject.call(this, x, y, w, h, image);
@@ -82,28 +105,31 @@ function Character(x,y,w,h,image) {
 	    me.opacity = me.health / me.maxHealth;
 
 		if(me.health <= 0) {
-			me.destroy();
-
-			if(me.tags.indexOf('enemy') != -1) {
-				randomEnemy();
-
-				if(Math.floor(Math.random() * 5) == 2 || me.type == 'heavy') {
-					var coin = new GameObject(me.position.x,me.position.y,15,15,"images/coin.png");
-					coin.tags.push("coin");
-				}
-
-			    setTimeout(function() {
-	    		    randomEnemy();
-			    }, 2000);
-
-
-				if(player.health > 0) {
-					score += me.value;
-				}
-			}
+			me.defeat();
 		}
 	}
 
+	me.defeat = function() {
+		me.destroy();
+
+		if(me.tags.indexOf('enemy') != -1) {
+			randomEnemy();
+
+			if(Math.floor(Math.random() * 5) == 2 || me.type == 'heavy') {
+				var coin = new GameObject(me.position.x,me.position.y,15,15,"images/coin.png");
+				coin.tags.push("coin");
+			}
+
+		    setTimeout(function() {
+    		    randomEnemy();
+		    }, 2000);
+
+
+			if(player.health > 0) {
+				score += me.value;
+			}
+		}
+	}
 }
 
 function Enemy(x,y,w,h,type,image) {
@@ -112,11 +138,15 @@ function Enemy(x,y,w,h,type,image) {
 
     me.tags.push('enemy');
 
+    enemies.push(me);
+
     me.value = 1;
 
     me.speed = 3;
 
     me.type = type;
+
+    me.status = null;
 
     if(me.type == 'metalboss') {
     } else if(me.type == 'heavy') {
@@ -128,7 +158,7 @@ function Enemy(x,y,w,h,type,image) {
 
 	me.think = function() {
     	if(me.type == 'metalboss' || me.type == 'heavy') {
-			if (me.grounded == true) {
+			if (me.grounded == true && me.status != "blocked") {
 				if (me.position.x > player.position.x) {
 					me.position.x -= me.speed;
 				} else{
@@ -139,8 +169,6 @@ function Enemy(x,y,w,h,type,image) {
 		}
 	}
 }
-
-
 
 function GameObject(x,y,w,h,image) {
 	var me = this;
@@ -163,9 +191,11 @@ function GameObject(x,y,w,h,image) {
 		gameObjects.splice(gameObjects.indexOf(me), 1);
 		
 		if(me.tags.indexOf('beamParticle') != -1) {
-			
 			beamParticles.splice(beamParticles.indexOf(me), 1);
-			
+		}
+
+		if(me.tags.indexOf('enemy') != -1) {
+			enemies.splice(enemies.indexOf(me), 1);
 		}
 	}
 
@@ -224,8 +254,10 @@ var ground = new GameObject(0, -500, 10000000, 50);
 ground.static = true;
 // var cage = new GameObject(5000);
 
- 
- //var range = 100;
+
+
+
+//var range = 100;
 var jumpBoost = new GameObject(Math.random() * 10000, -100, 20, 20, "images/jump.png");
 jumpBoost.tags.push("jumpBoost");
 
@@ -238,6 +270,8 @@ powerUp.tags.push("powerUp");
 var healthBoost = new GameObject(Math.random() * 10500, -100, 30, 30,"images/health.png");
 healthBoost.tags.push("healthBoost");
 
+
+
 // NEXT TIME!
 function generateArea() {
     // generate stuff in like a 10000 unit area
@@ -248,11 +282,9 @@ function keyDown(event) {
 		case 87: {
 			//w
 			 // += 10;
-
-
 		} break;
 
-		case 83: {
+		case 83: { // s
 
 		} break;
 
@@ -260,6 +292,12 @@ function keyDown(event) {
 			//a
 			// player.x -= 5;
 			xdirection = -1;
+		} break;
+
+		case 78: {
+			if(cooperMode == true) {	
+			nuke();
+		}
 		} break;
 
 		case 68: {
@@ -282,21 +320,36 @@ function keyDown(event) {
 				player.velocity.y = 2;
 			}
 		} break;
-		
-		case 75: {
+
+		case 75: { // k
 			kazuyaCheat +=1;
 			
 			if (kazuyaCheat > 2) {
 				var password = prompt("password please");
+				
+				
+				
+				if (password == "cooper") {
+					cooperMode = true;
+					cheat = 2;
+					alert("cooper mode activated");
+				}
 				if(password == "kazuya") {
 					kazuyaMode = true;
+					cheat = 2;
 					alert("kazuya mode activated");
-					alert("press the upp arrow to have your bullets go through the ground and press the down arrow to have them slide along the ground")
+					
 				} else {
 					cheat = 0;
 				}
 			}
+		} break;
+
+		case 70: { // f
+			if(kazuyaMode == true) {
+			fort(); 
 		}
+		} break;
 
 		case 16: {
 			// SHIFT
@@ -306,32 +359,29 @@ function keyDown(event) {
 			}
 		} break;
 		
-		case 38: {
+		case 38: { // up arrow
 			ghost = true;
 		} break;
 		
-		case 40: {
+		case 40: { // down arrow
 			ghost = false;
-		}
+		} break;
 		
-		case 79: {
-			cheat --;
+		case 79: { // o
+			cheat--;
 		} break;
 
-		case 67: {
+		case 67: { // c
 			if(cheat > 1) {
 				coinAmount += 5;
 			}
-		}
-		
-		
-		
-		
-		case 49: {
+		} break;
+
+		case 49: { // 1
 			activeWeapon = null;
 		} break;
 
-		case 50: {
+		case 50: { // 2
 			if(!equipment.laser) {
 				if(coinAmount >= 50) {
 					equipment.laser = true;
@@ -344,7 +394,7 @@ function keyDown(event) {
 			activeWeapon = 'laser';
 		} break;
 		
-		case 51: {
+		case 51: { // 3
 			if (activeWeapon == 'laser' && coinAmount > 49) {
                 if(laserUpgrade == false) {
 				coinAmount -= 50;
@@ -353,7 +403,7 @@ function keyDown(event) {
 				
             }
 			
-		}
+		} break;
 
 		case 81: {
 			// Q
@@ -363,7 +413,7 @@ function keyDown(event) {
 					healthBoosts--;
 				} break;
 			}
-		}
+		} break;
 	} 
 }
     
@@ -484,6 +534,7 @@ var lastTime = new Date();
 var timer = 0;
 
 function update() {
+	
 	tools.clearRect(0,0,gamecan.width,gamecan.height);
 
 	var currentTime = new Date();
@@ -559,8 +610,10 @@ function update() {
 		var gameObject = gameObjects[index];
 
         if(gameObject.tags.indexOf('enemy') != -1) {
-            gameObject.think();
-        }
+            if (isacMode == false) {
+			gameObject.think();
+			}
+		}
 
 		for(var colliderIndex = 0; colliderIndex < gameObjects.length; colliderIndex++) {
 			var collider = gameObjects[colliderIndex];
@@ -593,7 +646,7 @@ function update() {
 						healthBoost.destroy();
 						healthBoost = new GameObject(Math.random() * 10500, -100, 30, 30,"images/health.png");
 						healthBoost.tags.push("healthBoost");
-						}
+					}
 					if(collider.static && cheat < 2) {
 						// player.speed = normalAcceleration;
 						maxSpeed = 4;
@@ -633,7 +686,22 @@ function update() {
 						collider.changeHealth(-100);
 					}
 					
-				} else if(gameObject.tags.indexOf('character') != -1 && gameObject.tags.indexOf('enemy') == -1) {
+				}
+
+				if(gameObject.tags.indexOf('enemy') != -1) {
+					if(collider.tags.indexOf('fortWall') != -1) {
+						gameObject.status = "blocked";
+					}
+				}
+
+				if (gameObject.tags.indexOf("fortRoof") != -1) {
+					if(collider.tags.indexOf("fortWall") != -1) {
+						gameObject.static = true;
+						gameObject.velocity.y = 0;
+					}
+				}
+
+				if(gameObject.tags.indexOf('character') != -1 && gameObject.tags.indexOf('enemy') == -1) {
 				    if(collider.tags.indexOf('enemy') != -1) {
 						if(collider.type == 'heavy') {
 				        	gameObject.changeHealth(-20);
@@ -647,11 +715,31 @@ function update() {
 				     
 				        
 				    }
-				} else {
-					if(collider.static) {
-						gameObject.velocity.y = 0;
-						gameObject.grounded = true;
+				}
+
+				if(collider.static) {
+					if(gameObject.tags.indexOf("nuke") != -1) {
+						document.body.style.backgroundColor = "rgb(255, 78, 34)";
+						gameObject.destroy();
+
+						for (var enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++) {
+							var enemy = enemies[enemyIndex]
+							enemy.defeat();
+						}
+
+						// while(enemies.length) {
+						// 	var enemy = enemies.pop();
+						// 	enemy.defeat();
+						// }
+
+						setTimeout(function() {
+							document.body.style.transition = "background-color 10s";
+							document.body.style.backgroundColor = 'white';
+						}, 3000);
 					}
+
+					gameObject.velocity.y = 0;
+					gameObject.grounded = true;
 				}
 			}
 		}
