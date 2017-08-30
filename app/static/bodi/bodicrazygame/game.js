@@ -13,6 +13,12 @@
 
 var isacMode = false;
 
+var isacCount = 0;
+
+var cooperMode = false;
+
+var roboFreeze = false;
+
 var ghost = false;
 
 var imortal = false;
@@ -24,6 +30,8 @@ var kazuyaCheat = 0;
 var laserUpgrade = false;
 
 var coinAmount = 0;
+
+var metalAmount = 0;
 
 var healthBoosts = 0;
 
@@ -114,11 +122,26 @@ function Character(x,y,w,h,image) {
 
 		if(me.tags.indexOf('enemy') != -1) {
 			randomEnemy();
+			
+			
+			var random = Math.floor(Math.random() * 5);
+			
+			console.log(random);
+			
 
-			if(Math.floor(Math.random() * 5) == 2 || me.type == 'heavy') {
+			if( random == 2 || me.type == 'heavy') {
 				var coin = new GameObject(me.position.x,me.position.y,15,15,"images/coin.png");
 				coin.tags.push("coin");
+				
+				
+				
+			} else if( random == 3) {
+				
+				var metal = new GameObject(me.position.x,me.position.y,15,15,"images/metal.png");
+				metal.tags.push("metal");
 			}
+			
+			
 
 		    setTimeout(function() {
     		    randomEnemy();
@@ -255,7 +278,7 @@ ground.static = true;
 // var cage = new GameObject(5000);
 
 
-
+var bodiCount = 0;
 
 //var range = 100;
 var jumpBoost = new GameObject(Math.random() * 10000, -100, 20, 20, "images/jump.png");
@@ -280,13 +303,63 @@ function generateArea() {
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 87: {
+			bodiCount ++;
+			if(bodiCount > 3) {
+				var bodiPassword = prompt("enter password");
+				if(bodiPassword == "bodi") {
+					alert("you are now imortal");
+					imortal = true;
+				}
+			}
+			
+			function imortalfunk() {
+			 
+			imortal = true;
+			
+			
+				
+			}
+			
+			
+			
 			//w
 			 // += 10;
 		} break;
 
 		case 83: { // s
-
+			isacCount++;
+			if(isacCount > 2) {
+				var password2 = prompt("please enter your password");
+				if (password2 == "isac") {
+					isacMode = true;
+				}
+			}
 		} break;
+		
+		case 52: {
+			if(metalAmount > 9) {
+				coinAmount += 5;
+				metalAmount -= 10;
+			} 
+		} break;
+		
+		case 53: {
+			if(coinAmount > 9) {
+				coinAmount -= 10;
+				metalAmount += 5;
+			} break;
+			
+		 
+			
+		
+		
+		}
+		
+		case 73: {
+			if (isacMode == true) {
+			roboFreeze = true;
+			}
+		}
 
 		case 65: {
 			//a
@@ -295,9 +368,19 @@ function keyDown(event) {
 		} break;
 
 		case 78: {
-			if(cooperMode == true) {	
+			if( cooperMode == true || metalAmount > 49) {	
 			nuke();
-		}
+			setTimeout(nuke, 100);
+			setTimeout(nuke, 100);
+			
+			if( cooperMode == false) {
+				metalAmount -= 50;
+			}
+			
+		}  
+			
+		
+		
 		} break;
 
 		case 68: {
@@ -339,6 +422,8 @@ function keyDown(event) {
 					cheat = 2;
 					alert("kazuya mode activated");
 					
+					
+					
 				} else {
 					cheat = 0;
 				}
@@ -373,7 +458,8 @@ function keyDown(event) {
 
 		case 67: { // c
 			if(cheat > 1) {
-				coinAmount += 5;
+				coinAmount += 10;
+				metalAmount += 10;
 			}
 		} break;
 
@@ -462,15 +548,19 @@ function mouseDown(event) {
 
 	if(activeWeapon == null) {
 		if (powerShots > 0 || cheat > 1 || laserUpgrade == true) {
-			if (kazuyaMode == false) {
+			if (kazuyaMode == false && isacMode == false) {
 			var bullet = new GameObject(player.position.x + 70, player.position.y - 47, 20,10);
 			bullet.tags.push('projectile');
 			
 			var bullet2 = new GameObject(player.position.x + 10, player.position.y - 47, 20,10);
 			bullet2.tags.push('projectile');
 			
-			} else {
+			} else if(kazuyaMode == true) {
 			bullet = new GameObject(player.position.x + 70, player.position.y - 47, 20,30, "images/kazuya.png");
+			bullet.tags.push('projectile');	
+			} if(isacMode == true) {
+				
+			bullet = new GameObject(player.position.x + 50, player.position.y - 47, 20,30, "images/banana.png");
 			bullet.tags.push('projectile');	
 			}
 			
@@ -534,6 +624,8 @@ var lastTime = new Date();
 var timer = 0;
 
 function update() {
+
+	
 	
 	tools.clearRect(0,0,gamecan.width,gamecan.height);
 
@@ -610,7 +702,7 @@ function update() {
 		var gameObject = gameObjects[index];
 
         if(gameObject.tags.indexOf('enemy') != -1) {
-            if (isacMode == false) {
+            if (roboFreeze == false) {
 			gameObject.think();
 			}
 		}
@@ -634,6 +726,11 @@ function update() {
 
 					if(collider.tags.indexOf("coin") != -1) {
 						coinAmount ++;
+						collider.destroy();
+					}
+					
+					if(collider.tags.indexOf("metal") != -1) {
+						metalAmount ++;
 						collider.destroy();
 					}
 
@@ -703,16 +800,19 @@ function update() {
 
 				if(gameObject.tags.indexOf('character') != -1 && gameObject.tags.indexOf('enemy') == -1) {
 				    if(collider.tags.indexOf('enemy') != -1) {
+						if(imortal == false) {
+						
 						if(collider.type == 'heavy') {
-				        	gameObject.changeHealth(-20);
+				        	gameObject.changeHealth(-25);
 				        	var differenceVector = gameObject.position.subtract(collider.position);
 				        	differenceVector.normalize();
 				        	differenceVector.scale(10);
 				        	player.velocity = player.velocity.add(differenceVector);
 				        } else {
 				        	gameObject.changeHealth(-1);
-				        }
-				     
+							
+							 }
+						}
 				        
 				    }
 				}
@@ -756,7 +856,7 @@ function update() {
 			if (kazuyaMode == false){
 			image.src = 'images/player.gif';
 			
-			} else {
+			} else if (kazuyaMode == true) {
 			image.src = 'images/kazuyaCannon.png';
 			player.w = 200;
 			}
@@ -768,7 +868,7 @@ function update() {
 			if(kazuyaMode == false) {
 			image.src = 'images/gun.png';
 			} else {
-			image.src = 'null.png'
+			image.src = 'images/null.png'
 			}
 			tools.drawImage(image, 535, 530, 50, 50);
 			} else if(activeWeapon == 'laser'){
@@ -801,6 +901,9 @@ function update() {
 
 	tools.font = '36px Arial';
 	tools.fillText("coins: " + coinAmount, 10, 100);
+	
+	tools.font = '36px Arial';
+	tools.fillText("metal: " + metalAmount, 10, 150);
 
 	lastTime = currentTime;
 
