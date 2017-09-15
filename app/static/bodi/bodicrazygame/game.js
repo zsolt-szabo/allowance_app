@@ -1,3 +1,5 @@
+// next time, shop buttons disappears
+// KRITA
 // opacity
 // green tank that shoots
 
@@ -10,6 +12,12 @@
 // collision stuff
 // healthbar
 // powerups/new ammo
+
+var obsolete = false;
+
+var bossPowerUpCount = 0;
+
+var bossPowerUp = 0;
 
 var isacMode = false;
 
@@ -59,6 +67,7 @@ var tools = gamecan.getContext("2d");
 
 var gameObjects = [];
 var beamParticles = [];
+var uiObjects = [];
 
 function randomEnemy() {
     var range = 5000;
@@ -71,15 +80,34 @@ function randomEnemy() {
 
 	var type;
 	var image;
-	if (Math.random() * 20 > 19 && score >= 50) {
-		image = 'images/aw_rad.gif';
-		type = 'heavy';
-	} else {
-		image = 'images/metalboss.gif';
-		type = 'metalboss';
-    }
 
-    new Enemy(enemyX, -100, 50, 50, type, image);
+	var randomNumber = Math.random() * 20;
+
+	if(obsolete == false) {
+		//if (randomNumber > 19 && score >= 100) {
+			//image = 'images/tank.png';
+			//type = 'tank';
+		/*} else */ if(randomNumber > 17 && score >= 50) {
+			image = 'images/aw_rad.gif';
+			type = 'heavy';
+	    } else {
+	    	image = 'images/metalboss.gif';
+			type = 'metalboss';
+	    }
+	} else {
+		//if (randomNumber > 15) {
+			//image = 'images/tank.png';
+			//type = 'tank';
+		/*} else */if(randomNumber > 10) {
+			image = 'images/aw_rad.gif';
+			type = 'heavy';
+		} else {
+			image = 'images/metalboss.gif';
+			type = 'metalboss';
+    	}
+	}
+
+    new Enemy(enemyX, -100, 50 + bossPowerUp / 100, 50 + bossPowerUp / 100, type, image);
 }
 
 function fort() {
@@ -104,6 +132,7 @@ function Character(x,y,w,h,image) {
 	var me = this;
 	
 	me.maxHealth = 100;
+	
 	me.health = me.maxHealth;
     me.speed = 4;
     me.tags.push('character');
@@ -126,7 +155,12 @@ function Character(x,y,w,h,image) {
 			
 			var random = Math.floor(Math.random() * 5);
 			
-			console.log(random);
+			bossPowerUpCount += 1;
+			if(bossPowerUpCount >= 10) {
+				bossPowerUpCount = 0;
+
+				bossPowerUp += 50;
+			}
 			
 
 			if( random == 2 || me.type == 'heavy') {
@@ -142,14 +176,19 @@ function Character(x,y,w,h,image) {
 			}
 			
 			
-
+			if(obsolete == false) {
 		    setTimeout(function() {
     		    randomEnemy();
 		    }, 2000);
+			}
 
 
 			if(player.health > 0) {
 				score += me.value;
+				
+				if(score > 300) {
+					obsolete = true;
+				}
 			}
 		}
 	}
@@ -172,23 +211,39 @@ function Enemy(x,y,w,h,type,image) {
     me.status = null;
 
     if(me.type == 'metalboss') {
+    	me.maxHealth = 100 + bossPowerUp;
+    	me.health = me.maxHealth;
     } else if(me.type == 'heavy') {
     	me.speed = 0.75;
     	me.health = 1000;
     	me.maxHealth = me.health;
     	me.value = 2;
-    }
+    } //else if(me.type == "tank") {
+    	//me.speed = 0.5;
+    	//me.health = 1000;
+    	//me.maxHealth = me.health;
+    	//me.value = 3;
+   // }
 
 	me.think = function() {
-    	if(me.type == 'metalboss' || me.type == 'heavy') {
-			if (me.grounded == true && me.status != "blocked") {
-				if (me.position.x > player.position.x) {
-					me.position.x -= me.speed;
-				} else{
-					me.position.x += me.speed;
-
+		switch(me.type) {
+			case 'metalboss':
+			case 'heavy': {
+				if (me.grounded == true && me.status != "blocked") {
+					if (me.position.x > player.position.x) {
+						me.position.x -= me.speed;
+					} else{
+						me.position.x += me.speed;
+					}
 				}
-			}
+			} break;
+
+			case 'tank': {
+				var tankBullet = new GameObject(me.position.x, me.position.y, 10, 10);
+				var differenceVector = player.position.subtract(tank.position);
+				//// LEFT OFF
+				tankBullet.velocity = differenceVector;
+			} break;
 		}
 	}
 }
@@ -198,6 +253,7 @@ function GameObject(x,y,w,h,image) {
 
 	// this.x = x;
 	// this.y = y;
+	me.active = true;
 	me.position = new Vector2D(x, y);
 	me.velocity = new Vector2D(0, 0);
 	me.w = w;
@@ -210,11 +266,23 @@ function GameObject(x,y,w,h,image) {
 	me.opacity = 1;
 	me.color = 'black';
 
+	me.clickEvents = [];
+
+	me.addEvent = function(func) {
+		me.clickEvents.push(func);
+		me.tags.push('uiButton');
+		uiObjects.push(me);
+	}
+
 	me.destroy = function() {
 		gameObjects.splice(gameObjects.indexOf(me), 1);
 		
 		if(me.tags.indexOf('beamParticle') != -1) {
 			beamParticles.splice(beamParticles.indexOf(me), 1);
+		}
+
+		if(me.tags.indexOf('uiObject') != -1) {
+			uiObjects.splice(uiObjects.indexOf(me), 1);
 		}
 
 		if(me.tags.indexOf('enemy') != -1) {
@@ -270,10 +338,10 @@ var maxSpeed = 4;
 
 player.speed = normalAcceleration;
 
-var underground = new GameObject(0, -1700, 10000000, 50);
+var underground = new GameObject(0, -1700, 20000, 50);
 underground.tags.push("underground");
 underground.static = true;
-var ground = new GameObject(0, -500, 10000000, 50);
+var ground = new GameObject(0, -500, 20000, 50);
 ground.static = true;
 // var cage = new GameObject(5000);
 
@@ -284,16 +352,65 @@ var bodiCount = 0;
 var jumpBoost = new GameObject(Math.random() * 10000, -100, 20, 20, "images/jump.png");
 jumpBoost.tags.push("jumpBoost");
 
-
-
 var powerUp = new GameObject(Math.random() * 10500, -100, 30, 30, "images/powerUp.png");
 powerUp.tags.push("powerUp");
-
 
 var healthBoost = new GameObject(Math.random() * 10500, -100, 30, 30,"images/health.png");
 healthBoost.tags.push("healthBoost");
 
+var shop = new GameObject(Math.random() * 10000, -100, 200, 200, "images/shop.png");
+shop.tags.push("shop");
 
+var button1 = new GameObject(shop.position.x - 75, -200, 100, 100, "images/powerUp.png");
+button1.tags.push("button1");
+button1.kinematic = true;
+button1.active = false;
+button1.addEvent(function() {
+	if(coinAmount >= 5 && coinAmount < 10) {
+		powerShots += 5;
+		coinAmount -= 5;
+	} else if(coinAmount >= 10 && coinAmount < 50) {
+		coinAmount -= 10;
+		powerShots += 15;
+	} else if(coinAmount >= 50) {
+		coinAmount -= 50;
+		powerShots += 1000;
+		} else {
+		// not enough coins
+	}
+});
+
+var button2 = new GameObject(shop.position.x + 50, -200, 100, 100, "images/health.png");
+button2.kinematic = true;
+button2.active = false;
+button2.addEvent(function() {
+			if(coinAmount >= 10 && coinAmount < 50) {
+				healthBoosts++;
+
+				coinAmount -= 10;
+			} else if(coinAmount >= 50) {
+				coinAmount -= 50;
+				healthBoosts += 25;
+			} else {
+				// not enough coins
+			}
+		});
+
+var button3 = new GameObject(shop.position.x + 175, -200, 100, 100, "images/jump.png");
+button3.kinematic = true;
+button3.active = false;
+button3.addEvent(function() {
+			if(coinAmount >= 5 && coinAmount < 50) {
+				jumpBoosts++;
+
+				coinAmount -= 5;
+			} else if(coinAmount >= 50) {
+				coinAmount -= 50;
+				jumpBoosts += 25;
+			} else {
+				// not enough coins
+			}
+		});
 
 // NEXT TIME!
 function generateArea() {
@@ -306,15 +423,19 @@ function keyDown(event) {
 			bodiCount ++;
 			if(bodiCount > 3) {
 				var bodiPassword = prompt("enter password");
-				if(bodiPassword == "bodi") {
+				if(bodiPassword == "bodiisthegreatest") {
 					alert("you are now imortal");
 					imortal = true;
+					isacMode = true;
+					cooperMode = true;
+					kazuyaMode = true;
+					cheat = 2;
 				}
 			}
 			
 			function imortalfunk() {
 			 
-			imortal = true;
+				imortal = true;
 			
 			
 				
@@ -330,8 +451,9 @@ function keyDown(event) {
 			isacCount++;
 			if(isacCount > 2) {
 				var password2 = prompt("please enter your password");
-				if (password2 == "isac") {
+				if (password2 == "waterfront") {
 					isacMode = true;
+					alert("isaac mode activated");
 				}
 			}
 		} break;
@@ -417,7 +539,7 @@ function keyDown(event) {
 					cheat = 2;
 					alert("cooper mode activated");
 				}
-				if(password == "kazuya") {
+				if(password == "spring") {
 					kazuyaMode = true;
 					cheat = 2;
 					alert("kazuya mode activated");
@@ -483,7 +605,7 @@ function keyDown(event) {
 		case 51: { // 3
 			if (activeWeapon == 'laser' && coinAmount > 49) {
                 if(laserUpgrade == false) {
-				coinAmount -= 50;
+					coinAmount -= 50;
 				}
 				laserUpgrade = true;
 				
@@ -544,6 +666,18 @@ function mouseDown(event) {
 	var worldPosition = localToWorld(event.clientX, event.clientY);
 	mouseCoords = worldPosition;
 
+	var mouseObject = new GameObject(mouseCoords.x, mouseCoords.y, 1, 1);
+	for (var uiIndex = 0; uiIndex < uiObjects.length; uiIndex++) {
+		var uiObject = uiObjects[uiIndex];
+		if(checkCollision(mouseObject, uiObject)) {
+			for(var eventIndex = 0; eventIndex < uiObject.clickEvents.length; eventIndex++) {
+				var eventFunction = uiObject.clickEvents[eventIndex];
+				eventFunction();
+			}
+		}
+	}
+	mouseObject.destroy();
+
 	mousing = true;
 
 	if(activeWeapon == null) {
@@ -562,11 +696,7 @@ function mouseDown(event) {
 				
 			bullet = new GameObject(player.position.x + 50, player.position.y - 47, 20,30, "images/banana.png");
 			bullet.tags.push('projectile');	
-			}
-			
-			
-			
-			
+			}			
 			
 			var velocityVector = worldPosition.subtract(bullet.position);
 			velocityVector.normalize();
@@ -595,9 +725,9 @@ function mouseDown(event) {
 		var differenceVector = mouseCoords.subtract(gunVector);
 		differenceVector.normalize();
 		if(laserUpgrade == false) {
-		differenceVector.scale(35);
+			differenceVector.scale(35);
 		} else if(laserUpgrade == true) {
-		differenceVector.scale(45);	
+			differenceVector.scale(45);	
 		}
 		attackVector = differenceVector;
 		
@@ -613,10 +743,10 @@ function mouseMove(event) {
 function mouseUp() {
 	mousing = false;
 	if(laserUpgrade == false) {
-	for (var particleIndex = beamParticles.length - 1; particleIndex >= 0; particleIndex--) {
-		var beamParticle = beamParticles[particleIndex];
-		beamParticle.destroy();
-	}
+		for (var particleIndex = beamParticles.length - 1; particleIndex >= 0; particleIndex--) {
+			var beamParticle = beamParticles[particleIndex];
+			beamParticle.destroy();
+		}
 	}
 }
 
@@ -624,9 +754,6 @@ var lastTime = new Date();
 var timer = 0;
 
 function update() {
-
-	
-	
 	tools.clearRect(0,0,gamecan.width,gamecan.height);
 
 	var currentTime = new Date();
@@ -637,12 +764,13 @@ function update() {
 
 	if(mousing == true && activeWeapon == 'laser') {
 		if(laserUpgrade == false) {
-		var beamParticle = new GameObject(player.position.x + 70, player.position.y - 47, 40, 40);
-		beamParticle.color = 'red';
+			var beamParticle = new GameObject(player.position.x + 70, player.position.y - 47, 40, 40);
+			beamParticle.color = 'red';
 		} else {
-		var beamParticle = new GameObject(player.position.x + 70, player.position.y - 47, 60, 40);
-		beamParticle.color = 'green';	
+			var beamParticle = new GameObject(player.position.x + 70, player.position.y - 47, 60, 40);
+			beamParticle.color = 'green';	
 		}
+
 		beamParticle.tags.push("projectile");
 		beamParticle.tags.push("beamParticle");
 		beamParticle.kinematic = true;
@@ -698,12 +826,17 @@ function update() {
 
 	// gamecan.width
 
+	var shopCollision = false;
 	for(var index = 0; index < gameObjects.length; index++) {
 		var gameObject = gameObjects[index];
 
+		if(gameObject.active == false) {
+			continue;
+		}
+
         if(gameObject.tags.indexOf('enemy') != -1) {
             if (roboFreeze == false) {
-			gameObject.think();
+				gameObject.think();
 			}
 		}
 
@@ -711,6 +844,10 @@ function update() {
 			var collider = gameObjects[colliderIndex];
 
 			if(collider == gameObject) {
+				continue;
+			}
+
+			if(collider.active == false) {
 				continue;
 			}
 
@@ -732,6 +869,10 @@ function update() {
 					if(collider.tags.indexOf("metal") != -1) {
 						metalAmount ++;
 						collider.destroy();
+					}
+
+					if(collider.tags.indexOf("shop") != -1) {
+						shopCollision = true;
 					}
 
 					if(collider.tags.indexOf('powerUp') != -1) {
@@ -762,24 +903,24 @@ function update() {
 					if(collider.static) {
 						// it is a projectile
 						if(kazuyaMode == false) {
-						gameObject.destroy();
+							gameObject.destroy();
 						} else {
-						if(ghost == false) {
-						gameObject.velocity.y = 0;	
-						}
-						
+							if(ghost == false) {
+								gameObject.velocity.y = 0;	
+							}
 						}
 					} else if(collider.tags.indexOf('enemy') != -1 && cheat > 1) {
-						collider.changeHealth (-100);
+						collider.defeat();
 					} else if (collider.tags.indexOf('enemy') != -1 && cheat < 2){
-						collider.changeHealth(-15);
-					
-					
-					} if(collider.tags.indexOf('enemy') != -1 && powerShots > 0) {
-						collider.changeHealth(-100);
+						collider.changeHealth(-50);
+					}
+
+					if(collider.tags.indexOf('enemy') != -1 && powerShots > 0) {
+						collider.defeat();
 						powerShots--;
-					
-					} if(collider.tags.indexOf('enemy') != -1 && activeWeapon == 'laser' && laserUpgrade == true) {
+					}
+
+					if(collider.tags.indexOf('enemy') != -1 && activeWeapon == 'laser' && laserUpgrade == true) {
 						collider.changeHealth(-100);
 					}
 					
@@ -895,6 +1036,16 @@ function update() {
 		}
 	}
 
+	if(shopCollision) {
+		button1.active = true;
+		button2.active = true;
+		button3.active = true;
+	} else {
+		button1.active = false;
+		button2.active = false;
+		button3.active = false;
+	}
+
 	tools.font = '36px Arial';
 	tools.fillText(score, 10, 40);
 	tools.fillText(Math.floor(timer / 1000), gamecan.width - 100, 40);
@@ -913,7 +1064,7 @@ function update() {
 update();
 
 
-function checkCollision(a,b) {
+function checkCollision(a, b) {
 	var lxa = a.position.x;
 	var rxa = a.position.x + a.w;
 	var tya = a.position.y;
