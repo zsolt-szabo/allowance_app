@@ -1,4 +1,4 @@
-/
+//
 // next time, shop buttons disappears
 // KRITA
 // opacity
