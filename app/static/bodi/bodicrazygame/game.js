@@ -185,7 +185,7 @@ function Character(x,y,w,h,image) {
 		me.destroy();
 
 		if(me.tags.indexOf('enemy') != -1) {
-                        if (gameObject.tags.indexOf("nuke") == -1) {
+                        if (gameObjects.tags.indexOf("nuke") == -1) {
 			    randomEnemy();
                         }
 
@@ -227,7 +227,7 @@ function Character(x,y,w,h,image) {
 			
 			
 			if(obsolete == false) {
-                            if (Math.random() * 100 > 55 && gameObject.tags.indexOf("nuke") == -1) {
+                            if (Math.random() * 100 > 55 && gameObjects.tags.indexOf("nuke") == -1) {
 		                setTimeout(function() {
                                 randomEnemy();
 		                }, 2000);
