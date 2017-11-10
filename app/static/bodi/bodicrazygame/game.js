@@ -15,7 +15,6 @@
 // collision stuff
 // healthbar
 // powerups/new ammo
-
 var obsolete = false;
 
 var pause = false;
@@ -186,7 +185,9 @@ function Character(x,y,w,h,image) {
 		me.destroy();
 
 		if(me.tags.indexOf('enemy') != -1) {
-			randomEnemy();
+                        if (gameObject.tags.indexOf("nuke") == -1) {
+			    randomEnemy();
+                        }
 
 			if(me.type == "pillar") {
 				pillarCount -= 1;
@@ -201,6 +202,7 @@ function Character(x,y,w,h,image) {
 			}
 			
 			var random = Math.floor(Math.random() * 5);
+                        console.log(random);
 			
 			bossPowerUpCount += 1;
 			if(bossPowerUpCount >= 15) {
@@ -215,19 +217,21 @@ function Character(x,y,w,h,image) {
 				armorItem.tags.push("armor");
 			}
 
-			if(random == 2 || me.type == 'heavy') {
+			if(random > 3 || me.type == 'heavy') {
 				var coin = new GameObject(me.position.x,me.position.y,15,15,"images/coin.png");
 				coin.tags.push("coin");
-			} else if( random == 3) {
+			} else if(random > 1) {
 				var metal = new GameObject(me.position.x,me.position.y,15,15,"images/metal.png");
 				metal.tags.push("metal");
 			}
 			
 			
 			if(obsolete == false) {
-		    setTimeout(function() {
-    		    randomEnemy();
-		    }, 2000);
+                            if (Math.random() * 100 > 55 && gameObject.tags.indexOf("nuke") == -1) {
+		                setTimeout(function() {
+                                randomEnemy();
+		                }, 2000);
+                            }
 			}
 
 
@@ -438,7 +442,7 @@ var xdirection = 0;
 var metalboss = new Enemy(2000,0,50,50,'metalboss','images/metalboss.gif'); 
 var player = new Character(0, 0, 100, 100);
 var normalAcceleration = 0.5;
-var maxSpeed = 4;
+var maxSpeed = 6;
 
 player.speed = normalAcceleration;
 
@@ -640,13 +644,13 @@ function keyDown(event) {
 		} break;
 
 		case 78: {
-			if( cooperMode == true || metalAmount > 49) {	
+			if( cooperMode == true || metalAmount > 14) {	
 			nuke();
 			setTimeout(nuke, 100);
 			setTimeout(nuke, 100);
 			
 			if( cooperMode == false) {
-				metalAmount -= 50;
+				metalAmount -= 15;
 			}
 			
 		}  
@@ -666,13 +670,13 @@ function keyDown(event) {
 			if(jumpBoosts > 0 || cheat > 1) {
 				player.grounded = false;
 				player.position.y += 5;
-				player.velocity.y = 4;
+				player.velocity.y = 5;
 				maxSpeed = 10;
 				jumpBoosts--;
 			} else if(player.grounded ) {
 				player.grounded = false;
 				player.position.y += 5;
-				player.velocity.y = 2;
+				player.velocity.y = 4;
 			}
 		} break;
 
