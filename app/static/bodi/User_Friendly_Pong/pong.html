@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Pong Games</title>
+</head>
+<body>
+    <button id = "ClassicMode"><font size='+2'>Classic Mode</font></button>
+    <button id = "CMI"><font size='+1'>Classic Mode Instructions</font></button>
+    <button id = "Home"><font size='+1'>Home</font></button>
+    <button id = "StartOver"><font size="+3">Play Again</font></button>
+    <style>
+        body {
+            background: rgba(255, 0, 255, 0.25);
+        }
+        #ClassicMode {
+            background: green;
+            position: absolute;
+            border:none;
+        }
+        
+        #ClassicMode:hover {
+            background: lightgreen;
+        }
+        #CMI {
+            background: green;
+            position: absolute;
+            border: none;
+        }
+        
+        #CMI:hover {
+            background: lightgreen;
+        }
+        #Home {
+            background: red;
+            position: absolute;
+            border: none;
+        }
+        
+        #Home:hover {
+            background: orange;
+            border: none;
+        }
+        #StartOver {
+            background: green;
+            position: absolute;
+            border: none;
+            display: none;
+        }
+    </style>
+    <canvas id = "canvas"></canvas>
+    <script src = "pong.js"></script>
+</body>
+</html>
