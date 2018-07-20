@@ -343,7 +343,8 @@ def register():
 
             return render_template(
                 'index.html', title='Home',
-                name=user.firstname)
+                name=user.firstname, total_owed=0,
+                monthly_outlay=0)
         # ########################################
         # FAILED: validation failed, give feedback
         else:
