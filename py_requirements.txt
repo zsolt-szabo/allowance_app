@@ -34,7 +34,7 @@ pyasn1==0.1.7
 pyasn1-modules==0.0.5
 pycparser==2.10
 pyflakes==1.0.0
-pyOpenSSL==0.14
+pyOpenSSL==17.5.0
 python-gflags==2.0
 python-openid==2.2.5
 pytz==2016.3
