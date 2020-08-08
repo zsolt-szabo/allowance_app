@@ -66,10 +66,11 @@
   var database = firebase.database();
 </script>
 <script type="text/javascript">
-	highscore = 0
-	database.ref("score").on("value", function(s) {
-		highscore = s.val();
-		document.getElementById("highScore").innerHTML = "High Score: " + highscore;
+	var highscore = 0;
+	database.ref().on("value", function(s) {
+		var hstracker = s.val()
+		highscore = s.val().score;
+		document.getElementById("highScore").innerHTML = "High Score: " + hstracker.score + " (" + hstracker.holder + ")";
 	});
 
 	var canvas = document.getElementById("canvas");
@@ -235,6 +236,7 @@
 		function updateHighScore() {
 			if(highscore < score) {
 				database.ref("score").set(score);
+				database.ref("holder").set(prompt("Congrats! You have set a new high score! Enter your name to become world famous:"));
 			}
 		}
 
