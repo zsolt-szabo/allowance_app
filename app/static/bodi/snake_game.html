@@ -108,6 +108,27 @@
 					if(truedirection != "left" && truedirection != "left") {
 						direction = "right";
 					}
+					break;
+				case 38:
+					if(truedirection != "down" && direction != "down") {
+						direction = "up";
+					}
+					break;
+				case 40:
+					if(truedirection != "up" && direction != "up") {
+						direction = "down";
+					}
+					break;
+				case 37:
+					if(truedirection != "right" && truedirection != "right") {
+						direction = "left";
+					}
+					break;
+				case 39:
+					if(truedirection != "left" && truedirection != "left") {
+						direction = "right";
+					}
+					break;
 				default:
 			}
 		});
@@ -235,8 +256,13 @@
 
 		function updateHighScore() {
 			if(highscore < score) {
+				var hdr = prompt("Congrats! You have set a new high score! Enter your name to become world famous:");
+				if(hdr != undefined) {
+					database.ref("holder").set(hdr);
+				} else {
+					database.ref("holder").set("anonymous");
+				}
 				database.ref("score").set(score);
-				database.ref("holder").set(prompt("Congrats! You have set a new high score! Enter your name to become world famous:"));
 			}
 		}
 
