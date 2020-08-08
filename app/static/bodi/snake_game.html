@@ -257,7 +257,7 @@
 		function updateHighScore() {
 			if(highscore < score) {
 				var hdr = prompt("Congrats! You have set a new high score! Enter your name to become world famous:");
-				if(hdr != undefined) {
+				if(hdr != undefined && hdr != "") {
 					database.ref("holder").set(hdr);
 				} else {
 					database.ref("holder").set("anonymous");
