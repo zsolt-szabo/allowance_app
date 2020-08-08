@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Proof of Java's inferiority</title>
+	<style type="text/css">
+		#canvas {
+			border: solid red 5px;
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			background: lightgreen;
+		}
+		#currentScore {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-250px, -300px);
+			font-size: 25px;
+		}
+		#highScore {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(30px, -300px);
+			font-size: 25px;
+		}
+		#play {
+			position: fixed;
+			font-size: 25px;
+			width: 100px;
+			height: 55px;
+			border-radius: 10px;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			background: green;
+			text-align: center;
+			padding-top: 20px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+<div id="currentScore">Current Score: 0</div>
+<div id="highScore">High Score: (loading)</div>
+<canvas id="canvas"></canvas>
+<div id="play">Play</div>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+<script>
+   var config = {
+    apiKey: "AIzaSyBu-FTbsGp3PDXKfqClegH3ZOaJfWLka4Y",
+    authDomain: "wormgame-high-score.firebaseapp.com",
+    databaseURL: "https://Worm-Game-High-Score.firebaseio.com"
+  };
+  firebase.initializeApp(config);
+
+  // Get a reference to the database service
+  var database = firebase.database();
+</script>
+<script type="text/javascript">
+	highscore = 0
+	database.ref("score").on("value", function(s) {
+		highscore = s.val();
+		document.getElementById("highScore").innerHTML = "High Score: " + highscore;
+	});
+
+	var canvas = document.getElementById("canvas");
+	var context = canvas.getContext("2d");
+	canvas.width = 500;
+	canvas.height = 500;
+
+	function game() {
+		var direction = "up";
+		var truedirection = "up";
+		var gamegoing = true;
+		var growing = 0;
+		var phase = 0;
+		var score = 0;
+
+		window.addEventListener("keydown", function(event) {
+			switch(event.keyCode) {
+				case 87:
+					if(truedirection != "down" && direction != "down") {
+						direction = "up";
+					}
+					break;
+				case 83:
+					if(truedirection != "up" && direction != "up") {
+						direction = "down";
+					}
+					break;
+				case 65:
+					if(truedirection != "right" && truedirection != "right") {
+						direction = "left";
+					}
+					break;
+				case 68:
+					if(truedirection != "left" && truedirection != "left") {
+						direction = "right";
+					}
+				default:
+			}
+		});
+
+		//draw grid
+		function drawGrid() {
+			context.fillStyle = "rgb(150, 150, 150)"
+			for(var i = 1; i < 25; i++) {
+				context.beginPath();
+				context.moveTo(i*20, 0);
+				context.lineTo(i*20, 500);
+				context.lineTo(i*20+1, 500);
+				context.lineTo(i*20+1, 0);
+				context.lineTo(i*20, 0);
+				context.fill();
+				context.closePath();
+			}
+
+			for(var i = 1; i < 25; i++) {
+				context.beginPath()
+				context.moveTo(0, i*20);
+				context.lineTo(500, i*20);
+				context.lineTo(500, i*20+1);
+				context.lineTo(0, i*20+1);
+				context.lineTo(0, i*20);
+				context.fill();
+				context.closePath();
+			}
+		}
+
+		//define starting snake as array of objects
+		var snake = [];
+
+		var foodPellet = {
+			x: 13,
+			y: 4
+		}
+
+		for(var i = 0; i < 4; i+= 0.125) {
+			snake.push({
+				x: 13,
+				y: 12.75+i
+			});
+		}
+
+		//draw snake
+		function drawSnake() {
+			context.fillStyle = "pink";
+			for(var i = 0; i < snake.length; i++) {
+				context.fillRect(20*snake[i].x, 20*(snake[i].y), 21, 21);
+			}
+		}
+
+		//move snake
+		function moveSnake() {
+			if(phase == 7) {
+				phase = 0;
+			} else {
+				phase++;
+			}
+			if(phase == 7) {
+				truedirection = direction;
+			}
+			if(truedirection == "up") {
+				snake.unshift({
+					x: snake[0].x,
+					y: snake[0].y-0.125
+				});
+			} else if(truedirection == "down") {
+				snake.unshift({
+					x: snake[0].x,
+					y: snake[0].y+0.125
+				});
+			} else if(truedirection == "left") {
+				snake.unshift({
+					x: snake[0].x-0.125,
+					y: snake[0].y
+				});
+			} else if(truedirection == "right") {
+				snake.unshift({
+					x: snake[0].x+0.125,
+					y: snake[0].y
+				});
+			}
+			if(growing == 0) {
+				snake.splice(snake.length-1, 1);
+			} else {
+				growing--;
+			}
+		}
+
+		function checkEachThing() {
+			for(var i = 1; i < snake.length; i++) {
+				if(snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function checkEachThingForFood() {
+			for(var i = 0; i < snake.length; i++) {
+				if(foodPellet.x == snake[i].x && foodPellet.y == snake[i].y) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function generateFood() {
+			foodPellet = {
+				x: Math.floor(Math.random()*25),
+				y: Math.floor(Math.random()*25)
+			}
+
+			if(checkEachThingForFood() == true) {
+				generateFood();
+			}
+		}
+
+		function drawFood() {
+			context.fillStyle = "red";
+			context.fillRect(foodPellet.x*20, foodPellet.y*20, 21, 21);
+		}
+
+		function updateHighScore() {
+			if(highscore < score) {
+				database.ref("score").set(score);
+			}
+		}
+
+		function checkCollision() {
+			if(snake[0].x > 24 || snake[0].x < 0 || snake[0].y > 24 || snake[0].y < 0) {
+				gamegoing = false;
+				play.style.display = "block";
+				//alert("You ran into the wall! Your final score was " + score + ".");
+				updateHighScore();
+			}
+			if(checkEachThing()) {
+				//alert("You ran into yourself! Your final score was " + score + ".");
+				gamegoing = false;
+				play.style.display = "block";
+				updateHighScore();
+			}
+			if(snake[0].x == foodPellet.x && snake[0].y == foodPellet.y) {
+				growing += 8;
+				score++;
+				document.getElementById("currentScore").innerHTML = "Current Score: " + score;
+				generateFood();
+			}
+		}
+
+		function update() {
+			context.clearRect(0, 0, 500, 500);
+			drawGrid();
+			drawFood();
+			moveSnake();
+			drawSnake();
+			checkCollision();
+			if(gamegoing) {
+				setTimeout(update, 15);
+			}
+		}
+		update();
+	}
+
+	document.getElementById("play").addEventListener("click", function() {
+		game();
+		document.getElementById("play").style.display = "none";
+	});
+</script>
+</body>
+</html>
