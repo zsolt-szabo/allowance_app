@@ -210,7 +210,7 @@
 		    else {
 		      corner = diagQuadrants[1]; // topright
 		    }
-	    
+
 		    if(y < -edgeHeight + height) {
 		      return corner[0]; // left or top
 		    }
@@ -219,7 +219,7 @@
 		    }
 		}
 
-		window.addEventListener("click", function(e) {
+		window.addEventListener("mousedown", function(e) {
 			var dn = findDiagonalQuadrant(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
 			if(dn == "top") {
 				if(truedirection != "down" && direction != "down") {
