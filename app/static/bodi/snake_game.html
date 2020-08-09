@@ -22,8 +22,22 @@
 			position: fixed;
 			left: 50%;
 			top: 50%;
-			transform: translate(30px, -300px);
-			font-size: 25px;
+			transform: translate(-60px, -340px);
+			font-size: 20px;
+		}
+		#highScoreDay {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-60px, -300px);
+			font-size: 20px;
+		}
+		#highScoreWeek {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-60px, -320px);
+			font-size: 20px;
 		}
 		#play {
 			position: fixed;
@@ -43,7 +57,9 @@
 </head>
 <body>
 <div id="currentScore">Current Score: 0</div>
-<div id="highScore">High Score: (loading)</div>
+<div id="highScore"><b>All Time High Score:</b> (loading)</div>
+<div id="highScoreDay"><b>High Score For The Past Day:</b> (loading)</div>
+<div id="highScoreWeek"><b>High Score For The Past Week:</b> (loading)</div>
 <canvas id="canvas"></canvas>
 <div id="play">Play</div>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
@@ -66,11 +82,58 @@
   var database = firebase.database();
 </script>
 <script type="text/javascript">
+/*
+1. Make game phone compatible
+*/
+
+
 	var highscore = 0;
+	var highscoreday = 0;
+	var highscoreweek = 0;
+	var newDay = false;
+	var newWeek = false;
+	var go = false;
+
+	database.ref().on("value", function(s) {
+		go = true;
+		var today = new Date();
+		var day = today.getTime()/86400000;
+		var prev = s.val().daydate;
+		console.log(day-prev);
+		if(prev < day) {
+			newDay = true;
+		}
+		if(prev < day-7) {
+			newWeek = true;
+		}
+	});
+
+	function updateScores() {
+		if(go == false) {
+			setTimeout(updateScores, 1);
+		} else {
+			if(newDay) {
+				database.ref("dayscore").set(0);
+				database.ref("dayholder").set("Nobody");
+				database.ref("daydate").set(day);
+			}
+
+			if(newWeek) {
+				database.ref("weekscore").set(0);
+				database.ref("weekholder").set("Nobody");
+				database.ref("weekdate").set(day);
+			}
+		}
+	}
+
 	database.ref().on("value", function(s) {
 		var hstracker = s.val()
 		highscore = s.val().score;
-		document.getElementById("highScore").innerHTML = "High Score: " + hstracker.score + " (" + hstracker.holder + ")";
+		document.getElementById("highScore").innerHTML = "<b>All Time High Score:</b> " + hstracker.score + " (" + hstracker.holder + ")";
+		highscoreday = s.val().dayscore;
+		document.getElementById("highScoreDay").innerHTML = "<b>High Score For The Past Day:</b> " + hstracker.dayscore + " (" + hstracker.dayholder + ")";
+		highscoreweek = s.val().weekscore;
+		document.getElementById("highScoreWeek").innerHTML = "<b>High Score For The Past Week:</b> " + hstracker.weekscore + " (" + hstracker.weekholder + ")";
 	});
 
 	var canvas = document.getElementById("canvas");
@@ -130,6 +193,50 @@
 					}
 					break;
 				default:
+			}
+		});
+
+		function findDiagonalQuadrant(x, y, width, height) {
+		    var diagQuadrants = [
+		      ["left", "bottom"],
+		      ["top", "right"]
+		    ];
+		    var corner = [];
+		    var slope = height / width;
+		    var edgeHeight = slope * x;
+		    if(y > edgeHeight) {
+		      corner = diagQuadrants[0]; // bottomLeft
+		    }
+		    else {
+		      corner = diagQuadrants[1]; // topright
+		    }
+	    
+		    if(y < -edgeHeight + height) {
+		      return corner[0]; // left or top
+		    }
+		    else {
+		      return corner[1]; // bottom or right
+		    }
+		}
+
+		window.addEventListener("click", function(e) {
+			var dn = findDiagonalQuadrant(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
+			if(dn == "top") {
+				if(truedirection != "down" && direction != "down") {
+					direction = "up";
+				}
+			} else if(dn == "bottom") {
+				if(truedirection != "up" && direction != "up") {
+					direction = "down";
+				}
+			} else if(dn == "left") {
+				if(truedirection != "right" && truedirection != "right") {
+					direction = "left";
+				}
+			} else if(dn == "right") {
+				if(truedirection != "left" && truedirection != "left") {
+					direction = "right";
+				}
 			}
 		});
 
@@ -259,10 +366,35 @@
 				var hdr = prompt("Congrats! You have set a new high score! Enter your name to become world famous:");
 				if(hdr != undefined && hdr != "") {
 					database.ref("holder").set(hdr);
+					database.ref("weekholder").set(hdr);
+					database.ref("dayholder").set(hdr);
 				} else {
 					database.ref("holder").set("anonymous");
+					database.ref("weekholder").set("anonymous");
+					database.ref("dayholder").set("anonymous");
 				}
 				database.ref("score").set(score);
+				database.ref("weekscore").set(score);
+				database.ref("dayscore").set(score);
+			} else if(highscoreweek < score) {
+				var hdr = prompt("Congrats! You have set a new high score for the week! Enter your name to become world famous:");
+				if(hdr != undefined && hdr != "") {
+					database.ref("weekholder").set(hdr);
+					database.ref("dayholder").set(hdr);
+				} else {
+					database.ref("weekholder").set("anonymous");
+					database.ref("dayholder").set("anonymous");
+				}
+				database.ref("weekscore").set(score);
+				database.ref("dayscore").set(score);
+			} else if(highscoreday < score) {
+				var hdr = prompt("Congrats! You have set a new high score for the day! Enter your name to become world famous:");
+				if(hdr != undefined && hdr != "") {
+					database.ref("dayholder").set(hdr);
+				} else {
+					database.ref("dayholder").set("anonymous");
+				}
+				database.ref("dayscore").set(score);
 			}
 		}
 
