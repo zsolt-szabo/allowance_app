@@ -24,7 +24,7 @@ guess-language==0.2
 httplib2==0.9
 identity-toolkit-python-client==0.1.11
 itsdangerous==0.24
-Jinja2==2.7.3
+Jinja2==2.11.3
 MarkupSafe==0.23
 mccabe==0.4.0
 oauth2client==1.4.5
