@@ -204,7 +204,7 @@ def check_and_update_allowances(allowances=[]):
                         change_loc6=r(a.amount * a.location6_perc /
                                       100.0),
 
-                        total_loc7=r(remainder_a),
+                        total_loc7=r(ll.total_loc7 + remainder_l),
                         change_loc7=r(remainder_l),
                         comment=comment)
                     ll = ledge_entry  # We cannot query our database again for
