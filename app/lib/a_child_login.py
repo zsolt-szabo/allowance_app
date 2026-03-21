@@ -24,7 +24,7 @@ import random
 import json
 import sqlalchemy
 import traceback
-from flask.ext.login import login_user
+from flask_login import login_user
 from flask import render_template, request, flash, g
 
 login_manager = app.lm
@@ -110,8 +110,6 @@ def kid_account_review():
                 a_to_adjust = []
                 tot_l = 0  # Total of all location percentages
                 l_to_adjust = []
-                a_line = 'tot_a += ea_allow.account%s_perc'
-                l_line = 'tot_l += ea_allow.location%s_perc'
                 # Redistribute allowance among remaining accounts
                 update_dict = {}
 
@@ -122,8 +120,7 @@ def kid_account_review():
                             f.__dict__['acct%s_used' % i].data is True and \
                             accX_per != 0:
                         a_to_adjust.append(i)
-                        stmt = a_line % i
-                        exec(stmt)  # tot_a += each_allow.accountX_perc
+                        tot_a += accX_per
                     else:
                         update_dict["account%s_perc" % i] = 0
 
@@ -135,8 +132,7 @@ def kid_account_review():
                             f.__dict__['location%s_used' % i].data is \
                             True and locX_per != 0:
                         l_to_adjust.append(i)
-                        stmt = l_line % i
-                        exec(stmt)  # tot_l += each_allow.locationX_perc
+                        tot_l += locX_per
                     else:
                         update_dict["location%s_perc" % i] = 0
 
@@ -276,7 +272,7 @@ def kid_account_review():
                 except sqlalchemy.exc.IntegrityError as e:
                     msg = "ERROR: occurred on database side, more than likely"
                     msg += " due to the requirement 1 storage and 1 account "
-                    msg += " must always be selected." + e.message
+                    msg += " must always be selected." + str(e)
                     flash(msg)
                     return render_template('child_account.html',
                                            title='Child Account',
@@ -559,7 +555,7 @@ def register_child1():
             except sqlalchemy.exc.IntegrityError as e:
                 msg = "ERROR: occurred on database side, more than likely"
                 msg += " due to the requirement 1 storage and 1 account "
-                msg += " must always be selected." + e.message
+                msg += " must always be selected." + str(e)
                 flash(msg)
                 return render_template('child_register.html',
                                        title='Child Register',

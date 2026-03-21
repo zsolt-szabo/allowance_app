@@ -14,13 +14,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
-from flask.ext.wtf import Form
+from flask_wtf import FlaskForm as Form
 from wtforms import widgets
 from wtforms import StringField, PasswordField, \
     BooleanField, SelectField, SelectMultipleField, FloatField, \
     HiddenField, TextAreaField
-from wtforms.validators import Required, Length, Email, NumberRange, \
-    Optional
+from wtforms.validators import DataRequired as Required, Length, Email, \
+    NumberRange, Optional
 import app
 import config
 import glob
@@ -149,7 +149,7 @@ class RegisterChild1(Form):
     initial_animal2 = HiddenField(id='initial_animal2')
 
     app.logger.info('Constructing remaining fields in RegisterChild1("Form")')
-    for i in xrange(2, 6):
+    for i in range(2, 6):
         field = "acct%s_name = StringField('Account', id='acct%s_name', "
         field += "validators=[RequiredIf('acct%s_used'), Optional(), "
         field += "Length(2, 80)])"
@@ -166,7 +166,7 @@ class RegisterChild1(Form):
         field = field % (i, i)
         app.logger.info("\n" + field)
         exec(field)
-    for i in xrange(2, 8):
+    for i in range(2, 8):
         field = "location%i_name = StringField('Where is Money', id="
         field += "'location%s_name', validators=[Optional(), Length(1, 80)])"
         field = field % (i, i)

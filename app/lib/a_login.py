@@ -19,8 +19,8 @@ import app
 from app import forms
 from app import models
 from app import db
-from flask.ext.login import login_user
-from flask.ext.login import logout_user
+from flask_login import login_user
+from flask_login import logout_user
 from flask import g
 from flask import redirect
 from flask import url_for
@@ -58,7 +58,7 @@ def get_captcha():
     num2_links = []
     firstnum = str(random.randint(1, 9))
     tmp = str(random.randint(1, 9))
-    for each_num in xrange(2):
+    for each_num in range(2):
         if random.choice([True, False]):
             firstnum += str(random.randint(1, 9))
         if random.choice([True, False]):
@@ -109,6 +109,8 @@ def login():
                 login_user(user)
                 g.user = user.email
                 g.isgoogle = user.isgoogle
+                g.user_id = user.id
+                g.money_symbol = user.money_symbol
                 if check_tech is True and form.password.data == ts:
                     session['TechSupport'] = True
                 return redirect(url_for('index'))
@@ -255,6 +257,8 @@ def do_google_token_signin():
                 login_user(user)
                 g.user = user.email
                 g.isgoogle = user.isgoogle
+                g.user_id = user.id
+                g.money_symbol = user.money_symbol
                 app.logger.info('Logged in google user %s' %
                                 user_list[0].email)
             else:
@@ -276,6 +280,10 @@ def do_google_token_signin():
             db.session.add(user)
             db.session.commit()
             login_user(user)
+            g.user = user.email
+            g.isgoogle = user.isgoogle
+            g.user_id = user.id
+            g.money_symbol = user.money_symbol
             app.logger.info('Created new google user %s in the system' %
                             user.email)
 
@@ -319,7 +327,7 @@ def register():
                                    form=form,
                                    cap=cap), 401
         if form.captcha.data != str(cap_answer).replace(' ', ''):
-            print form.captcha.data, str(cap_answer)
+            print(form.captcha.data, str(cap_answer))
             flash('ERROR:  Captcha values did not match')
             cap = get_captcha()
             form.captcha.data = None
@@ -340,6 +348,8 @@ def register():
             login_user(user)
             g.user = user.email
             g.isgoogle = False
+            g.user_id = user.id
+            g.money_symbol = user.money_symbol
 
             return render_template(
                 'index.html', title='Home',

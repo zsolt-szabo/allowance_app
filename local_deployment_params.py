@@ -67,7 +67,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.blank is True:
-        print Template
+        print(Template)
     elif args.configfile is not None and args.deployed_location is not None:
         failure_occurred = False
         with open(args.configfile) as f:
@@ -83,12 +83,12 @@ if __name__ == "__main__":
                         to_change = change_file.read()
                         if not re.search(regex, to_change):
                             failure_occurred = True
-                            print "Failed to find regex '%s'" % linesplit[1]
-                            print "    in file %s" % fpath
+                            print("Failed to find regex '%s'" % linesplit[1])
+                            print("    in file %s" % fpath)
                 else:
                     failure_occurred = True
-                    print "Error in config, file %s not found! " % fpath
-                    print "    for line '%s'" % eachline
+                    print("Error in config, file %s not found! " % fpath)
+                    print("    for line '%s'" % eachline)
         if failure_occurred is False:
             counter = 0
             for eachline in contents:
@@ -97,8 +97,8 @@ if __name__ == "__main__":
                         re.search('^\s*$', eachline, re.S):
                     linesplit = eachline.split('::')
                     if linesplit[2] == "<UPDATEME>":
-                        print "Skipping line %s in %s as it is undefined" % \
-                            (counter, args.configfile)
+                        print("Skipping line %s in %s as it is undefined" %
+                              (counter, args.configfile))
                         continue  # Not updating anything
                     fpath = os.path.join(args.deployed_location, linesplit[0])
                     regex = linesplit[1].replace('(', '\(').replace(')', '\)')
@@ -108,9 +108,9 @@ if __name__ == "__main__":
                     if not args.test_run:
                         with open(fpath, 'w') as fixfile:
                             fixfile.write(newcontent)
-                        print '  * adjusted file ' + fpath
+                        print('  * adjusted file ' + fpath)
                     else:
-                        print '  * TESTRUN on file ' + fpath
+                        print('  * TESTRUN on file ' + fpath)
                         sys.exit(11)
         else:
             sys.exit(15)
@@ -120,6 +120,6 @@ if __name__ == "__main__":
         sys.exit(13)
     else:
         parser.print_usage()
-        print "\nERROR: --configfile [file] parma requires " + \
-            "--deployed_location [path]"
+        print("\nERROR: --configfile [file] parma requires " +
+              "--deployed_location [path]")
         sys.exit(17)

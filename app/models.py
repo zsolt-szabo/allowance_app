@@ -40,10 +40,7 @@ class User(db.Model):
         return False
 
     def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+        return str(self.id)
 
     def __repr__(self):
         return '<User %r>' % (self.firstname)
@@ -127,10 +124,7 @@ class Kid(db.Model):
         return False
 
     def get_id(self):
-        try:
-            return ('child', unicode(self.id))  # python 2
-        except NameError:
-            return ('child', str(self.id))  # python 3
+        return ('child', str(self.id))
 
     def __repr__(self):
         return '<User %r>' % (self.firstname)

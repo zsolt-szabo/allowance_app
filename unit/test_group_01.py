@@ -38,6 +38,11 @@ class kidAllowanceTestCase(unittest.TestCase):
             gd.unit_db
         flask_obj.config['WTF_CSRF_ENABLED'] = False
         gd.app = flask_obj.test_client()
+        gd.ctx = flask_obj.app_context()
+        gd.ctx.push()
+        del flask_obj.extensions["sqlalchemy"]
+        app.db.init_app(flask_obj)
+        app.db.session.remove()
         app.db.create_all()
         user1 = app.models.User(**test_data.user1)
         user1.set_password(test_data.user1['pw_hash'])
@@ -56,10 +61,10 @@ class kidAllowanceTestCase(unittest.TestCase):
 
     def test_02_index_not_logged_in(self):
         rv = gd.app.get("/")
-        assert 'Please login with your' in rv.data
-        assert 'Register' in rv.data
-        assert 'blogspot' in rv.data
-        assert 'whipper' not in rv.data
+        assert 'Please login with your' in rv.data.decode()
+        assert 'Register' in rv.data.decode()
+        assert 'blogspot' in rv.data.decode()
+        assert 'whipper' not in rv.data.decode()
 
     def test_03_index_logged_in(self):
         test_data.user1['password'] = test_data.user1['pw_hash']
@@ -67,22 +72,22 @@ class kidAllowanceTestCase(unittest.TestCase):
             '/login',
             data=dict(**test_data.user1),
             follow_redirects=True)
-        assert 'Logout' in rv.data
-        assert 'Hi person1' in rv.data
-        assert 'whipper' in rv.data
-        assert 'rabbit/rabbit' in rv.data
+        assert 'Logout' in rv.data.decode()
+        assert 'Hi person1' in rv.data.decode()
+        assert 'whipper' in rv.data.decode()
+        assert 'rabbit/rabbit' in rv.data.decode()
 
     def test_04_index_after_logged_in(self):
         rv = gd.app.get("/")
-        assert 'Logout' in rv.data
-        assert 'Hi person1' in rv.data
-        assert 'whipper' in rv.data
-        assert 'rabbit/rabbit' in rv.data
+        assert 'Logout' in rv.data.decode()
+        assert 'Hi person1' in rv.data.decode()
+        assert 'whipper' in rv.data.decode()
+        assert 'rabbit/rabbit' in rv.data.decode()
 
     def test_05_allowance_page(self):
         rv = gd.app.get('/allowance?kid=whipper:rabbit:rabbit')
-        assert '/ledger?kid=whipper:rabbit:rabbit' in rv.data
-        assert 'remove_allowance?allow_id=' not in rv.data
+        assert '/ledger?kid=whipper:rabbit:rabbit' in rv.data.decode()
+        assert 'remove_allowance?allow_id=' not in rv.data.decode()
 
     # Good allowance create ########
     def test_06_allowance_create_good(self):
@@ -90,16 +95,16 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**test_data.kid1_allow_good),
             follow_redirects=True)
-        assert 'kid1 good allowance' in rv.data
-        assert '80.0' in rv.data
-        assert '20.0' in rv.data
-        assert "$ 3.0" in rv.data
+        assert 'kid1 good allowance' in rv.data.decode()
+        assert '80.0' in rv.data.decode()
+        assert '20.0' in rv.data.decode()
+        assert "$ 3.0" in rv.data.decode()
 
     def test_07_logout(self):
         rv = gd.app.get('/logout', follow_redirects=True)
-        assert 'Please login with your' in rv.data
-        assert 'Register' in rv.data
-        assert 'blogspot' in rv.data
+        assert 'Please login with your' in rv.data.decode()
+        assert 'Register' in rv.data.decode()
+        assert 'blogspot' in rv.data.decode()
 
     # #######################################
     # Add allowance for person2 kid2 ########
@@ -109,33 +114,33 @@ class kidAllowanceTestCase(unittest.TestCase):
             '/login',
             data=dict(**test_data.user2),
             follow_redirects=True)
-        assert 'Logout' in rv.data
-        assert 'Hi person2' in rv.data
-        assert 'larry' in rv.data
-        assert 'tiger/tiger' in rv.data
+        assert 'Logout' in rv.data.decode()
+        assert 'Hi person2' in rv.data.decode()
+        assert 'larry' in rv.data.decode()
+        assert 'tiger/tiger' in rv.data.decode()
 
     def test_09_allowance_check_against_user1s_kid_should_fail(self):
         rv = gd.app.post(
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**test_data.kid2_allow_good),
             follow_redirects=True)
-        assert 'ERROR: Problem getting child data, error logged' in rv.data
+        assert 'ERROR: Problem getting child data, error logged' in rv.data.decode()
 
     def test_10_allowance_create_kid2_good(self):
         rv = gd.app.post(
             "/allowance?kid=larry:tiger:tiger",
             data=dict(**test_data.kid2_allow_good),
             follow_redirects=True)
-        assert 'kid2 good allowance' in rv.data
-        assert '30.0' in rv.data
-        assert '70.0' in rv.data
-        assert "$ 4.0" in rv.data
+        assert 'kid2 good allowance' in rv.data.decode()
+        assert '30.0' in rv.data.decode()
+        assert '70.0' in rv.data.decode()
+        assert "$ 4.0" in rv.data.decode()
 
     def test_11_logout(self):
         rv = gd.app.get('/logout', follow_redirects=True)
-        assert 'Please login with your' in rv.data
-        assert 'Register' in rv.data
-        assert 'blogspot' in rv.data
+        assert 'Please login with your' in rv.data.decode()
+        assert 'Register' in rv.data.decode()
+        assert 'blogspot' in rv.data.decode()
     # Logout as person 2
     # #######################################
 
@@ -146,10 +151,10 @@ class kidAllowanceTestCase(unittest.TestCase):
             '/login',
             data=dict(**test_data.user1),
             follow_redirects=True)
-        assert 'Logout' in rv.data
-        assert 'Hi person1' in rv.data
-        assert 'whipper' in rv.data
-        assert 'rabbit/rabbit' in rv.data
+        assert 'Logout' in rv.data.decode()
+        assert 'Hi person1' in rv.data.decode()
+        assert 'whipper' in rv.data.decode()
+        assert 'rabbit/rabbit' in rv.data.decode()
 
     def test_13_allowance_no_amount(self):
         data = copy.copy(test_data.kid1_allow_bad)
@@ -158,7 +163,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**data),
             follow_redirects=True)
-        assert 'ERROR:(amount)' in rv.data
+        assert 'ERROR:(amount)' in rv.data.decode()
 
     def test_14_allowance_too_much(self):
         data = copy.copy(test_data.kid1_allow_bad)
@@ -167,7 +172,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**data),
             follow_redirects=True)
-        assert 'ERROR:(amount)' in rv.data
+        assert 'ERROR:(amount)' in rv.data.decode()
 
     def test_15_allowance_negative(self):
         data = copy.copy(test_data.kid1_allow_bad)
@@ -176,7 +181,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**data),
             follow_redirects=True)
-        assert 'ERROR:(amount)' in rv.data
+        assert 'ERROR:(amount)' in rv.data.decode()
 
     def test_16_allowance_no_payout_days(self):
         data = copy.copy(test_data.kid1_allow_bad)
@@ -185,7 +190,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**data),
             follow_redirects=True)
-        assert 'ERROR:(payout_days)' in rv.data
+        assert 'ERROR:(payout_days)' in rv.data.decode()
 
     def test_17_allowance_bad_acc_distrib(self):
         data = copy.copy(test_data.kid1_allow_bad)
@@ -194,7 +199,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**data),
             follow_redirects=True)
-        assert 'sub-accounts must add up to 100%' in rv.data
+        assert 'sub-accounts must add up to 100%' in rv.data.decode()
 
     def test_18_allowance_bad_loc_distrib(self):
         data = copy.copy(test_data.kid1_allow_bad)
@@ -203,20 +208,20 @@ class kidAllowanceTestCase(unittest.TestCase):
             "/allowance?kid=whipper:rabbit:rabbit",
             data=dict(**data),
             follow_redirects=True)
-        assert 'storage (where) must add up to 100%' in rv.data
+        assert 'storage (where) must add up to 100%' in rv.data.decode()
 
     def test_19_delete_allowance_not_mine(self):
         rv = gd.app.get(
             "/remove_allowance?allow_id=2",
             follow_redirects=True)
         assert 'Unable to understand allowance Id given for removal' in \
-            rv.data
+            rv.data.decode()
 
     def test_20_delete_allowance_existing(self):
         rv = gd.app.get(
             "/remove_allowance?allow_id=1",
             follow_redirects=True)
-        assert 'kid1 good allowance' not in rv.data
+        assert 'kid1 good allowance' not in rv.data.decode()
 
 #        with open('out.html', 'w') as f:
 #            f.write(rv.data)
@@ -232,7 +237,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             msg += "greater than the 28th"
             raise Exception(msg)
         elif day > 28:
-            print "Test is a NOOP today since today is greater than the 28th"
+            print("Test is a NOOP today since today is greater than the 28th")
 
     def test_97_delete_user_fail(self):
         data = {'really_means_it': ''}
@@ -240,7 +245,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             '/delete_account',
             data=dict(**data),
             follow_redirects=True)
-        assert 'ERROR: You must click the box declaring you' in rv.data
+        assert 'ERROR: You must click the box declaring you' in rv.data.decode()
 
     def test_98_delete_user_succeed(self):
         data = {'really_means_it': 'y'}
@@ -248,15 +253,16 @@ class kidAllowanceTestCase(unittest.TestCase):
             '/delete_account',
             data=dict(**data),
             follow_redirects=True)
-        assert "User deleted" in rv.data
-        assert "Welcome to your online allowance" in rv.data
+        assert "User deleted" in rv.data.decode()
+        assert "Welcome to your online allowance" in rv.data.decode()
 
     def test_99_teardown(self):
+        gd.ctx.pop()
         os.close(gd.db_fd)
         os.unlink(gd.unit_db)
 
 if __name__ == "__main__":
-    print "=" * 80
-    print "=" * 40, "      BEGIN TESTING"
-    print "=" * 80
+    print("=" * 80)
+    print("=" * 40 + "      BEGIN TESTING")
+    print("=" * 80)
     unittest.main()

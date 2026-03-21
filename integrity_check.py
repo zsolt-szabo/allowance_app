@@ -28,7 +28,7 @@ the_kids = db.session.query(models.Kid).all()
 # Ensure that allowance sub-accounts and locations are accounted for
 # 100%.
 # ###################################################################
-print "-------- Allowance checks any errors found will be seen below --------"
+print("-------- Allowance checks any errors found will be seen below --------")
 for eachkid in the_kids:
     allowances = db.session.query(models.Allowance).filter(
         models.Allowance.kid_id == eachkid.id).all()
@@ -75,4 +75,4 @@ for eachkid in the_kids:
             msg += "Location percent for kid %s allowance %s is %s\n"
             msg = msg % (eachkid.firstname, allowance.nickname, tot_l)
         if len(msg) > 0:
-            print msg
+            print(msg)

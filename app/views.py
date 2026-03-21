@@ -14,14 +14,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
-from app import app, lm
+from app import app, db, lm
 from flask import g
-import models
-from lib import a_index
-from lib import a_login
-from lib import a_child_login
-from lib import a_finance
-from flask.ext.login import login_required
+from app import models
+from app.lib import a_index
+from app.lib import a_login
+from app.lib import a_child_login
+from app.lib import a_finance
+from flask_login import login_required
 from flask import render_template
 import traceback
 
@@ -44,11 +44,11 @@ def load_user(id):
     user = None
     try:
         if type(id).__name__ == 'tuple':
-            user = models.Kid.query.get(int(id[1]))
+            user = db.session.get(models.Kid, int(id[1]))
             g.is_child = True
             g.kid_id = user.id
         else:
-            user = models.User.query.get(int(id))
+            user = db.session.get(models.User, int(id))
         if not type(id).__name__ == 'tuple' and user is not None:
             g.user = user.email
             g.isgoogle = user.isgoogle

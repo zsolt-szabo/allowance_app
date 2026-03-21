@@ -309,12 +309,12 @@ def populate_hidden_arrays(hidden_columns, hidden_locs, kid):
     '''Helper function for when no ledger data exists yet'''
     app.logger.info(
         "Child has no ledger data yet, determining usable accounts")
-    for i in xrange(1, 6):
+    for i in range(1, 6):
         cmd1 = "if kid.acct%s_used is False:\n" % i
         cmd1 += "    hidden_columns[%s] = True" % i
         app.logger.debug("Executing:\n" + cmd1)
         exec(cmd1)
-    for i in xrange(1, 8):
+    for i in range(1, 8):
         cmd1 = "if kid.location%s_used is False:\n" % i
         cmd1 += "    hidden_locs[%s] = True" % i
         app.logger.debug("Executing:\n" + cmd1)
@@ -371,8 +371,8 @@ def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
             'adjusted_by_parent': adjusted_by_parent, 'kid_id': kid.id,
             'comment': form.comment.data
             }
-        for i in xrange(1, 6):
-            for j in xrange(1, 8):
+        for i in range(1, 6):
+            for j in range(1, 8):
                 entry = a(getattr(form, "acct%s_loc%s" % (i, j)).data)
                 loc_math['loc%s' % j] += entry
                 acc_math['acc%s' % i] += entry

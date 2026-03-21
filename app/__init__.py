@@ -15,10 +15,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager
-from flask.ext.log import Logging
-from flask_breadcrumbs import Breadcrumbs
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+import sqlite3
 from logging.handlers import RotatingFileHandler
 from logging import Formatter
 import config
@@ -28,9 +30,15 @@ app.config.from_object('config')
 app.jinja_env.globals.update(config=config)  # Config avail to Templates
 
 db = SQLAlchemy(app)
-db.engine.execute('pragma foreign_keys=on')
+migrate = Migrate(app, db)
 
-Breadcrumbs(app=app)
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 lm = LoginManager()
 lm.login_view = 'login'
@@ -45,7 +53,6 @@ handler.setFormatter(
     Formatter('[%(levelname)s][%(asctime)s] %(message)s'))
 app.logger.addHandler(handler)
 
-Logging(app)  # So we don't have to type app.app.logger
 logger = app.logger
 
 # Avoid circular ref, import here

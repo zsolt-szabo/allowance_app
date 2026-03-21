@@ -1,5 +1,5 @@
 from flask import render_template
-from flask.ext import login
+from flask_login import current_user
 from app import models
 import app
 from app import db
@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, date
 
 
 def process_view():
-    user = login.current_user
+    user = current_user
     name = ''
     kids = []
     is_child = False
