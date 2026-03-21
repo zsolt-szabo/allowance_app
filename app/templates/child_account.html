@@ -279,7 +279,7 @@
               <tr><td><b>Sub Accounts </b>(<a href="#" onclick="alert(sub_account);">about</a>)</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; Used by allowance(s)<sup>[1]</sup></sup>:</td></tr>
               {% for each in acct_choices %}
                <tr class="accounts" style="display: none;">
-                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
+                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em", required=False) }}</td>
                  <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
                  <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
                  <td><br>&nbsp; <font color="brown">{{form.used_by_allowance[each[0]]}}</font></td>
@@ -291,7 +291,7 @@
 
               {% for each in loc_choices %}
                <tr class="store" style="display: none;">
-                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em") }}</td>
+                 <td>{{ form._fields[each[0]].label }}<br>{{ form._fields[each[0]](style="width: 12em", required=False) }}</td>
                  <td style="background-color: #b3d9ff">{{ form._fields[each[1]].label }}<br>{{ form._fields[each[1]](style="width: 3em", class_="activated", onclick="unhide_buckets()") }}</td>
                  <td>{{ form._fields[each[2]].label }}<br>{{ form._fields[each[2]] }}</td>
                  <td>&nbsp; <font color="brown">{{form.used_by_allowance[each[0]]}}</font></td>
