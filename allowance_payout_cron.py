@@ -19,8 +19,9 @@ import app
 import app.lib.a_index as index
 from app import models
 
-all_allowances = app.db.session.query(
-    models.Allowance, models.AllowanceDays).filter(
-    models.Allowance.id == models.AllowanceDays.allowance_id).all()
+with app.app.app_context():
+    all_allowances = app.db.session.query(
+        models.Allowance, models.AllowanceDays).filter(
+        models.Allowance.id == models.AllowanceDays.allowance_id).all()
 
-index.check_and_update_allowances(all_allowances)
+    index.check_and_update_allowances(all_allowances)

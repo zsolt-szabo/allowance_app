@@ -53,9 +53,9 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         </div></th>
     {% endif %}
     </thead>
-{% set firstcol = True %}
+{% set ns = namespace(firstcol=True) %}
 {% for entry in ledger %}
-  {% if firstcol == True %}
+  {% if ns.firstcol == True %}
   <tr bgcolor="#e6b3cc">
   {% else %}
   <tr>
@@ -63,7 +63,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <td class="borderlines">Totals</td>
         {% if 1 not in hidden_columns %}
         <td class="borderlines">
-          {% if firstcol == True %}
+          {% if ns.firstcol == True %}
           <font size="+2">
           {{parent.money_symbol}}{{'%0.2f' % entry.total_acc1}}
           </font>
@@ -74,7 +74,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         {% endif %}
         {% if 2 not in hidden_columns %}
         <td class="borderlines">
-          {% if firstcol == True %}
+          {% if ns.firstcol == True %}
           <font size="+2">
           {{parent.money_symbol}}{{'%0.2f' % entry.total_acc2}}
           </font>
@@ -85,7 +85,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         {% endif %}
         {% if 3 not in hidden_columns %}
         <td class="borderlines">
-          {% if firstcol == True %}
+          {% if ns.firstcol == True %}
           <font size="+2">
           {{parent.money_symbol}}{{'%0.2f' % entry.total_acc3}}
           </font>
@@ -95,7 +95,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         {% endif %}
         {% if 4 not in hidden_columns %}
         <td class="borderlines">
-          {% if firstcol == True %}
+          {% if ns.firstcol == True %}
           <font size="+2">
           {{parent.money_symbol}}{{'%0.2f' % entry.total_acc4}}
           </font>
@@ -106,7 +106,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         {% endif %}
         {% if 5 not in hidden_columns %}
         <td class="borderlines">
-          {% if firstcol == True %}
+          {% if ns.firstcol == True %}
           <font size="+2">
           {{parent.money_symbol}}{{'%0.2f' % entry.total_acc5}}
           </font>
@@ -139,7 +139,7 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
         <td class="deltas">{{entry.comment}}</td>
         <td class="deltas">{{entry.adjuster_name}}</td>
   </tr>
-  {% set firstcol = False %}
+  {% set ns.firstcol = False %}
 {% endfor %}
 </table>
 
