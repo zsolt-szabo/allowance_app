@@ -231,7 +231,7 @@ class kidAllowanceTestCase(unittest.TestCase):
             models.Allowance, models.AllowanceDays).filter(
             models.Allowance.id == models.AllowanceDays.allowance_id).all()
         retval = app.lib.a_index.check_and_update_allowances(all_allowances)
-        day = datetime.datetime.utcnow().day
+        day = datetime.datetime.now(datetime.timezone.utc).day
         if retval is False and day < 29:
             msg = "Failure to update an allowance when today not "
             msg += "greater than the 28th"

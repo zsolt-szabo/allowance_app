@@ -24,6 +24,7 @@ from flask import redirect
 from flask import url_for
 import traceback
 import datetime
+from datetime import timezone
 
 from flask import render_template, request, flash, g, session
 # Import the helper functions
@@ -61,7 +62,7 @@ class fakeLedger:
         self.change_loc7 = 0
         self.adjuster_name = "Automated Entry"
         self.comment = ''
-        self.last_ledger_update = datetime.datetime.utcnow()
+        self.last_ledger_update = datetime.datetime.now(timezone.utc)
 
 
 def c(val):

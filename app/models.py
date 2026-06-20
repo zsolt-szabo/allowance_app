@@ -17,7 +17,7 @@
 from werkzeug.security import generate_password_hash, \
     check_password_hash
 from app import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class User(db.Model):
@@ -167,7 +167,7 @@ class Allowance(db.Model):
         self.kid_id = kid_id
         self.amount = amount
         self.nickname = nickname
-        self.creation_date = datetime.utcnow()
+        self.creation_date = datetime.now(timezone.utc)
         self.account1_perc = account1_perc
         self.account2_perc = account2_perc
         self.account3_perc = account3_perc
@@ -180,7 +180,7 @@ class Allowance(db.Model):
         self.location5_perc = location5_perc
         self.location6_perc = location6_perc
         self.location7_perc = location7_perc
-        self.last_ledger_update = datetime.utcnow() - \
+        self.last_ledger_update = datetime.now(timezone.utc) - \
             timedelta(days=1)
 
 
@@ -255,7 +255,7 @@ class Ledger(db.Model):
                  change_loc5=0, change_loc6=0, change_loc7=0,
                  comment=''):
         self.kid_id = kid_id
-        self.last_ledger_update = datetime.utcnow()
+        self.last_ledger_update = datetime.now(timezone.utc)
         self.adjusted_by_parent = adjusted_by_parent
         self.adjuster_name = adjuster_name
         self.total_acc1 = total_acc1

@@ -3,7 +3,7 @@ from flask_login import current_user
 from app import models
 import app
 from app import db
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 
 
 def process_view():
@@ -77,7 +77,7 @@ def check_and_update_allowances(allowances=[]):
     for each in allowances:
         msg += "All_ID: %s,  ALL_Day_ID: %s\n" % (each[0].id, each[1].id)
     app.logger.debug(msg)
-    today_now = datetime.utcnow()
+    today_now = datetime.now(timezone.utc)
     today = date(today_now.year, today_now.month, today_now.day)
     update_occurred = False
 
