@@ -47,10 +47,23 @@ app.logger.info('Loaded kid images %s' % str(images))
 class RequiredIf(Required):
     # a validator which makes a field required if
     # another field is set and has a truthy value
+    #
+    # NOTE: We deliberately strip the HTML5 'required' field flag that
+    # DataRequired sets in its __init__ (self.field_flags =
+    # {"required": True}). That flag causes WTForms to render a plain
+    # `required` attribute on the <input> unconditionally - even when
+    # the other field's checkbox is unchecked. That broke
+    # registration: unused extra sub-account / location rows were
+    # blocked by the browser's native HTML5 validation ("Please fill
+    # out this field") despite our conditional logic below correctly
+    # allowing them to be empty. We clear field_flags after calling
+    # super().__init__() (which is what actually sets it) so only our
+    # server-side conditional check applies.
 
     def __init__(self, other_field_name, *args, **kwargs):
         self.other_field_name = other_field_name
         super(RequiredIf, self).__init__(*args, **kwargs)
+        self.field_flags = {}
 
     def __call__(self, form, field):
         other_field = form._fields.get(self.other_field_name)
