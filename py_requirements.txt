@@ -1,5 +1,6 @@
 coverage
 setuptools
+email_validator
 Flask>=3.0
 Flask-Login>=0.6
 Flask-SQLAlchemy>=3.1
