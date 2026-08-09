@@ -7,7 +7,7 @@ System requirements
    python|virtualenv|sqlite3
 
 To get started using the application
-  -Python 2.7.09 or higher (keep this in mind if you intend on 
+  -Python 3.14 or higher (keep this in mind if you intend on 
        running this on a WSGI server as python version can matter)
   -Virtual env needs to be set up in the flaskenv directory
     1) In the allowance_app directory type 'virtualenv flaskenv' 
