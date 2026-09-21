@@ -20,13 +20,13 @@ from app import models
 from app.domain import buckets
 from app import auth
 from app.services import errors
+from app.services import kids as kid_service
 from app import db
 from flask import redirect
 from flask import url_for
 import random
 import json
 import sqlalchemy
-import traceback
 from flask_login import login_user
 from flask import render_template, request, flash, g
 import logging
@@ -56,12 +56,8 @@ def ajax_animals():
        which already exists
     '''
     child_login = request.args.get('firstname')
-    animals = models.Kid.query.filter(
-        models.Kid.firstname == child_login).all()
-    used_animals = []
-    for each_combo in animals:
-        used_animals.append((each_combo.animal1, each_combo.animal2))
-    total_remaining = forms.image_combo_set - set(used_animals)
+    total_remaining = kid_service.available_animal_pairs(child_login)
+    #  The values are unused by the caller; the keys are the payload.
     total_remaining_dict = {}
     for each_key in total_remaining:
         total_remaining_dict[each_key[0] + "," + each_key[1]] = 'hello'
@@ -110,90 +106,41 @@ def kid_account_review():
             ##################################################################
 
             for ea_allow in allowances:
-                tot_a = 0  # Total of all sub account percentages
-                a_to_adjust = []
-                tot_l = 0  # Total of all location percentages
-                l_to_adjust = []
-                # Redistribute allowance among remaining accounts
-                update_dict = {}
+                #  Which buckets will still be active once this form is
+                #  applied. The percentages are redistributed against that,
+                #  not against the kid's current state.
+                active_accounts = [
+                    i for i in buckets.ACCOUNT_SLOTS
+                    if f.__dict__['acct%s_used' % i].data is True]
+                active_locations = [
+                    j for j in buckets.LOCATION_SLOTS
+                    if f.__dict__['location%s_used' % j].data is True]
 
-                for i in range(1, 6):
-                    # allowance percentage definied, not 0 and active
-                    accX_per = ea_allow.__getattribute__('account%s_perc' % i)
-                    if accX_per is not None and \
-                            f.__dict__['acct%s_used' % i].data is True and \
-                            accX_per != 0:
-                        a_to_adjust.append(i)
-                        tot_a += accX_per
-                    else:
-                        update_dict["account%s_perc" % i] = 0
+                update_dict, account_orphaned, location_orphaned = \
+                    kid_service.redistribute_allowance(
+                        ea_allow, active_accounts, active_locations)
 
-                for i in range(1, 8):
-                    # location percentage definied, not 0 and active
-                    locX_per = \
-                        ea_allow.__getattribute__('location%s_perc' % i)
-                    if locX_per is not None and \
-                            f.__dict__['location%s_used' % i].data is \
-                            True and locX_per != 0:
-                        l_to_adjust.append(i)
-                        tot_l += locX_per
-                    else:
-                        update_dict["location%s_perc" % i] = 0
-
-                if tot_a != 100 and len(a_to_adjust) > 0:
-                    diff = 100 - tot_a
-                    split = round(diff / float(len(a_to_adjust)), 2)
-                    amount_added = 0
-                    for i in a_to_adjust[1:]:
-                        thekey = "account%s_perc" % i
-                        sv = ea_allow.__dict__[thekey]  # Start Value
-                        update_dict.setdefault(thekey, sv)
-                        update_dict[thekey] += split
-                        amount_added += split
-                    # Ensure we are absolutely 100% not 99.9
-                    thekey = "account%s_perc" % a_to_adjust[0]
-                    sv = ea_allow.__dict__[thekey]  # Start Value
-                    update_dict.setdefault(thekey, sv)
-                    update_dict[thekey] += (diff - amount_added)
-                elif tot_a != 100 and len(a_to_adjust) == 0:
+                if account_orphaned:
                     msg = "ERROR: Could not fix allowance distribution for "
                     msg += "sub-accounts @ '%s'.  Please " % ea_allow.nickname
                     msg += "remove and recreate."
                     flash(msg)
-
-                if tot_l != 100 and len(l_to_adjust) > 0:
-                    diff = 100 - tot_l
-                    split = round(diff / float(len(l_to_adjust)), 2)
-                    amount_added = 0
-                    for i in l_to_adjust[1:]:
-                        thekey = "location%s_perc" % i
-                        sv = ea_allow.__dict__[thekey]  # Start Value
-                        update_dict.setdefault(thekey, sv)
-                        update_dict[thekey] += split
-                        amount_added += split
-                    # Ensure we are absolutely 100% not 99.9
-                    thekey = "location%s_perc" % l_to_adjust[0]
-                    sv = ea_allow.__dict__[thekey]  # Start Value
-                    update_dict.setdefault(thekey, sv)
-                    update_dict[thekey] += (diff - amount_added)
-                elif tot_l != 100 and len(l_to_adjust) == 0:
+                if location_orphaned:
                     msg = "ERROR: Could not fix storage distribution for "
                     msg += "locations @ '%s'.  Please remove and recreate." \
                            % ea_allow.nickname
                     flash(msg)
 
-                if tot_a != 100 or tot_l != 100:
+                if update_dict:
                     update_me = models.Allowance.query.filter_by(
                         id=ea_allow.id)
                     try:
                         update_me.update(update_dict)
                         db.session.commit()
-                    except:
-                        msg = traceback.format_exc()
-                        msg += str(update_dict) + "\n"
-                        msg += "update for allow: %s, kid %s" % (
-                            ea_allow.id, kid_list[0].id)
-                        logger.error(msg)
+                    except Exception:
+                        logger.exception(
+                            "update for allow: %s, kid %s -- %s"
+                            % (ea_allow.id, kid_list[0].id, update_dict))
                         flash("ERROR: please remove problem allowances/" +
                               "location on allowance page and try again")
                         return render_template('child_account.html',
@@ -201,9 +148,8 @@ def kid_account_review():
                                                form=form,
                                                acct_choices=acct_choices,
                                                loc_choices=loc_choices), 401
-                    msg = "Allowance %i adjusted for kid %s " % (
-                        ea_allow.id, kid_list[0].id)
-                    logger.info("Allowance adjusted ")
+                    logger.info('Allowance %s adjusted for kid %s'
+                                % (ea_allow.id, kid_list[0].id))
 
             ##################################################################
             #   END Check and adjust all related allowances
@@ -318,28 +264,15 @@ def kid_account_review():
         if len(kid_list) > 0:
             allowances = models.Allowance.query.filter_by(
                 kid_id=kid_list[0].id).all()
+        #  Which allowances fund each bucket, so the parent can see what
+        #  switching one off would disturb.
+        #
         #  SECURITY: this used to build Python source with the allowance
         #  nickname interpolated into a string literal and exec() it, so a
-        #  nickname containing a double quote broke out of the literal and
-        #  ran as code in the Flask process. Allowance.nickname has no
-        #  validators, so any parent could reach it by naming an allowance
-        #  and then opening this page. Plain dictionary access now.
-        form.used_by_allowance = {}
-        for ea_allow in allowances:
-            for i in buckets.ACCOUNT_SLOTS:
-                key = 'acct%s_name' % i
-                form.used_by_allowance.setdefault(key, '')
-                accX_per = getattr(ea_allow, 'account%s_perc' % i)
-                if accX_per is not None and accX_per != 0:
-                    form.used_by_allowance[key] += '%s, ' % \
-                        str(ea_allow.nickname)
-            for i in buckets.LOCATION_SLOTS:
-                key = 'location%s_name' % i
-                form.used_by_allowance.setdefault(key, '')
-                locX_per = getattr(ea_allow, 'location%s_perc' % i)
-                if locX_per is not None and locX_per != 0:
-                    form.used_by_allowance[key] += '%s, ' % \
-                        str(ea_allow.nickname)
+        #  nickname containing a double quote ran as code in the Flask
+        #  process. It is a plain dict build in app/services/kids.py now.
+        form.used_by_allowance = kid_service.allowances_using_buckets(
+            kid_list[0])
 
         form.animal1.data = kid_list[0].animal1
         form.animal2.data = kid_list[0].animal2
