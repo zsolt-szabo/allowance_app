@@ -29,6 +29,10 @@ import random
 import requests
 
 from flask import render_template, request, session, flash
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 login_manager = app.lm
 
@@ -163,8 +167,8 @@ def parent_account_review():
 
         # We should never be here
         if len(user_list) > 1:
-            app.logger.warning("Alert, query for email  %s " % email +
-                               "returns more than one set of records")
+            logger.warning("Alert, query for email  %s " % email +
+                           "returns more than one set of records")
 
         # Passwords don't match
         if password1 != password2:
@@ -229,13 +233,13 @@ def support_login():
     try:
         payload = support.consume_support_token(token)
     except support.SupportTokenError as exc:
-        app.logger.warning('Rejected support token: %s' % exc)
+        logger.warning('Rejected support token: %s' % exc)
         flash('ERROR: %s' % exc)
         return redirect(url_for('login'))
 
     user = db.session.get(models.User, payload['user_id'])
     if user is None or user.email != payload.get('email'):
-        app.logger.warning(
+        logger.warning(
             'Support token for user id %s no longer matches an account'
             % payload.get('user_id'))
         flash('ERROR: Support token does not match an existing account')
@@ -247,7 +251,7 @@ def support_login():
     g.user_id = user.id
     g.money_symbol = user.money_symbol
     session['TechSupport'] = True
-    app.logger.warning(
+    logger.warning(
         'SUPPORT LOGIN: entered account id %s (%s) via support token'
         % (user.id, user.email))
     return redirect(url_for('index'))
@@ -271,7 +275,7 @@ def do_google_token_signin():
     for each in traits:
         if each in request.form:
             google_log += each + ':' + request.form[each] + "\n"
-    app.logger.info(google_log)
+    logger.info(google_log)
     check = None
     if 'id_token' in request.form:
         check = requests.get(
@@ -290,8 +294,8 @@ def do_google_token_signin():
                 g.isgoogle = user.isgoogle
                 g.user_id = user.id
                 g.money_symbol = user.money_symbol
-                app.logger.info('Logged in google user %s' %
-                                user_list[0].email)
+                logger.info('Logged in google user %s' %
+                            user_list[0].email)
             else:
                 msg = "ERROR:  %s uses a standard login " % request.form[each]
                 msg += "NOT google authentication, please use standard "
@@ -315,8 +319,8 @@ def do_google_token_signin():
             g.isgoogle = user.isgoogle
             g.user_id = user.id
             g.money_symbol = user.money_symbol
-            app.logger.info('Created new google user %s in the system' %
-                            user.email)
+            logger.info('Created new google user %s in the system' %
+                        user.email)
 
     return "google user logged in"
 
@@ -344,8 +348,8 @@ def register():
 
         # We should never be here
         if len(user_list) > 1:
-            app.logger.warning("Alert, query for email  %s " % email +
-                               "returns more than one set of records")
+            logger.warning("Alert, query for email  %s " % email +
+                           "returns more than one set of records")
 
         # Passwords don't match
         if password1 != password2:
@@ -402,7 +406,7 @@ def register():
                                    form=form,
                                    cap=cap), 401
 
-        app.logger.warning("Alert, we should not be here: 2546")
+        logger.warning("Alert, we should not be here: 2546")
     # ##########################
     # GET
     # ##########################
@@ -461,12 +465,12 @@ def delete_user():
                 flash('User deleted.')
             elif len(user_list) > 1:
                 msg = "Issue deleting user, problem logged to be fixed"
-                app.logger.warn(msg + "len userlist %s for %s" %
-                                (len(user_list), ))
+                logger.warning(msg + "len userlist %s for %s" %
+                               (len(user_list), ))
                 flash("ERROR: " + msg)
             else:
                 flash('ERROR: This user not found?!?!, nothing to delete?')
-                app.logger.warn("WE SHOULD NEVER be here! a88987")
+                logger.warning("WE SHOULD NEVER be here! a88987")
         else:
             user_name = '<user not found>'
             try:

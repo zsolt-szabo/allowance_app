@@ -4,6 +4,10 @@ from app import models
 import app
 from app import db
 from datetime import datetime, timedelta, date, timezone
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def process_view():
@@ -76,7 +80,7 @@ def check_and_update_allowances(allowances=[]):
     msg = ''
     for each in allowances:
         msg += "All_ID: %s,  ALL_Day_ID: %s\n" % (each[0].id, each[1].id)
-    app.logger.debug(msg)
+    logger.debug(msg)
     today_now = datetime.now(timezone.utc)
     today = date(today_now.year, today_now.month, today_now.day)
     update_occurred = False
@@ -90,7 +94,7 @@ def check_and_update_allowances(allowances=[]):
                 #  Commit all changes for the last allowance entered
                 msg = "ID switched from %s " % last_allow_id
                 msg += "to %s so we are commiting" % a.id
-                app.logger.debug(msg)
+                logger.debug(msg)
                 update_allow_ts = models.Allowance.query.filter_by(
                     id=last_allow_id).first()
                 update_allow_ts.last_ledger_update = today
@@ -159,7 +163,7 @@ def check_and_update_allowances(allowances=[]):
                                     100.0 * a.amount)
                     msg = "acc5 to add: %s" % remainder_a
                     msg += "   location7 to add %s" % remainder_l
-                    app.logger.debug(msg)
+                    logger.debug(msg)
 
                     ledge_entry = models.Ledger(
                         kid_id=a.kid_id, adjusted_by_parent=True,
@@ -210,7 +214,7 @@ def check_and_update_allowances(allowances=[]):
                     ll = ledge_entry  # We cannot query our database again for
                     # ll because we have not commited, so
                     # use the modified value
-                    app.logger.debug(ll)
+                    logger.debug(ll)
                     db.session.add(ledge_entry)
                     update_occurred = True
             #  Final Commit for the last allowance entered

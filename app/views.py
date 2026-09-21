@@ -24,6 +24,10 @@ from app.lib import a_finance
 from flask_login import login_required
 from flask import render_template
 import traceback
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 @lm.user_loader
@@ -40,7 +44,7 @@ def load_user(id):
     # as to what to do when viewed as child or adult,
     # but the different variables will prevent accidental
     # viewing of other account information.
-    app.logger.info("load_user triggered, id is %s" % str(id))
+    logger.info("load_user triggered, id is %s" % str(id))
     user = None
     try:
         if type(id).__name__ == 'tuple':
@@ -56,7 +60,7 @@ def load_user(id):
             g.money_symbol = user.money_symbol
     except:
         msg = traceback.format_exc()
-        app.logger.error(msg + "User loading failed")
+        logger.error(msg + "User loading failed")
     return user
 
 

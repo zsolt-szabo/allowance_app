@@ -26,6 +26,10 @@ import sqlalchemy
 import traceback
 from flask_login import login_user
 from flask import render_template, request, flash, g
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 login_manager = app.lm
 
@@ -75,16 +79,16 @@ def kid_account_review():
         if len(kid_list) == 0:
             flash('ERROR: You cannot access this child ' +
                   'as the child does not exist for you.')
-            app.logger.warning("user %s NOT ALLOWED to " % g.user_id +
-                               "administer existing user (%s:%s:%s)" %
-                               (form.firstname.data,
-                                form.initial_animal1.data,
-                                form.initial_animal2.data))
+            logger.warning("user %s NOT ALLOWED to " % g.user_id +
+                           "administer existing user (%s:%s:%s)" %
+                           (form.firstname.data,
+                            form.initial_animal1.data,
+                            form.initial_animal2.data))
             return redirect(url_for('index'))
 
         # We should never be here
         if len(kid_list) > 1:
-            app.logger.warning(
+            logger.warning(
                 "Alert, query for kid user " +
                 "returns more than one set of records" +
                 "(%s:%s:%s)" %
@@ -189,7 +193,7 @@ def kid_account_review():
                         msg += str(update_dict) + "\n"
                         msg += "update for allow: %s, kid %s" % (
                             ea_allow.id, kid_list[0].id)
-                        app.logger.error(msg)
+                        logger.error(msg)
                         flash("ERROR: please remove problem allowances/" +
                               "location on allowance page and try again")
                         return render_template('child_account.html',
@@ -199,7 +203,7 @@ def kid_account_review():
                                                loc_choices=loc_choices), 401
                     msg = "Allowance %i adjusted for kid %s " % (
                         ea_allow.id, kid_list[0].id)
-                    app.logger.info("Allowance adjusted ")
+                    logger.info("Allowance adjusted ")
 
             ##################################################################
             #   END Check and adjust all related allowances
@@ -260,7 +264,7 @@ def kid_account_review():
                 msg = "Issue updating child account unfortunately "
                 msg += "it did not update.  Support has been notified."
                 flash(msg)
-                app.logger.warning(
+                logger.warning(
                     msg + "::" + form.firstname.data + ":" + str(g.user_id) +
                     ":" + form.initial_animal1.data + ":" +
                     form.initial_animal2.data)
@@ -304,18 +308,18 @@ def kid_account_review():
             if len(kid_list) == 0:
                 msg = 'Nothing found for kid account review '
                 flash(msg)
-                app.logger.warning(
+                logger.warning(
                     msg + ' (%s:%s:%s)' %
                     (kid_split[0], kid_split[1], kid_split[2]))
                 return redirect(url_for('index'))
             # We should never be here
             if len(kid_list) > 1:
-                app.logger.warning(
+                logger.warning(
                     "Alert, query for kid user " +
                     "returns more than one set of records" +
                     "(%s:%s:%s)" % (kid_split[0], kid_split[1], kid_split[2]))
         else:
-            app.logger.warning('argument for populating kid data was empty')
+            logger.warning('argument for populating kid data was empty')
             flash('No kid data given for review.')
             return redirect(url_for('index'))
 
@@ -478,14 +482,14 @@ def register_child1():
         if len(kid_list) > 0:
             flash('ERROR: Cannot register this login combination, ' +
                   'Please try again with different user name')
-            app.logger.warning("Front end failed to prevent registration of" +
-                               " existing user (%s:%s:%s)" %
-                               (firstname, animal1, animal2))
+            logger.warning("Front end failed to prevent registration of" +
+                           " existing user (%s:%s:%s)" %
+                           (firstname, animal1, animal2))
             return redirect(url_for('index'))
 
         # We should never be here
         if len(kid_list) > 1:
-            app.logger.warning(
+            logger.warning(
                 "Alert, query for kid user " +
                 "returns more than one set of records" +
                 "(%s:%s:%s)" % (firstname, animal1, animal2))
@@ -579,7 +583,7 @@ def register_child1():
                                    acct_choices=acct_choices,
                                    loc_choices=loc_choices), 401
 
-        app.logger.warning("Alert, we should not be here: 3646")
+        logger.warning("Alert, we should not be here: 3646")
     # ##########################
     # GET
     # ##########################
@@ -637,11 +641,11 @@ def delete_kid():
                     animal2=kid_split[2],
                     parent_id=g.user_id)
         else:
-            app.logger.warning('Could not split kid_data:  %s' % kid_data)
+            logger.warning('Could not split kid_data:  %s' % kid_data)
             flash('Kelly cohlos recieved.')
             return redirect(url_for('index'))
     else:
-        app.logger.warning('argument for populating kid data was empty')
+        logger.warning('argument for populating kid data was empty')
         flash('Kelly cohlos recieved.')
         return redirect(url_for('index'))
 
@@ -674,8 +678,8 @@ def delete_kid():
                 flash('Child data for "%s" deleted.' % kid_split[0])
             elif len(kid_list) > 1:
                 msg = "Issue deleting child, problem logged to be fixed"
-                app.logger.warn(msg + "len kidlist %s for %s" %
-                                (len(kid_list), ))
+                logger.warning(msg + "len kidlist %s for %s" %
+                               (len(kid_list), ))
                 flash("ERROR: " + msg)
             else:
                 flash('Child not found, nothing to delete.')

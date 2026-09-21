@@ -21,11 +21,14 @@ from wtforms import StringField, PasswordField, \
     HiddenField, TextAreaField
 from wtforms.validators import DataRequired as Required, Length, Email, \
     NumberRange, Optional
-import app
 import config
 import glob
 import copy
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 images = [(os.path.basename(each).split('_')[1][:-4],
            'static/' + os.path.basename(each))
@@ -41,7 +44,7 @@ days_of_month = []
 for i in range(1, 29):
     days_of_month.append((str(i), str(i)))
 
-app.logger.info('Loaded kid images %s' % str(images))
+logger.info('Loaded kid images %s' % str(images))
 
 
 class RequiredIf(Required):
@@ -161,40 +164,40 @@ class RegisterChild1(Form):
     initial_animal1 = HiddenField(id='initial_animal1')
     initial_animal2 = HiddenField(id='initial_animal2')
 
-    app.logger.info('Constructing remaining fields in RegisterChild1("Form")')
+    logger.info('Constructing remaining fields in RegisterChild1("Form")')
     for i in range(2, 6):
         field = "acct%s_name = StringField('Account', id='acct%s_name', "
         field += "validators=[RequiredIf('acct%s_used'), Optional(), "
         field += "Length(2, 80)])"
         field = field % (i, i, i)
-        app.logger.info("\n" + field)
+        logger.info("\n" + field)
         exec(field)
         field = "acct%s_used = BooleanField('Active', id='acct%s_used')"
         field = field % (i, i)
-        app.logger.info("\n" + field)
+        logger.info("\n" + field)
         exec(field)
         field = "acct%s_comment = StringField('Description', "
         field += "id='acct%s_comment', validators="
         field += "[Optional(), Length(1, 80)])"
         field = field % (i, i)
-        app.logger.info("\n" + field)
+        logger.info("\n" + field)
         exec(field)
     for i in range(2, 8):
         field = "location%i_name = StringField('Where is Money', id="
         field += "'location%s_name', validators=[Optional(), Length(1, 80)])"
         field = field % (i, i)
-        app.logger.info("\n" + field)
+        logger.info("\n" + field)
         exec(field)
         field = "location%s_used = BooleanField('Active', id="
         field += "'location%s_used')"
         field = field % (i, i)
-        app.logger.info("\n" + field)
+        logger.info("\n" + field)
         exec(field)
         field = "location%s_comment = StringField('Description', id="
         field += "'location%s_comment', validators=[Optional(), "
         field += "Length(0, 512)])"
         field = field % (i, i)
-        app.logger.info("\n" + field)
+        logger.info("\n" + field)
         exec(field)
 
 
@@ -286,13 +289,13 @@ class Ledger(Form):
         'comment', id='comment', validators=[Optional(),
                                              Length(min=1, max=200)])
 
-    app.logger.info('Constructing remaining fields in Ledger("Form")')
+    logger.info('Constructing remaining fields in Ledger("Form")')
     for i in range(2, 6):
         for j in range(1, 8):
             field = "acct%s_loc%s = FloatField('acct%s_loc%s'," % (i, j, i, j)
             field += "validators=[Optional(), NumberRange(min=-1000, max=1000"
             field += ')], render_kw={"placeholder": "0"})'
-            app.logger.info("\n" + field)
+            logger.info("\n" + field)
             exec(field)
 
 

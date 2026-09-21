@@ -27,6 +27,10 @@ import datetime
 from datetime import timezone
 
 from flask import render_template, request, flash, g, session
+import logging
+logger = logging.getLogger(__name__)
+
+
 # Import the helper functions
 # Import the configuration file you downloaded from Google Developer Console
 server_config_json = config.SERVER_CONFIG_JSON
@@ -81,7 +85,7 @@ def remove_allowance():
     except:
         msg = traceback.format_exc()
         flash('ERROR: error occurred removing this allowance- logged.')
-        app.logging.warn(msg + " allowance id %s" % allow_id)
+        logger.warning(msg + " allowance id %s" % allow_id)
         return redirect(url_for('do_allowance'))
 
     # ####### for security reasons ensure allowance to delete
@@ -111,8 +115,8 @@ def remove_allowance():
 
     if not user_allowed:
         flash('Unable to understand allowance Id given for removal')
-        app.logger.error('Attempt to remove allowance %s by user %s failed'
-                         % (allow_id, user_id))
+        logger.error('Attempt to remove allowance %s by user %s failed'
+                     % (allow_id, user_id))
     return redirect(url_for('do_allowance'))
 
 
@@ -129,7 +133,7 @@ def allowances():
     elif 'kid_data' in session:
         kid_data = session['kid_data']  # TBD, Beginnings of memory consume
     else:
-        app.logger.warning("Alert, we should not be here: 3112")
+        logger.warning("Alert, we should not be here: 3112")
 
     # ###### Security g.user_id prevents parent from hacking kid_id to get
     # ###### kid_id information that does not belong to them.
@@ -165,7 +169,7 @@ def allowances():
     if len(kid_info) == 0:
         msg = "ERROR: Problem getting child data, error logged"
         flash(msg)
-        app.logger.error(msg)
+        logger.error(msg)
         return redirect(url_for('index'))
 
     # Form is dynamic with respect to whether account is used
@@ -209,7 +213,7 @@ def allowances():
                 flash('Unknown child selected error')
                 return redirect(url_for('index'))
             elif len(kid) > 1:
-                app.logger.error(
+                logger.error(
                     'ALERT, we should not be here EVER %s: 3289' % kid[0].id)
 
             m = form   # ref helps make code more concise
@@ -272,7 +276,7 @@ def allowances():
                 if len(errmsg) > 0:
                     flash('ERROR: problem detected adding allowance dates ' +
                           'sorry for the inconvenience')
-                    app.logger.error(errmsg)
+                    logger.error(errmsg)
             return redirect(url_for('do_allowance'))
         else:
             for e_field in form.errors.keys():
@@ -287,7 +291,7 @@ def allowances():
                     allow_data=allow_data,
                     kid_info=kid_info[0]), 401
             msg = "We should not be here! "
-            app.logger.warn(msg + 'Someone try to post as kid?' + str(dir(g)))
+            logger.warning(msg + 'Someone try to post as kid?' + str(dir(g)))
             return msg
 
     # ################ Page get request ############# #
@@ -308,17 +312,17 @@ def a(n):
 
 def populate_hidden_arrays(hidden_columns, hidden_locs, kid):
     '''Helper function for when no ledger data exists yet'''
-    app.logger.info(
+    logger.info(
         "Child has no ledger data yet, determining usable accounts")
     for i in range(1, 6):
         cmd1 = "if kid.acct%s_used is False:\n" % i
         cmd1 += "    hidden_columns[%s] = True" % i
-        app.logger.debug("Executing:\n" + cmd1)
+        logger.debug("Executing:\n" + cmd1)
         exec(cmd1)
     for i in range(1, 8):
         cmd1 = "if kid.location%s_used is False:\n" % i
         cmd1 += "    hidden_locs[%s] = True" % i
-        app.logger.debug("Executing:\n" + cmd1)
+        logger.debug("Executing:\n" + cmd1)
         exec(cmd1)
 
 
@@ -332,7 +336,7 @@ def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
     adjusted_by_parent:  Boolean
     '''
     # ALL DATA MUST BE ROUNDED  INCLUDING ALLOWANCE UPDATES
-    acct_patt = re.compile('acct(\d)_')
+    acct_patt = re.compile(r'acct(\d)_')
     if form.validate_on_submit():
         loc_math = {'loc1': 0, 'loc2': 0, 'loc3': 0, 'loc4': 0, 'loc5': 0,
                     'loc6': 0, 'loc7': 0}
@@ -460,7 +464,7 @@ def ledger():
     elif 'kid_data' in session:
         kid_data = session['kid_data']  # TBD, Beginnings of memory consume
     else:
-        app.logger.warning("Alert, we should not be here: 3412")
+        logger.warning("Alert, we should not be here: 3412")
         flash("ERROR: Failed to extract child info given, error reported!")
         return redirect(url_for('index'))
 
@@ -489,7 +493,7 @@ def ledger():
                 user = g.kid_id
             else:
                 user = g.user_id
-            app.logger.warning(msg + " for %s id %s" % (user_type, user))
+            logger.warning(msg + " for %s id %s" % (user_type, user))
             return redirect(url_for('index'))
 
     kid = kid_arr[0]
