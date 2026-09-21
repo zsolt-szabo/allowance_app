@@ -17,6 +17,7 @@
 import app
 from app import forms
 from app import models
+from app.domain import buckets
 from app import db
 from flask import redirect
 from flask import url_for
@@ -328,28 +329,28 @@ def kid_account_review():
         if len(kid_list) > 0:
             allowances = models.Allowance.query.filter_by(
                 kid_id=kid_list[0].id).all()
+        #  SECURITY: this used to build Python source with the allowance
+        #  nickname interpolated into a string literal and exec() it, so a
+        #  nickname containing a double quote broke out of the literal and
+        #  ran as code in the Flask process. Allowance.nickname has no
+        #  validators, so any parent could reach it by naming an allowance
+        #  and then opening this page. Plain dictionary access now.
         form.used_by_allowance = {}
         for ea_allow in allowances:
-            for i in range(1, 6):
-                stmnt = 'form.used_by_allowance.setdefault("acct%s_name", "")'
-                stmnt = stmnt % i
-                exec(stmnt)
-                accX_per = ea_allow.__getattribute__('account%s_perc' % i)
+            for i in buckets.ACCOUNT_SLOTS:
+                key = 'acct%s_name' % i
+                form.used_by_allowance.setdefault(key, '')
+                accX_per = getattr(ea_allow, 'account%s_perc' % i)
                 if accX_per is not None and accX_per != 0:
-                    stmnt = 'form.used_by_allowance["acct%s_name"] += "%s, "'
-                    stmnt = stmnt % (i, str(ea_allow.nickname))
-                    exec(stmnt)
-            for i in range(1, 8):
-                stmnt = \
-                    'form.used_by_allowance.setdefault("location%s_name", "")'
-                stmnt = stmnt % i
-                exec(stmnt)
-                locX_per = ea_allow.__getattribute__('location%s_perc' % i)
+                    form.used_by_allowance[key] += '%s, ' % \
+                        str(ea_allow.nickname)
+            for i in buckets.LOCATION_SLOTS:
+                key = 'location%s_name' % i
+                form.used_by_allowance.setdefault(key, '')
+                locX_per = getattr(ea_allow, 'location%s_perc' % i)
                 if locX_per is not None and locX_per != 0:
-                    stmnt = \
-                        'form.used_by_allowance["location%s_name"] += "%s, "'
-                    stmnt = stmnt % (i, str(ea_allow.nickname))
-                    exec(stmnt)
+                    form.used_by_allowance[key] += '%s, ' % \
+                        str(ea_allow.nickname)
 
         form.animal1.data = kid_list[0].animal1
         form.animal2.data = kid_list[0].animal2

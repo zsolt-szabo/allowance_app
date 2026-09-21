@@ -20,6 +20,7 @@ import app
 from app import forms
 from app import models
 from app import auth
+from app.domain import buckets
 from app.services import errors
 from app import db
 from flask import redirect
@@ -295,16 +296,15 @@ def populate_hidden_arrays(hidden_columns, hidden_locs, kid):
     '''Helper function for when no ledger data exists yet'''
     logger.info(
         "Child has no ledger data yet, determining usable accounts")
-    for i in range(1, 6):
-        cmd1 = "if kid.acct%s_used is False:\n" % i
-        cmd1 += "    hidden_columns[%s] = True" % i
-        logger.debug("Executing:\n" + cmd1)
-        exec(cmd1)
-    for i in range(1, 8):
-        cmd1 = "if kid.location%s_used is False:\n" % i
-        cmd1 += "    hidden_locs[%s] = True" % i
-        logger.debug("Executing:\n" + cmd1)
-        exec(cmd1)
+    #  NOTE: `is False` rather than a falsiness test, preserved from the
+    #  generated code this replaces -- a NULL *_used column is deliberately
+    #  not treated as "unused", so such a bucket stays visible.
+    for slot in buckets.ACCOUNT_SLOTS:
+        if getattr(kid, 'acct%s_used' % slot) is False:
+            hidden_columns[slot] = True
+    for slot in buckets.LOCATION_SLOTS:
+        if getattr(kid, 'location%s_used' % slot) is False:
+            hidden_locs[slot] = True
 
 
 def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
