@@ -447,26 +447,20 @@ def ledger():
     parent = models.User.query.filter(models.User.id == kid.parent_id).all()[0]
     adjuster_name = None
 
-    def get_ledger(kid_data, g):
-        if hasattr(g, 'is_child') and g.is_child is True:
-            ledger = models.Ledger.query.join(
-                models.Kid).filter(
-                models.Kid.firstname == kid_data[0],
-                models.Kid.animal1 == kid_data[1],
-                models.Kid.animal2 == kid_data[2],
-                models.Kid.id == g.kid_id). \
-                order_by(models.Ledger.last_ledger_update.desc()).all()
-        else:
-            ledger = models.Ledger.query.join(
-                models.Kid).filter(
-                models.Kid.firstname == kid_data[0],
-                models.Kid.animal1 == kid_data[1],
-                models.Kid.animal2 == kid_data[2],
-                models.Kid.parent_id == g.user_id). \
-                order_by(models.Ledger.last_ledger_update.desc()).all()
-        return ledger
+    def get_ledger(kid):
+        #  `kid` was already resolved by auth.resolve_kid_by_login above, so
+        #  ownership is settled and the rows can be fetched by kid_id. This
+        #  replaces two near-identical joins that re-derived the same
+        #  ownership from the URL triple.
+        #
+        #  NOTE: ordered by last_ledger_update, not id. a_index orders the
+        #  same rows by id. The two agree on all current data, but they are
+        #  different definitions of "latest" -- see the Stage 5 notes.
+        return models.Ledger.query.filter(
+            models.Ledger.kid_id == kid.id). \
+            order_by(models.Ledger.last_ledger_update.desc()).all()
 
-    ledger = get_ledger(kid_data, g)
+    ledger = get_ledger(kid)
     adjusted_by_parent = False
 
     if hasattr(g, 'is_child') and g.is_child is True:

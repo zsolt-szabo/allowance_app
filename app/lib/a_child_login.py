@@ -255,11 +255,9 @@ def kid_account_review():
             # TODO: use of initial_animaX is not ideal, as multiple
             # form submits when mistakes are made but animals are
             # changing will cause a break.  Revisit and fix
-            k = models.Kid.query.filter_by(
-                firstname=form.firstname.data,
-                animal1=form.initial_animal1.data,
-                animal2=form.initial_animal2.data,
-                parent_id=g.user_id)
+            #  Ownership was already established by resolve_kid_by_login at
+            #  the top of this branch; scope the update by the resolved id.
+            k = models.Kid.query.filter_by(id=kid_list[0].id)
             if k.count() == 0:
                 msg = "Issue updating child account unfortunately "
                 msg += "it did not update.  Support has been notified."
@@ -495,7 +493,7 @@ def register_child1():
                 animal2=animal2,
                 animal3=animal3,
                 animal4=animal4,
-                parent_id=g.user_id,
+                parent_id=auth.require_parent().parent_id,
                 pw=password,
                 acct1_name=acct1_name,
                 acct1_used=acct1_used,
