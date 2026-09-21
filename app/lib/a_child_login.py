@@ -18,6 +18,8 @@ import app
 from app import forms
 from app import models
 from app.domain import buckets
+from app import auth
+from app.services import errors
 from app import db
 from flask import redirect
 from flask import url_for
@@ -70,21 +72,18 @@ def kid_account_review():
     form = forms.RegisterChild1()
     if request.method == "POST" and not \
             (hasattr(g, 'is_child') and g.is_child is True):
-        kid_list = models.Kid.query.filter(
-            db.and_(models.Kid.firstname == form.firstname.data,
-                    models.Kid.animal1 == form.initial_animal1.data,
-                    models.Kid.animal2 == form.initial_animal2.data,
-                    models.Kid.parent_id == g.user_id)).all()
-
-        # Attempt to register existing user
-        if len(kid_list) == 0:
+        #  auth.resolve_kid_by_login is the one ownership check. The kid is
+        #  addressed by its *pre-edit* identity (initial_animal1/2), because
+        #  this form may be renaming the animals.
+        try:
+            kid_list = [auth.resolve_kid_by_login(
+                auth.require_parent(),
+                form.firstname.data,
+                form.initial_animal1.data,
+                form.initial_animal2.data)]
+        except errors.DomainError:
             flash('ERROR: You cannot access this child ' +
                   'as the child does not exist for you.')
-            logger.warning("user %s NOT ALLOWED to " % g.user_id +
-                           "administer existing user (%s:%s:%s)" %
-                           (form.firstname.data,
-                            form.initial_animal1.data,
-                            form.initial_animal2.data))
             return redirect(url_for('index'))
 
         # We should never be here
@@ -292,20 +291,12 @@ def kid_account_review():
         if kid_data is not None:
             kid_split = kid_data.split(":")
             if len(kid_split) == 3:
-                if hasattr(g, 'is_child') and g.is_child is True:
-                    kid_list = models.Kid.query.filter(
-                        db.and_(
-                            models.Kid.firstname == kid_split[0],
-                            models.Kid.animal1 == kid_split[1],
-                            models.Kid.animal2 == kid_split[2]),
-                        models.Kid.id == g.kid_id).all()
-                else:
-                    kid_list = models.Kid.query.filter(
-                        db.and_(
-                            models.Kid.firstname == kid_split[0],
-                            models.Kid.animal1 == kid_split[1],
-                            models.Kid.animal2 == kid_split[2]),
-                        models.Kid.parent_id == g.user_id).all()
+                #  One ownership check for both parent and child actors.
+                try:
+                    kid_list = [auth.resolve_kid_by_login(
+                        auth.require_actor(), *kid_split)]
+                except errors.DomainError:
+                    kid_list = []
             if len(kid_list) == 0:
                 msg = 'Nothing found for kid account review '
                 flash(msg)
@@ -632,15 +623,26 @@ def login():
 
 def delete_kid():
     form = forms.UserDelete()
+    #  Parent-only. This used to read g.user_id directly, which a child
+    #  session never sets, so a child reaching this handler got
+    #  AttributeError -> 500 instead of being refused.
+    try:
+        actor = auth.require_parent()
+    except errors.DomainError as exc:
+        flash('ERROR: %s' % exc.message)
+        return redirect(url_for('index'))
+
     kid_data = request.args.get('kid')
     if kid_data is not None:
         kid_split = kid_data.split(":")
         if len(kid_split) == 3:
+            #  Scoped to this parent, so the bulk delete below can never
+            #  reach another family's row.
             kid_query = models.Kid.query.filter_by(
                     firstname=kid_split[0],
                     animal1=kid_split[1],
                     animal2=kid_split[2],
-                    parent_id=g.user_id)
+                    parent_id=actor.parent_id)
         else:
             logger.warning('Could not split kid_data:  %s' % kid_data)
             flash('Kelly cohlos recieved.')

@@ -202,3 +202,42 @@ def test_parse_kid_triple_rejects_malformed_input(bad):
     dereferences None, which is a TypeError and a 500."""
     with pytest.raises(errors.ValidationFailed):
         auth.parse_kid_triple(bad)
+
+
+# --- resolve_allowance -----------------------------------------------------
+
+def test_parent_can_resolve_their_own_kids_allowance(two_families):
+    alice, alice_kid, _bob, _bob_kid = two_families
+    allowance = f.make_allowance(alice_kid, amount=5.0, payout_days=(1,))
+    as_parent(alice)
+
+    found = auth.resolve_allowance(auth.current_actor(), allowance.id)
+    assert found.id == allowance.id
+
+
+def test_parent_cannot_resolve_another_familys_allowance(two_families):
+    """The IDOR guard on /remove_allowance."""
+    alice, _alice_kid, _bob, bob_kid = two_families
+    bob_allowance = f.make_allowance(bob_kid, amount=5.0, payout_days=(1,))
+    as_parent(alice)
+
+    with pytest.raises(errors.NotFound):
+        auth.resolve_allowance(auth.current_actor(), bob_allowance.id)
+
+
+def test_missing_allowance_is_not_found(two_families):
+    as_parent(two_families[0])
+    with pytest.raises(errors.NotFound):
+        auth.resolve_allowance(auth.current_actor(), 99999)
+
+
+def test_child_cannot_reach_another_kids_allowance(two_families):
+    _alice, alice_kid, _bob, bob_kid = two_families
+    bob_allowance = f.make_allowance(bob_kid, amount=5.0, payout_days=(1,))
+    own = f.make_allowance(alice_kid, amount=5.0, payout_days=(1,))
+    as_child(alice_kid)
+    actor = auth.current_actor()
+
+    assert auth.resolve_allowance(actor, own.id).id == own.id
+    with pytest.raises(errors.NotFound):
+        auth.resolve_allowance(actor, bob_allowance.id)

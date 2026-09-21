@@ -81,45 +81,32 @@ def c(val):
 
 
 def remove_allowance():
-    allow_id = '<undefined>'
-    user_id = '<undefined>'
     try:
         allow_id = int(request.args.get('allow_id'))
-    except:
-        msg = traceback.format_exc()
+    except (TypeError, ValueError):
         flash('ERROR: error occurred removing this allowance- logged.')
-        logger.warning(msg + " allowance id %s" % allow_id)
+        logger.warning('Unusable allowance id for removal: %r'
+                       % request.args.get('allow_id'))
         return redirect(url_for('do_allowance'))
 
     # ####### for security reasons ensure allowance to delete
     # ####### belongs to logged in parent (via child)
-    user_allowed = False
-    current_allowances = []
+    #
+    # This used to load every allowance belonging to the parent and scan the
+    # list for a matching id, with the ownership read wrapped in a bare
+    # except -- which is why a child hitting this endpoint silently fell
+    # through to "not allowed" via an AttributeError on g.user_id.
     try:
-        current_allowances = models.Allowance.query.join(
-            models.Kid).filter(models.Kid.parent_id == g.user_id).all()
-        user_id = g.user_id
-    except:
-        import traceback
-        msg = traceback.format_exc()
-        msg += "Failure deleting allowance %s" % allow_id
-
-    for allowance in current_allowances:
-        if allowance.id == allow_id:
-            user_allowed = True
-            # ##### Find and delete allowance pay days
-            allowance_dates = models.AllowanceDays.query.filter(
-                models.AllowanceDays.allowance_id == allow_id).all()
-            for each_date in allowance_dates:
-                models.AllowanceDays.query.filter_by(id=each_date.id).delete()
-                db.session.commit()
-            models.Allowance.query.filter_by(id=allowance.id).delete()
-            db.session.commit()
-
-    if not user_allowed:
+        allowance = auth.resolve_allowance(auth.require_parent(), allow_id)
+    except errors.DomainError:
         flash('Unable to understand allowance Id given for removal')
-        logger.error('Attempt to remove allowance %s by user %s failed'
-                     % (allow_id, user_id))
+        logger.error('Attempt to remove allowance %s failed' % allow_id)
+        return redirect(url_for('do_allowance'))
+
+    # ##### Find and delete allowance pay days, then the allowance itself.
+    models.AllowanceDays.query.filter_by(allowance_id=allowance.id).delete()
+    models.Allowance.query.filter_by(id=allowance.id).delete()
+    db.session.commit()
     return redirect(url_for('do_allowance'))
 
 

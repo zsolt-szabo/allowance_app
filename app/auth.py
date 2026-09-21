@@ -185,6 +185,30 @@ def resolve_kid_by_login(actor, firstname, animal1, animal2):
     return kid
 
 
+def resolve_allowance(actor, allowance_id):
+    '''The Allowance with this id, if this actor is allowed to touch it.
+
+    Allowances hang off a kid, so ownership is inherited: a parent may reach
+    an allowance belonging to any of their kids. Children never manage
+    allowances, so this is parent-only by construction -- pass an Actor from
+    require_parent().
+    '''
+    query = models.Allowance.query.join(
+        models.Kid, models.Kid.id == models.Allowance.kid_id).filter(
+        models.Allowance.id == allowance_id)
+    if actor.is_parent:
+        query = query.filter(models.Kid.parent_id == actor.parent_id)
+    else:
+        query = query.filter(models.Kid.id == actor.kid_id)
+
+    allowance = query.one_or_none()
+    if allowance is None:
+        logger.warning('%r denied access to allowance id %s'
+                       % (actor, allowance_id))
+        raise errors.NotFound('allowance', code='allowance.not_found')
+    return allowance
+
+
 def parse_kid_triple(kid_string):
     '''Split a ``firstname:animal1:animal2`` URL fragment.
 
