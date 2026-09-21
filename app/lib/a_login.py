@@ -21,6 +21,8 @@ from app import models
 from app import db
 from app import support
 from app.services import captcha
+from app.services import parents
+from app.services import errors
 from flask_login import login_user
 from flask_login import logout_user
 from flask import g
@@ -49,30 +51,28 @@ def login():
     form = forms.LoginForm()
     g.force_google_logout = session.pop('force_google_logout', None)
     if request.method == "POST" and form.validate_on_submit():
-        user_list = models.User.query.filter(
-            models.User.email == form.email.data).all()
-        if len(user_list) > 0:
-            user = user_list[0]
-            #  THIS SHOULD BE THE ONLY PLACE WE ALLOW LOGIN PASSWORD FOR ADULT
-            #  Support staff no longer log in with a shared master password;
-            #  see app/support.py and scripts/support_login.py.
-            if user.check_password(form.password.data):
-                login_user(user)
-                g.user = user.email
-                g.isgoogle = user.isgoogle
-                g.user_id = user.id
-                g.money_symbol = user.money_symbol
-                return redirect(url_for('index'))
-            else:
-                flash('ERROR: User/Password combination not found')
-                return render_template('login.html',
-                                       title='Sign In',
-                                       form=form), 401
-        else:
-            flash('ERROR: User/Password combination not found')
+        #  THIS SHOULD BE THE ONLY PLACE WE ALLOW LOGIN PASSWORD FOR ADULT
+        #  Support staff no longer log in with a shared master password;
+        #  see app/support.py and scripts/support_login.py.
+        #
+        #  parents.authenticate gives the same answer for "no such email"
+        #  and "wrong password", so the login form cannot be used to find
+        #  out which addresses have accounts.
+        try:
+            user = parents.authenticate(form.email.data, form.password.data)
+        except errors.DomainError as exc:
+            flash('ERROR: ' + exc.message)
             # greturn redirect(request.args.get('next') or url_for('index'))
-            return render_template(
-                'login.html', title='Login', form=form), 401
+            return render_template('login.html',
+                                   title='Sign In',
+                                   form=form), 401
+
+        login_user(user)
+        g.user = user.email
+        g.isgoogle = user.isgoogle
+        g.user_id = user.id
+        g.money_symbol = user.money_symbol
+        return redirect(url_for('index'))
 
     return render_template('login.html',
                            title='Sign In',
@@ -311,7 +311,9 @@ def register():
                                    form=form,
                                    cap=cap), 401
         if form.captcha.data != str(cap_answer).replace(' ', ''):
-            print(form.captcha.data, str(cap_answer))
+            #  This used to print the submitted value and the expected
+            #  answer to stdout on every failed captcha.
+            logger.info('Captcha mismatch on registration attempt')
             flash('ERROR:  Captcha values did not match')
             cap = get_captcha()
             form.captcha.data = None
@@ -323,12 +325,9 @@ def register():
         # ########################################
         # SUCCESS: register user validation passes
         if form.validate_on_submit():
-            user = models.User(email=email,
-                               firstname=firstname,
-                               money_symbol=money_symbol)
-            user.set_password(password1)
-            db.session.add(user)
-            db.session.commit()
+            user = parents.create(email=email, firstname=firstname,
+                                  password=password1,
+                                  money_symbol=money_symbol)
             login_user(user)
             g.user = user.email
             g.isgoogle = False
@@ -390,27 +389,10 @@ def delete_user():
                                        form=form,), 401
             if len(user_list) == 1:
                 user = user_list[0]
-                kids = models.Kid.query.filter_by(parent_id=user.id)
-                allowdays = None
-                for each_kid in kids.all():
-                    allowances = models.Allowance.query.filter_by(
-                        kid_id=each_kid.id)
-                    for ea_allow in allowances.all():
-                        allowdays = models.AllowanceDays.query.filter_by(
-                            allowance_id=ea_allow.id)
-                        if allowdays:
-                            allowdays.delete()
-                    ledger = models.Ledger.query.filter_by(kid_id=each_kid.id)
-
-                    allowances.delete()
-                    ledger.delete()
-
                 logout_user()
                 g.user = None
                 g.isgoogle = False
-                kids.delete()
-                user_query.delete()
-                app.db.session.commit()
+                parents.delete_with_children(user)
                 flash('User deleted.')
             elif len(user_list) > 1:
                 msg = "Issue deleting user, problem logged to be fixed"
