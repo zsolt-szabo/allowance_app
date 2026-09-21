@@ -255,3 +255,28 @@ def test_KNOWN_BUG_duplicate_payout_days_pay_twice(db_, kid):
         rows = f.ledger_for(kid)
         assert len(rows) == 2, "the same day paid out twice"
         assert [r.total_acc1 for r in rows] == [5, 10]
+
+
+def test_run_payouts_matches_the_hand_rolled_cron_query(db_, kid):
+    """payout.run_payouts() replaced the query allowance_payout_cron.py used
+    to build inline. It must select exactly the same work."""
+    from app.services import payout
+
+    with time_machine.travel(FROZEN_NOW, tick=False):
+        f.make_allowance(kid, amount=10.0, payout_days=(15,),
+                         account_percs=(80, 20, 0, 0, 0),
+                         location_percs=ALL_TO_LOC1,
+                         last_ledger_update=f.days_ago(1))
+
+        # The service picks its own work; assert it found the same rows.
+        assert payout.run_payouts() is True
+        db.session.commit()
+
+        rows = f.ledger_for(kid)
+        assert len(rows) == 1
+        assert account_changes(rows[0]) == [8, 2, 0, 0, 0]
+        assert_book_balances(kid.id)
+
+        # And is still day-idempotent through the new entry point.
+        assert payout.run_payouts() is False
+        assert len(f.ledger_for(kid)) == 1

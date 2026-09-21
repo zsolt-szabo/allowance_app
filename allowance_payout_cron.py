@@ -16,12 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 import app
-import app.lib.a_index as index
-from app import models
+from app.services import payout
 
+#  The query that selects due allowances lives in the service now, so this
+#  script and the dashboard cannot drift apart.
 with app.app.app_context():
-    all_allowances = app.db.session.query(
-        models.Allowance, models.AllowanceDays).filter(
-        models.Allowance.id == models.AllowanceDays.allowance_id).all()
-
-    index.check_and_update_allowances(all_allowances)
+    payout.run_payouts()
