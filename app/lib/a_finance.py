@@ -19,6 +19,8 @@ import config
 import app
 from app import forms
 from app import models
+from app import auth
+from app.services import errors
 from app import db
 from flask import redirect
 from flask import url_for
@@ -135,42 +137,27 @@ def allowances():
     else:
         logger.warning("Alert, we should not be here: 3112")
 
-    # ###### Security g.user_id prevents parent from hacking kid_id to get
-    # ###### kid_id information that does not belong to them.
-
-    # ###### Security g.user_id prevents parent from hacking kid_id to get
-    # ###### kid_id information that does not belong to them.
-    if hasattr(g, 'is_child') and g.is_child is True:
-        current_allowances = models.Allowance.query.join(
-            models.Kid).filter(
-            models.Kid.firstname == kid_data[0],
-            models.Kid.animal1 == kid_data[1],
-            models.Kid.animal2 == kid_data[2],
-            models.Kid.id == g.kid_id).all()
-        kid_info = models.Kid.query.filter(
-            models.Kid.firstname == kid_data[0],
-            models.Kid.animal1 == kid_data[1],
-            models.Kid.animal2 == kid_data[2],
-            models.Kid.id == g.kid_id).all()
-    else:
-        current_allowances = models.Allowance.query.join(
-            models.Kid).filter(
-            models.Kid.firstname == kid_data[0],
-            models.Kid.animal1 == kid_data[1],
-            models.Kid.animal2 == kid_data[2],
-            models.Kid.parent_id == g.user_id).all()
-
-        kid_info = models.Kid.query.filter(
-            models.Kid.firstname == kid_data[0],
-            models.Kid.animal1 == kid_data[1],
-            models.Kid.animal2 == kid_data[2],
-            models.Kid.parent_id == g.user_id).all()
-
-    if len(kid_info) == 0:
+    # ###### Security: auth.resolve_kid_by_login is the one ownership check.
+    # ###### It stops a parent reaching a kid that is not theirs, and a child
+    # ###### reaching anyone but themselves, and it logs the denial.
+    #
+    # The guard on kid_data also closes a crash: when neither ?kid= nor
+    # session['kid_data'] is present, kid_data stayed None and the old code
+    # dereferenced kid_data[0] for a TypeError/500. It now takes the same
+    # redirect the surrounding code already intended.
+    try:
+        if not kid_data or len(kid_data) != 3:
+            raise errors.ValidationFailed('No child reference supplied')
+        kid = auth.resolve_kid_by_login(auth.require_actor(), *kid_data)
+    except errors.DomainError:
         msg = "ERROR: Problem getting child data, error logged"
         flash(msg)
         logger.error(msg)
         return redirect(url_for('index'))
+
+    kid_info = [kid]
+    current_allowances = models.Allowance.query.filter(
+        models.Allowance.kid_id == kid.id).all()
 
     # Form is dynamic with respect to whether account is used
     for i in range(1, 6):
@@ -203,18 +190,12 @@ def allowances():
     if request.method == "POST":
         if form.validate_on_submit() and not \
                 (hasattr(g, 'is_child') and g.is_child is True):
-            # First establish our kid_id is legit and belongs to parent
-            kid = models.Kid.query.filter(
-                models.Kid.firstname == kid_data[0],
-                models.Kid.animal1 == kid_data[1],
-                models.Kid.animal2 == kid_data[2],
-                models.Kid.parent_id == g.user_id).all()
-            if len(kid) == 0:
-                flash('Unknown child selected error')
-                return redirect(url_for('index'))
-            elif len(kid) > 1:
-                logger.error(
-                    'ALERT, we should not be here EVER %s: 3289' % kid[0].id)
+            # `kid` was already resolved above by auth.resolve_kid_by_login,
+            # which for a parent actor filters on parent_id -- and this branch
+            # is parent-only -- so ownership is already established. The
+            # re-query that used to sit here was redundant, and its
+            # len(kid) > 1 case is impossible under the _kid_login unique
+            # constraint on (firstname, animal1, animal2).
 
             m = form   # ref helps make code more concise
             total_accounts = c(m.acct1_perc.data) + c(m.acct2_perc.data)
@@ -245,7 +226,7 @@ def allowances():
                     kid_info=kid_info[0]), 401
 
             allow = models.Allowance(
-                kid_id=kid[0].id, amount=form.amount.data,
+                kid_id=kid.id, amount=form.amount.data,
                 nickname=m.nickname.data, account1_perc=m.acct1_perc.data,
                 account2_perc=m.acct2_perc.data,
                 account3_perc=m.acct3_perc.data,
@@ -456,7 +437,6 @@ def ledger():
     kid_data = None
     hidden_columns = {}
     hidden_locs = {}
-    kid_arr = []
 
     if kid_string is not None and kid_string.count(':') == 2:
         kid_data = kid_string.split(':')
@@ -468,35 +448,15 @@ def ledger():
         flash("ERROR: Failed to extract child info given, error reported!")
         return redirect(url_for('index'))
 
-    # ###### Security g.user_id prevents parent from hacking kid_id to get
-    # ###### kid_id information that does not belong to them.
-    if hasattr(g, 'is_child') and g.is_child is True:
-        kid_arr = models.Kid.query.filter(
-            models.Kid.firstname == kid_data[0],
-            models.Kid.animal1 == kid_data[1],
-            models.Kid.animal2 == kid_data[2],
-            models.Kid.id == g.kid_id).all()
-    else:
-        kid_arr = models.Kid.query.filter(
-            models.Kid.firstname == kid_data[0],
-            models.Kid.animal1 == kid_data[1],
-            models.Kid.animal2 == kid_data[2],
-            models.Kid.parent_id == g.user_id
-            ).all()
-    if len(kid_arr) == 0:
-            msg = "Failed to find kid %s " % str(kid_data)
-            flash("ERROR: " + msg)
-            user_type = 'parent'
-            user = "<notdefined>"
-            if hasattr(g, 'is_child') and g.is_child is True:
-                user_type = 'kid'
-                user = g.kid_id
-            else:
-                user = g.user_id
-            logger.warning(msg + " for %s id %s" % (user_type, user))
-            return redirect(url_for('index'))
+    # ###### Security: auth.resolve_kid_by_login is the one ownership check.
+    # ###### It stops a parent reaching a kid that is not theirs, and a child
+    # ###### reaching anyone but themselves, and it logs the denial.
+    try:
+        kid = auth.resolve_kid_by_login(auth.require_actor(), *kid_data)
+    except errors.DomainError:
+        flash("ERROR: Failed to find kid %s " % str(kid_data))
+        return redirect(url_for('index'))
 
-    kid = kid_arr[0]
     parent = models.User.query.filter(models.User.id == kid.parent_id).all()[0]
     adjuster_name = None
 

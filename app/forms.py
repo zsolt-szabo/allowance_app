@@ -21,30 +21,23 @@ from wtforms import StringField, PasswordField, \
     HiddenField, TextAreaField
 from wtforms.validators import DataRequired as Required, Length, Email, \
     NumberRange, Optional
-import config
-import glob
 import copy
-import os
 import logging
+
+from app.domain import animals
 
 logger = logging.getLogger(__name__)
 
 
-images = [(os.path.basename(each).split('_')[1][:-4],
-           'static/' + os.path.basename(each))
-          for each in glob.glob(config.basedir +
-                                "/app/static/animal[0-9][0-9]_*.svg")]
-combo_list = []
-for i in images:
-    for j in images:
-        combo_list.append((i[0], j[0]))
-image_combo_set = set(combo_list)
+#  The animal credential alphabet now lives in app/domain/animals.py.
+#  Re-exported here because these are WTForms SelectField choices and every
+#  animal field below is built from them.
+images = animals.images
+image_combo_set = animals.image_combo_set
 
 days_of_month = []
 for i in range(1, 29):
     days_of_month.append((str(i), str(i)))
-
-logger.info('Loaded kid images %s' % str(images))
 
 
 class RequiredIf(Required):
