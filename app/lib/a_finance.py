@@ -21,6 +21,7 @@ from app import forms
 from app import models
 from app import auth
 from app.domain import buckets
+from app.services import ledger as ledger_service
 from app.services import errors
 from app import db
 from flask import redirect
@@ -295,112 +296,45 @@ def populate_hidden_arrays(hidden_columns, hidden_locs, kid):
 
 
 def handle_ledger_post(kid, form, ledger, adjuster_name, adjusted_by_parent):
-    '''Helper function for ledger() function
+    '''Adapter between the Ledger form and services.ledger.
+
+    The 5x7 grid arithmetic now lives in app/services/ledger.py. This does
+    only presentation: pull the cells out of the form, call the service, and
+    turn a DomainError back into the flash message the templates expect.
+
     Params
     ------
     kid:                 models.Kid object
     form:                forms.Ledger() object
+    ledger:              the kid's ledger rows, newest first
     adjuster_name:       name of adjuster
     adjusted_by_parent:  Boolean
     '''
-    # ALL DATA MUST BE ROUNDED  INCLUDING ALLOWANCE UPDATES
-    acct_patt = re.compile(r'acct(\d)_')
     if form.validate_on_submit():
-        loc_math = {'loc1': 0, 'loc2': 0, 'loc3': 0, 'loc4': 0, 'loc5': 0,
-                    'loc6': 0, 'loc7': 0}
-        acc_math = {'acc1': 0, 'acc2': 0, 'acc3': 0, 'acc4': 0, 'acc5': 0}
-        all_entries = 0
-        # Check that we do not go negative on any of our storage
-
-        if len(ledger) > 0:
-            l = ledger[0]  # Shortcut variable
-        else:
-            l = fakeLedger()
-        if form.comment.data is None or form.comment.data == "" and \
-                form.no_comment.data is not True:
-            msg = "You need to select 'no comment' if you want to commit "
-            msg += "without a comment"
-            flash("ERROR: " + msg)
+        try:
+            ledger_service.post_ledger_entry(
+                actor=auth.require_actor(),
+                kid=kid,
+                last_entry=ledger[0] if len(ledger) > 0 else None,
+                cells=ledger_service.cells_from_form(form),
+                comment=form.comment.data,
+                no_comment=form.no_comment.data,
+                adjuster_name=adjuster_name,
+                adjusted_by_parent=adjusted_by_parent)
+        except errors.DomainError as exc:
+            #  'No account changes to update' was flashed without the
+            #  ERROR: prefix, so it renders as a plain notice rather than in
+            #  red. Preserved.
+            if exc.code == 'ledger.no_change':
+                flash(exc.message)
+            else:
+                flash("ERROR: " + exc.message)
             return False
-
-        def r(n):
-            '''Shortcut for rounding to two digits'''
-            return round(n, 2)
-
-        ledger_update_data = {
-            'change_acc1': 0, 'change_acc2': 0, 'change_acc3': 0,
-            'change_acc4': 0, 'change_acc5': 0,
-            'total_acc1': r(l.total_acc1), 'total_acc2': r(l.total_acc2),
-            'total_acc3': r(l.total_acc3), 'total_acc4': r(l.total_acc4),
-            'total_acc5': r(l.total_acc5),
-            'change_loc1': 0, 'change_loc2': 0, 'change_loc3': 0,
-            'change_loc4': 0, 'change_loc5': 0, 'change_loc6': 0,
-            'change_loc7': 0,
-            'total_loc1': r(l.total_loc1), 'total_loc2': r(l.total_loc2),
-            'total_loc3': r(l.total_loc3), 'total_loc4': r(l.total_loc4),
-            'total_loc5': r(l.total_loc5), 'total_loc6': r(l.total_loc6),
-            'total_loc7': r(l.total_loc7),
-            'adjuster_name': adjuster_name,
-            'adjusted_by_parent': adjusted_by_parent, 'kid_id': kid.id,
-            'comment': form.comment.data
-            }
-        for i in range(1, 6):
-            for j in range(1, 8):
-                entry = a(getattr(form, "acct%s_loc%s" % (i, j)).data)
-                loc_math['loc%s' % j] += entry
-                acc_math['acc%s' % i] += entry
-                if getattr(kid, "acct%s_used" % i) is False and entry > 0:
-                    msg = "'" + getattr(kid, "acct%s_name" % i)
-                    msg += "' is a deactivated account, you can only take "
-                    msg += "money out until the account is empty"
-                    flash("ERROR: " + msg)
-                    return
-                if getattr(kid, "location%s_used" % j) is False and entry > 0:
-                    msg = "'" + getattr(kid, "location%s_name" % j)
-                    msg += "' is a deactivated location, you can only take "
-                    msg += "money out until the location is empty"
-                    flash("ERROR: " + msg)
-                    return
-
-                all_entries += entry
-
-                ledger_update_data['change_acc%s' % i] += r(entry)
-                ledger_update_data['change_loc%s' % j] += r(entry)
-                ledger_update_data['total_acc%s' % i] += r(entry)
-                ledger_update_data['total_loc%s' % j] += r(entry)
-        for ea_loc in loc_math:
-            if loc_math[ea_loc] > 0 and hasattr(g, 'is_child') and \
-                    g.is_child is True:
-                flash("ERROR: Only Parent can add money, kids can subtract")
-                return False
-            if r(loc_math[ea_loc] + getattr(l, 'total_' + ea_loc)) < 0:
-                msg = "You attempted to take too much from money storage '%s'"
-                msg = msg % getattr(
-                    kid, ea_loc.replace('loc', 'location') + "_name")
-                flash("ERROR: " + msg)
-                return False
-        for ea_acc in acc_math:
-            if acc_math[ea_acc] > 0 and hasattr(g, 'is_child') and \
-                    g.is_child is True:
-                flash("ERROR: Only Parent can add money, kids can subtract")
-                return False
-            if r(acc_math[ea_acc] + getattr(l, 'total_' + ea_acc)) < 0:
-                msg = "You attempted to take too much from account '%s'"
-                msg = msg % getattr(
-                    kid, ea_acc.replace('acc', 'acct') + "_name")
-                flash("ERROR: " + msg)
-                return False
-
-        if all_entries == 0:
-            flash('No account changes to update')
-            return False
-        # TODO
-        # Link at each ledger transaction to show storage
-        new_entry = models.Ledger(**ledger_update_data)
-        db.session.add(new_entry)
-        db.session.commit()
         return True
     else:
+        #  Field-level errors are reported against the kid's own name for
+        #  the sub-account, not the raw acctN_locM field name. Verbatim.
+        acct_patt = re.compile(r'acct(\d)_')
         for e_field in form.errors.keys():
             msglist = ''
             for emsg in form.errors[e_field]:
