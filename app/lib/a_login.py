@@ -20,6 +20,7 @@ from app import forms
 from app import models
 from app import db
 from app import support
+from app.services import captcha
 from flask_login import login_user
 from flask_login import logout_user
 from flask import g
@@ -39,61 +40,9 @@ login_manager = app.lm
 goog_pw = config.GOOG_PW
 
 
-def get_captcha():
-    class captcha:
-        c = {1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f',
-             7: 'g', 8: 'h', 9: 'i'}
-        operations = [
-            'add both sets of numbers',
-            'subtract the second set of numbers from the first',
-            'write all the numbers you see in order (including both sets)',
-            'write second set in reverse order, then first set in reverse ' +
-            'order.']
-
-        def __init__(self, firstnum, secondnum,
-                     firstnum_links, secondnum_links):
-            self.firstnum = firstnum
-            self.secondnum = secondnum
-            self.firstnum_links = firstnum_links
-            self.secondnum_links = secondnum_links
-            self.solution = None
-            self.operation = None
-
-    num1_links = []
-    num2_links = []
-    firstnum = str(random.randint(1, 9))
-    tmp = str(random.randint(1, 9))
-    for each_num in range(2):
-        if random.choice([True, False]):
-            firstnum += str(random.randint(1, 9))
-        if random.choice([True, False]):
-            tmp += str(random.randint(1, 9))
-
-    if int(firstnum) > int(tmp):
-        secondnum = tmp
-    else:
-        secondnum = firstnum
-        firstnum = tmp
-
-    for ea_char in firstnum:
-        num1_links.append("static/%s.png" % captcha.c[int(ea_char)])
-    for ea_char in secondnum:
-        num2_links.append("static/%s.png" % captcha.c[int(ea_char)])
-
-    cap = captcha(firstnum, secondnum, num1_links, num2_links)
-
-    operation = random.randint(0, 3)
-    cap.operation = captcha.operations[operation]
-    if operation == 0:
-        cap.solution = int(firstnum) + int(secondnum)
-    elif operation == 1:
-        cap.solution = int(firstnum) - int(secondnum)
-    elif operation == 2:
-        cap.solution = int(firstnum + secondnum)
-    else:
-        cap.solution = secondnum[::-1] + firstnum[::-1]
-
-    return cap
+#  The captcha generator moved to app/services/captcha.py. Re-exported so
+#  the register handler keeps one name for it.
+get_captcha = captcha.get_captcha
 
 
 def login():

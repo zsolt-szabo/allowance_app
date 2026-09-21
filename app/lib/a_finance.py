@@ -22,11 +22,10 @@ from app import models
 from app import auth
 from app.domain import buckets
 from app.services import ledger as ledger_service
+from app.services import allowances as allowance_service
 from app.services import errors
-from app import db
 from flask import redirect
 from flask import url_for
-import traceback
 import datetime
 from datetime import timezone
 
@@ -105,9 +104,7 @@ def remove_allowance():
         return redirect(url_for('do_allowance'))
 
     # ##### Find and delete allowance pay days, then the allowance itself.
-    models.AllowanceDays.query.filter_by(allowance_id=allowance.id).delete()
-    models.Allowance.query.filter_by(id=allowance.id).delete()
-    db.session.commit()
+    allowance_service.delete(allowance)
     return redirect(url_for('do_allowance'))
 
 
@@ -145,8 +142,6 @@ def allowances():
         return redirect(url_for('index'))
 
     kid_info = [kid]
-    current_allowances = models.Allowance.query.filter(
-        models.Allowance.kid_id == kid.id).all()
 
     # Form is dynamic with respect to whether account is used
     for i in range(1, 6):
@@ -167,13 +162,8 @@ def allowances():
             form.__dict__['location%s_used' % i] = False
             form.__dict__['location%s_perc' % i].data = 0
 
-    # Get dates for allowance and tag it on to current_allowances as .DATES
-    allow_data = []
-    for each_allow in current_allowances:
-        dates = models.AllowanceDays.query.filter(
-            models.AllowanceDays.allowance_id == each_allow.id)
-        each_allow.DATES = [each.payout_day for each in dates.all()]
-        allow_data.append(each_allow)
+    # Each allowance is tagged with a .DATES list of its payout days.
+    allow_data = allowance_service.list_for_kid(kid)
 
     # ################ User Submitted post ############# #
     if request.method == "POST":
@@ -187,26 +177,18 @@ def allowances():
             # constraint on (firstname, animal1, animal2).
 
             m = form   # ref helps make code more concise
-            total_accounts = c(m.acct1_perc.data) + c(m.acct2_perc.data)
-            total_accounts += c(m.acct3_perc.data) + c(m.acct4_perc.data)
-            total_accounts += c(m.acct5_perc.data)
-            total_location = c(m.location1_perc.data)
-            total_location += c(m.location2_perc.data)
-            total_location += c(m.location3_perc.data)
-            total_location += c(m.location4_perc.data)
-            total_location += c(m.location5_perc.data)
-            total_location += c(m.location6_perc.data)
-            total_location += c(m.location7_perc.data)
-
-            msg = None
-            if total_accounts != 100:
-                msg = "Allowance distribution among sub-accounts must add up "
-                msg += "to 100%"
-            if total_location != 100:
-                msg = "Allowance storage (where) must add up "
-                msg += "to 100%"
-            if msg is not None:
-                flash("ERROR: " + msg)
+            try:
+                _allow, failed_days = allowance_service.create(
+                    kid=kid,
+                    amount=form.amount.data,
+                    nickname=m.nickname.data,
+                    payout_days=form.payout_days.data,
+                    account_percs=[getattr(m, 'acct%s_perc' % i).data
+                                   for i in buckets.ACCOUNT_SLOTS],
+                    location_percs=[getattr(m, 'location%s_perc' % j).data
+                                    for j in buckets.LOCATION_SLOTS])
+            except errors.DomainError as exc:
+                flash("ERROR: " + exc.message)
                 return render_template(
                     'allowance.html',
                     title='Allowance',
@@ -214,39 +196,9 @@ def allowances():
                     allow_data=allow_data,
                     kid_info=kid_info[0]), 401
 
-            allow = models.Allowance(
-                kid_id=kid.id, amount=form.amount.data,
-                nickname=m.nickname.data, account1_perc=m.acct1_perc.data,
-                account2_perc=m.acct2_perc.data,
-                account3_perc=m.acct3_perc.data,
-                account4_perc=m.acct4_perc.data,
-                account5_perc=m.acct5_perc.data,
-                location1_perc=m.location1_perc.data,
-                location2_perc=m.location2_perc.data,
-                location3_perc=m.location3_perc.data,
-                location4_perc=m.location4_perc.data,
-                location5_perc=m.location5_perc.data,
-                location6_perc=m.location6_perc.data,
-                location7_perc=m.location7_perc.data,
-                )
-            db.session.add(allow)
-            db.session.commit()
-
-            for each_date in form.payout_days.data:
-                errmsg = ''
-                try:
-                    allowance_date = models.AllowanceDays(
-                        payout_day=each_date, allowance_id=allow.id)
-                    db.session.add(allowance_date)
-                    db.session.commit()
-                except:
-                    errmsg += traceback.format_exc()
-                    errmsg += 'ALLOWANCE ID: %s, DATE: %s' % \
-                        (allow.id, each_date)
-                if len(errmsg) > 0:
-                    flash('ERROR: problem detected adding allowance dates ' +
-                          'sorry for the inconvenience')
-                    logger.error(errmsg)
+            if failed_days:
+                flash('ERROR: problem detected adding allowance dates ' +
+                      'sorry for the inconvenience')
             return redirect(url_for('do_allowance'))
         else:
             for e_field in form.errors.keys():
