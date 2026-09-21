@@ -64,14 +64,14 @@ then
     check=$?
     test_stat $check "not continuing failure in local_deployment_params.py"
 
+    # db_migrate.py runs BOTH flask_migrate.migrate() and upgrade(), so there
+    # is no separate upgrade step.  This previously called "python
+    # db_upgrade.py", a file that does not exist in this repository, so the
+    # deploy always failed here.
     echo Testing migration of database
     python db_migrate.py
     check=$?
     test_stat $check "database migrate failed not progressing"
-
-    python db_upgrade.py
-    check=$?
-    test_stat $check "database upgrade failed, not progressing"
 
     echo "###################################################"
     echo Review the server locally before continuing

@@ -76,6 +76,11 @@ def child_login():
     return a_child_login.login()
 
 
+@app.route('/support', methods=['GET'])
+def support_login():
+    return a_login.support_login()
+
+
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     return a_login.logout()

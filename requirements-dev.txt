@@ -1,0 +1,6 @@
+# Development / test dependencies (not needed in production)
+-r py_requirements.txt
+pytest>=8.0
+time-machine>=2.14
+hypothesis>=6.100
+flake8>=7.0

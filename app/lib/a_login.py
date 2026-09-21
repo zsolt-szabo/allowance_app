@@ -19,6 +19,7 @@ import app
 from app import forms
 from app import models
 from app import db
+from app import support
 from flask_login import login_user
 from flask_login import logout_user
 from flask import g
@@ -99,20 +100,15 @@ def login():
             models.User.email == form.email.data).all()
         if len(user_list) > 0:
             user = user_list[0]
-            ts = config.TECH_SUPPORT
-            check_tech = True
-            if len(ts) < 11:
-                check_tech = False
             #  THIS SHOULD BE THE ONLY PLACE WE ALLOW LOGIN PASSWORD FOR ADULT
-            if user.check_password(form.password.data) or \
-                    (check_tech is True and form.password.data == ts):
+            #  Support staff no longer log in with a shared master password;
+            #  see app/support.py and scripts/support_login.py.
+            if user.check_password(form.password.data):
                 login_user(user)
                 g.user = user.email
                 g.isgoogle = user.isgoogle
                 g.user_id = user.id
                 g.money_symbol = user.money_symbol
-                if check_tech is True and form.password.data == ts:
-                    session['TechSupport'] = True
                 return redirect(url_for('index'))
             else:
                 flash('ERROR: User/Password combination not found')
@@ -220,6 +216,41 @@ def parent_account_review():
                                title='Account',
                                form=form,
                                nocap=True), 401
+
+
+def support_login():
+    '''Spend a short-lived support token minted by scripts/support_login.py.
+
+    Replaces the old shared master password: this grants access to exactly one
+    account, expires, and is logged.  The session is flagged so base.html shows
+    the red TECH SUPPORT banner, exactly as before.
+    '''
+    token = request.args.get('t') or request.form.get('t')
+    try:
+        payload = support.consume_support_token(token)
+    except support.SupportTokenError as exc:
+        app.logger.warning('Rejected support token: %s' % exc)
+        flash('ERROR: %s' % exc)
+        return redirect(url_for('login'))
+
+    user = db.session.get(models.User, payload['user_id'])
+    if user is None or user.email != payload.get('email'):
+        app.logger.warning(
+            'Support token for user id %s no longer matches an account'
+            % payload.get('user_id'))
+        flash('ERROR: Support token does not match an existing account')
+        return redirect(url_for('login'))
+
+    login_user(user)
+    g.user = user.email
+    g.isgoogle = user.isgoogle
+    g.user_id = user.id
+    g.money_symbol = user.money_symbol
+    session['TechSupport'] = True
+    app.logger.warning(
+        'SUPPORT LOGIN: entered account id %s (%s) via support token'
+        % (user.id, user.email))
+    return redirect(url_for('index'))
 
 
 def logout():

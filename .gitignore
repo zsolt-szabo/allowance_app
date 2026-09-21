@@ -1,0 +1,20 @@
+# Virtualenv (README says it lives here for local dev; never commit it)
+flaskenv/
+
+# Local database + Flask-Migrate repo
+app.db
+db_repository/
+
+# Logs
+*.log
+allowance_app.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Test artifacts
+.tox/

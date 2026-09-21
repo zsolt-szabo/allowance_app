@@ -23,8 +23,8 @@ ENABLE_GOOGLE_LOGIN = False
 
 ANON_C = 9999999999  # The database id for anonymous@coward.com
 
-# Must be 12 characters or longer!
-TECH_SUPPORT = "<UPDATEME>"
+# Tech support no longer uses a shared master password.  Mint a short-lived,
+# single-account token instead:  ./scripts/support_login.py --email <address>
 
 #  Prepend to system password for google user, change for your
 #  your local copy and don't check it in.
