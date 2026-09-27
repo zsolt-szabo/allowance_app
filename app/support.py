@@ -31,9 +31,9 @@ Mint one with ``scripts/support_login.py``; spend it by visiting /support?t=...
 '''
 from datetime import datetime, timedelta, timezone
 
+from flask import current_app
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-from app import app
 
 # Namespaces the signature so a support token can never be confused with any
 # other thing signed by the same SECRET_KEY.
@@ -48,7 +48,9 @@ class SupportTokenError(Exception):
 
 
 def _serializer():
-    return URLSafeTimedSerializer(app.config['SECRET_KEY'],
+    #  current_app rather than a module-level app: this module is imported
+    #  while create_app() is still running, so there is no app object yet.
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'],
                                   salt=SUPPORT_SALT)
 
 

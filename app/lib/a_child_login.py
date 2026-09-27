@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
-import app
 from app import forms
 from app import models
 from app.domain import buckets
@@ -33,8 +32,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-login_manager = app.lm
 
 acct_choices = [('acct1_name', 'acct1_used', 'acct1_comment'),
                 ('acct2_name', 'acct2_used', 'acct2_comment'),
@@ -608,7 +605,7 @@ def delete_kid():
                 allowances.delete()
                 ledger.delete()
                 kid_query.delete()
-                app.db.session.commit()
+                db.session.commit()
                 flash('Child data for "%s" deleted.' % kid_split[0])
             elif len(kid_list) > 1:
                 msg = "Issue deleting child, problem logged to be fixed"

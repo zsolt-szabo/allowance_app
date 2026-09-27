@@ -15,7 +15,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
 import config
-import app
 from app import forms
 from app import models
 from app import db
@@ -36,8 +35,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-login_manager = app.lm
 
 goog_pw = config.GOOG_PW
 

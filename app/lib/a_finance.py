@@ -16,7 +16,6 @@
 # USA.
 import re
 import config
-import app
 from app import forms
 from app import models
 from app import auth
@@ -37,8 +36,6 @@ logger = logging.getLogger(__name__)
 # Import the helper functions
 # Import the configuration file you downloaded from Google Developer Console
 server_config_json = config.SERVER_CONFIG_JSON
-
-login_manager = app.lm
 
 
 class fakeLedger:

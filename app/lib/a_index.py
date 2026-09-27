@@ -1,7 +1,7 @@
 from flask import render_template
 from flask_login import current_user
 from app import models
-import app
+from app import db
 from app.services import payout
 import logging
 
@@ -31,7 +31,7 @@ def process_view():
             if tl is not None:
                 total_owed += tl.total_acc1 + tl.total_acc2 + tl.total_acc3 + \
                               tl.total_acc4 + tl.total_acc5
-            kallow = app.db.session.query(
+            kallow = db.session.query(
                 models.Allowance, models.AllowanceDays).filter(
                 models.Allowance.id == models.AllowanceDays.allowance_id). \
                 filter(models.Allowance.kid_id == each_kid.id).all()
@@ -50,7 +50,7 @@ def process_view():
             if tl is not None:
                 total_owed += tl.total_acc1 + tl.total_acc2 + tl.total_acc3 + \
                               tl.total_acc4 + tl.total_acc5
-            kallow = app.db.session.query(
+            kallow = db.session.query(
                 models.Allowance, models.AllowanceDays).filter(
                 models.Allowance.id == models.AllowanceDays.allowance_id). \
                 filter(models.Allowance.kid_id == each_kid.id).all()

@@ -21,7 +21,7 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 import app as app_pkg                      # noqa: E402
-from app import app as flask_app           # noqa: E402
+from app import create_app                 # noqa: E402
 from app import db as _db                  # noqa: E402
 
 logging.getLogger().setLevel(logging.ERROR)
@@ -29,18 +29,19 @@ logging.getLogger().setLevel(logging.ERROR)
 
 @pytest.fixture(scope="session")
 def _bound_app():
-    """Bind the module-level Flask app to a temporary SQLite database, once."""
+    """An application of our own, pointed at a throwaway SQLite file.
+
+    Before the app factory this had to delete the cached "sqlalchemy" entry
+    from app.extensions and re-init the module-level app, because there was
+    only ever one application object. create_app() makes that unnecessary.
+    """
     db_fd, db_path = tempfile.mkstemp(suffix=".db",
                                       prefix="kidallowance-test-")
 
-    flask_app.config["TESTING"] = True
-    flask_app.config["WTF_CSRF_ENABLED"] = False
-    flask_app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_path
-
-    # Flask-SQLAlchemy caches the engine per-app under this extension key; drop
-    # it so init_app picks up the new URI instead of the one from config.py.
-    del flask_app.extensions["sqlalchemy"]
-    _db.init_app(flask_app)
+    flask_app = create_app(
+        TESTING=True,
+        WTF_CSRF_ENABLED=False,
+        SQLALCHEMY_DATABASE_URI="sqlite:///" + db_path)
 
     ctx = flask_app.app_context()
     ctx.push()

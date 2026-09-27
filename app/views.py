@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 # USA.
-from app import app, db, lm
+from app import db
 from flask import g
 from app import models
 from app.lib import a_index
@@ -30,7 +30,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@lm.user_loader
 def load_user(id):
     # TBD: tuple means child, this is not ideal
     # revisit this design  ('child', id)
@@ -64,100 +63,128 @@ def load_user(id):
     return user
 
 
-@app.route('/')
-@app.route('/index')
 def index():
     return a_index.process_view()
 
 
-@app.route('/login', methods=['GET', 'POST'])
 def login():
     return a_login.login()
 
 
-@app.route('/child_login', methods=['GET', 'POST'])
 def child_login():
     return a_child_login.login()
 
 
-@app.route('/support', methods=['GET'])
 def support_login():
     return a_login.support_login()
 
 
-@app.route('/logout', methods=['GET', 'POST'])
 def logout():
     return a_login.logout()
 
 
-@app.route('/google_signin', methods=['GET', 'POST'])
 def do_google_token_signin():
     return a_login.do_google_token_signin()
 
 
-@app.route('/register', methods=['GET', 'POST'])
 def do_register():
     return a_login.register()
 
 
-@app.route('/child_register1', methods=['GET', 'POST'])
 @login_required
 def do_child_register1():
     return a_child_login.register_child1()
 
 
-@app.route('/allowance', methods=['GET', 'POST'])
 @login_required
 def do_allowance():
     return a_finance.allowances()
 
 
-@app.route('/remove_allowance', methods=['GET'])
 @login_required
 def do_remove_allowance():
     return a_finance.remove_allowance()
 
 
-@app.route('/parent_account_review', methods=['GET', 'POST'])
 @login_required
 def parent_account_review():
     return a_login.parent_account_review()
 
 
-@app.route('/kid_manage', methods=['GET', 'POST'])
 @login_required
 def kid_account_review():
     return a_child_login.kid_account_review()
 
 
-@app.route('/animals', methods=['GET'])
 @login_required
 def animals():
     return a_child_login.ajax_animals()
 
 
-@app.route('/ledger', methods=['GET', 'POST'])
 @login_required
 def ledger():
     return a_finance.ledger()
 
 
-@app.route('/delete_kid', methods=['GET', 'POST'])
 @login_required
 def delete_kid():
     return a_child_login.delete_kid()
 
 
-@app.route('/delete_account', methods=['GET', 'POST'])
 @login_required
 def delete_user():
     return a_login.delete_user()
 
 
-@app.route('/help')
 def help():
     return render_template('help.html')
 
-@app.route('/bodi')
 def bodi():
     return render_template('bodi.html')
+
+
+#  (url rule, endpoint name, view, methods). Order and endpoint
+#  names are load-bearing: templates and redirects address these
+#  by name.
+_ROUTES = (
+    ('/', 'index', index, None),
+    ('/index', 'index', index, None),
+    ('/login', 'login', login, ('GET', 'POST')),
+    ('/child_login', 'child_login', child_login, ('GET', 'POST')),
+    ('/support', 'support_login', support_login, ('GET',)),
+    ('/logout', 'logout', logout, ('GET', 'POST')),
+    ('/google_signin', 'do_google_token_signin',
+     do_google_token_signin, ('GET', 'POST')),
+    ('/register', 'do_register', do_register, ('GET', 'POST')),
+    ('/child_register1', 'do_child_register1',
+     do_child_register1, ('GET', 'POST')),
+    ('/allowance', 'do_allowance', do_allowance, ('GET', 'POST')),
+    ('/remove_allowance', 'do_remove_allowance',
+     do_remove_allowance, ('GET',)),
+    ('/parent_account_review', 'parent_account_review',
+     parent_account_review, ('GET', 'POST')),
+    ('/kid_manage', 'kid_account_review', kid_account_review, ('GET', 'POST')),
+    ('/animals', 'animals', animals, ('GET',)),
+    ('/ledger', 'ledger', ledger, ('GET', 'POST')),
+    ('/delete_kid', 'delete_kid', delete_kid, ('GET', 'POST')),
+    ('/delete_account', 'delete_user', delete_user, ('GET', 'POST')),
+    ('/help', 'help', help, None),
+    ('/bodi', 'bodi', bodi, None),
+)
+
+
+def init_app(app, login_manager):
+    '''Attach the Jinja routes and the user loader to an application.
+
+    Registration goes through add_url_rule rather than @app.route so this
+    module can be imported before an application exists -- which is what
+    lets create_app() work at all. Endpoint names are the view function
+    names, exactly as the decorators produced, so every url_for() call in
+    the lib layer and in the templates keeps working untouched.
+    '''
+    login_manager.user_loader(load_user)
+    for rule, endpoint, view, methods in _ROUTES:
+        if methods is None:
+            app.add_url_rule(rule, endpoint, view)
+        else:
+            app.add_url_rule(rule, endpoint, view, methods=list(methods))
