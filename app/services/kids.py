@@ -30,6 +30,7 @@ import logging
 from app import models
 from app.domain import animals
 from app.domain import buckets
+from app.services import errors
 
 logger = logging.getLogger(__name__)
 
@@ -156,3 +157,157 @@ def allowances_using_buckets(kid):
             if perc is not None and perc != 0:
                 used[key] += '%s, ' % str(allowance.nickname)
     return used
+
+
+def delete_kid(kid):
+    '''Delete a child and everything hanging off them.
+
+    Hand-rolled cascade, deepest first: allowance_days, then allowances
+    and ledger, then the kid. The models declare bare ForeignKeys with no
+    ondelete, so nothing happens automatically.
+    '''
+    from app import db
+
+    allowances = models.Allowance.query.filter_by(kid_id=kid.id)
+    for allowance in allowances.all():
+        models.AllowanceDays.query.filter_by(
+            allowance_id=allowance.id).delete()
+    models.Ledger.query.filter_by(kid_id=kid.id).delete()
+    allowances.delete()
+    models.Kid.query.filter_by(id=kid.id).delete()
+    db.session.commit()
+    logger.info('Deleted kid %s and all their money history' % kid.id)
+
+
+def login_is_taken(firstname, animal1, animal2, exclude_kid_id=None):
+    '''Whether this identifying triple already belongs to a child.
+
+    The triple is unique across the whole system, not per parent -- the
+    _kid_login constraint on Kid enforces that -- so two families cannot
+    both have a "whipper/rabbit/rabbit".
+    '''
+    query = models.Kid.query.filter(
+        models.Kid.firstname == firstname,
+        models.Kid.animal1 == animal1,
+        models.Kid.animal2 == animal2)
+    if exclude_kid_id is not None:
+        query = query.filter(models.Kid.id != exclude_kid_id)
+    return query.count() > 0
+
+
+def _apply_buckets(kwargs, accounts, locations):
+    '''Fold bucket definitions into Kid column keyword arguments.'''
+    for bucket in accounts:
+        slot = bucket['index']
+        kwargs['acct%s_name' % slot] = bucket.get('name')
+        kwargs['acct%s_used' % slot] = bool(bucket.get('active'))
+        kwargs['acct%s_comment' % slot] = bucket.get('comment')
+    for bucket in locations:
+        slot = bucket['index']
+        kwargs['location%s_name' % slot] = bucket.get('name')
+        kwargs['location%s_used' % slot] = bool(bucket.get('active'))
+        kwargs['location%s_comment' % slot] = bucket.get('comment')
+    return kwargs
+
+
+def create_kid(parent_id, firstname, password, animals, accounts, locations):
+    '''Register a child.
+
+    Params
+    ------
+    parent_id:  owner
+    firstname:  the nickname half of the login
+    password:   stored in clear text, deliberately -- a parent has to be
+                able to read it back to their child
+    animals:    (animal1, animal2, animal3, animal4); the first two
+                identify, the last two are part of the password
+    accounts:   [{index, name, active, comment}] for slots 1..5
+    locations:  [{index, name, active, comment}] for slots 1..7
+    '''
+    from app import db
+
+    animal1, animal2, animal3, animal4 = animals
+    if login_is_taken(firstname, animal1, animal2):
+        raise errors.Conflict(
+            'Cannot register this login combination, '
+            'Please try again with different user name',
+            code='kid.login_taken')
+
+    kwargs = _apply_buckets(
+        dict(firstname=firstname, parent_id=parent_id, pw=password,
+             animal1=animal1, animal2=animal2,
+             animal3=animal3, animal4=animal4),
+        accounts, locations)
+
+    kid = models.Kid(**kwargs)
+    db.session.add(kid)
+    db.session.commit()
+    logger.info('Registered kid %s for parent %s' % (kid.id, parent_id))
+    return kid
+
+
+def update_kid(kid, firstname=None, password=None, animals=None,
+               accounts=None, locations=None):
+    '''Change a child's credentials or buckets.
+
+    Switching a bucket off redistributes any allowance percentage aimed at
+    it; see redistribute_allowance. That happens here rather than in the
+    caller so both UIs cannot drift.
+
+    Returns (kid, orphaned) where orphaned lists allowance nicknames whose
+    distribution could not be repaired and which the parent must recreate.
+    '''
+    from app import db
+
+    if animals is not None:
+        animal1, animal2, animal3, animal4 = animals
+        if login_is_taken(firstname or kid.firstname, animal1, animal2,
+                          exclude_kid_id=kid.id):
+            raise errors.Conflict(
+                'Cannot register this login combination, '
+                'Please try again with different user name',
+                code='kid.login_taken')
+        kid.animal1, kid.animal2 = animal1, animal2
+        kid.animal3, kid.animal4 = animal3, animal4
+
+    if firstname is not None:
+        kid.firstname = firstname
+    if password is not None:
+        kid.pw = password
+
+    orphaned = []
+    if accounts is not None or locations is not None:
+        new_accounts = accounts if accounts is not None else [
+            {'index': i, 'name': getattr(kid, 'acct%s_name' % i),
+             'active': buckets.account_used(kid, i),
+             'comment': getattr(kid, 'acct%s_comment' % i)}
+            for i in buckets.ACCOUNT_SLOTS]
+        new_locations = locations if locations is not None else [
+            {'index': j, 'name': getattr(kid, 'location%s_name' % j),
+             'active': buckets.location_used(kid, j),
+             'comment': getattr(kid, 'location%s_comment' % j)}
+            for j in buckets.LOCATION_SLOTS]
+
+        active_accounts = [b['index'] for b in new_accounts if b.get('active')]
+        active_locations = [b['index'] for b in new_locations
+                            if b.get('active')]
+
+        #  Repair the allowances BEFORE the buckets change, so the
+        #  percentages are computed against the allowance as it stands.
+        for allowance in models.Allowance.query.filter_by(
+                kid_id=kid.id).all():
+            update_dict, acc_orphan, loc_orphan = redistribute_allowance(
+                allowance, active_accounts, active_locations)
+            if acc_orphan or loc_orphan:
+                orphaned.append(allowance.nickname)
+                continue
+            if update_dict:
+                models.Allowance.query.filter_by(
+                    id=allowance.id).update(update_dict)
+
+        kwargs = _apply_buckets({}, new_accounts, new_locations)
+        for key, value in kwargs.items():
+            setattr(kid, key, value)
+
+    db.session.commit()
+    return kid, orphaned

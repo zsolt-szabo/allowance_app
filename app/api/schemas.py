@@ -106,6 +106,46 @@ class OkOut(BaseModel):
     ok: bool = True
 
 
+class CaptchaOut(BaseModel):
+    """A registration captcha.
+
+    The digits are served as image URLs, not as text, which is the whole
+    point of it. The expected answer stays server-side in the session.
+    """
+    operation: str
+    firstDigits: List[str]
+    secondDigits: List[str]
+
+
+class ParentCreateIn(BaseModel):
+    email: str
+    firstname: str
+    password: str
+    moneySymbol: Annotated[str, Field(min_length=1, max_length=2)] = '$'
+    captcha: str
+
+
+class ParentOut(BaseModel):
+    id: int
+    email: str
+    firstname: Optional[str] = None
+    moneySymbol: str
+    isGoogle: bool
+
+
+class ParentUpdateIn(BaseModel):
+    firstname: Optional[str] = None
+    moneySymbol: Optional[Annotated[str,
+                                    Field(min_length=1, max_length=2)]] = None
+    oldPassword: Optional[str] = None
+    newPassword: Optional[str] = None
+
+
+class ConfirmIn(BaseModel):
+    """Destructive operations require saying so explicitly."""
+    confirm: bool = False
+
+
 # --- dashboard ------------------------------------------------------------
 
 class KidSummary(BaseModel):
@@ -137,6 +177,68 @@ class KidOut(BaseModel):
 
 class KidListOut(BaseModel):
     kids: List[KidSummary]
+
+
+class BucketIn(BaseModel):
+    index: int = Field(ge=1, le=LOCATION_COUNT)
+    name: Optional[str] = None
+    active: bool = False
+    comment: Optional[str] = None
+
+
+class KidCreateIn(BaseModel):
+    firstname: Annotated[str, Field(min_length=1, max_length=80)]
+    password: Annotated[str, Field(min_length=2, max_length=80)]
+    loginAnimals: Annotated[List[str], Field(min_length=2, max_length=2)]
+    passwordAnimals: Annotated[List[str], Field(min_length=2, max_length=2)]
+    accounts: Annotated[List[BucketIn], Field(min_length=ACCOUNT_COUNT,
+                                              max_length=ACCOUNT_COUNT)]
+    locations: Annotated[List[BucketIn], Field(min_length=LOCATION_COUNT,
+                                               max_length=LOCATION_COUNT)]
+
+    @model_validator(mode='after')
+    def _at_least_one_of_each(self):
+        """Mirrors the at_least_one_acc / at_least_one_location
+        CheckConstraints, which would otherwise reject the INSERT."""
+        if not any(b.active for b in self.accounts):
+            raise ValueError('At least one sub-account must be active')
+        if not any(b.active for b in self.locations):
+            raise ValueError('At least one money location must be active')
+        return self
+
+    @model_validator(mode='after')
+    def _named_when_active(self):
+        for bucket in list(self.accounts) + list(self.locations):
+            if bucket.active and not (bucket.name or '').strip():
+                raise ValueError('An active bucket needs a name')
+        return self
+
+
+class KidUpdateIn(BaseModel):
+    """Every field optional: this is a partial update."""
+    firstname: Optional[Annotated[str, Field(min_length=1,
+                                             max_length=80)]] = None
+    password: Optional[Annotated[str, Field(min_length=2,
+                                            max_length=80)]] = None
+    loginAnimals: Optional[Annotated[List[str],
+                                     Field(min_length=2,
+                                           max_length=2)]] = None
+    passwordAnimals: Optional[Annotated[List[str],
+                                        Field(min_length=2,
+                                              max_length=2)]] = None
+    accounts: Optional[Annotated[List[BucketIn],
+                                 Field(min_length=ACCOUNT_COUNT,
+                                       max_length=ACCOUNT_COUNT)]] = None
+    locations: Optional[Annotated[List[BucketIn],
+                                  Field(min_length=LOCATION_COUNT,
+                                        max_length=LOCATION_COUNT)]] = None
+
+
+class KidUpdateOut(BaseModel):
+    kid: KidOut
+    #  Allowances whose distribution could not be repaired after a bucket
+    #  was switched off; the parent has to recreate these.
+    orphanedAllowances: List[str] = []
 
 
 class AnimalOut(BaseModel):

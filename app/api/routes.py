@@ -25,7 +25,7 @@ turns it into the JSON envelope with the right status.
 '''
 import logging
 
-from flask import current_app, jsonify, request
+from flask import current_app, jsonify, request, session
 from flask_login import login_user, logout_user
 from flask_wtf.csrf import generate_csrf
 from spectree import Response
@@ -37,6 +37,7 @@ from app.api import api_bp, schemas, serializers, spec
 from app.domain import animals as animal_domain
 from app.domain import buckets
 from app.services import allowances as allowance_service
+from app.services import captcha as captcha_service
 from app.services import errors
 from app.services import kids as kid_service
 from app.services import ledger as ledger_service
@@ -62,6 +63,18 @@ def _actor_payload(actor):
     return {'kind': 'child', 'id': actor.kid_id,
             'firstname': kid.firstname if kid else None,
             'moneySymbol': parent.money_symbol if parent else None}
+
+
+def _parent_payload(user):
+    return {'id': user.id, 'email': user.email,
+            'firstname': user.firstname,
+            'moneySymbol': user.money_symbol,
+            'isGoogle': bool(user.isgoogle)}
+
+
+def _confirmed():
+    """Whether the caller passed ?confirm=true on a destructive route."""
+    return request.args.get('confirm', '').lower() == 'true'
 
 
 def _money_symbol_for(kid):
@@ -132,6 +145,130 @@ def logout():
     return jsonify(ok=True)
 
 
+@api_bp.route('/auth/captcha', methods=['GET'])
+@spec.validate(resp=Response(HTTP_200=schemas.CaptchaOut), tags=[AUTH])
+def get_captcha():
+    """Issue a registration captcha and remember the answer.
+
+    Kept in the session exactly as the Jinja flow does, so both
+    registration paths validate against the same stored value.
+    """
+    cap = captcha_service.get_captcha()
+    session['cap_solution'] = cap.solution
+    return jsonify(operation=cap.operation,
+                   firstDigits=['/' + p for p in cap.firstnum_links],
+                   secondDigits=['/' + p for p in cap.secondnum_links])
+
+
+@api_bp.route('/parents', methods=['POST'])
+@spec.validate(json=schemas.ParentCreateIn,
+               resp=Response(HTTP_201=schemas.ParentOut,
+                             HTTP_409=schemas.ErrorResponse), tags=[AUTH])
+def register_parent():
+    """Register, and sign the new parent in."""
+    body = request.context.json
+    expected = session.pop('cap_solution', None)
+    if expected is None or \
+            body.captcha != str(expected).replace(' ', ''):
+        raise errors.ValidationFailed('Captcha values did not match',
+                                      code='parent.bad_captcha',
+                                      field_errors={'captcha': ['incorrect']})
+
+    user = parent_service.create(email=body.email, firstname=body.firstname,
+                                 password=body.password,
+                                 money_symbol=body.moneySymbol)
+    login_user(user)
+    return jsonify(_parent_payload(user)), 201
+
+
+@api_bp.route('/me', methods=['GET'])
+@spec.validate(resp=Response(HTTP_200=schemas.ParentOut,
+                             HTTP_403=schemas.ErrorResponse), tags=[AUTH])
+def get_me():
+    actor = auth.require_parent()
+    return jsonify(_parent_payload(
+        db.session.get(models.User, actor.parent_id)))
+
+
+@api_bp.route('/me', methods=['PATCH'])
+@spec.validate(json=schemas.ParentUpdateIn,
+               resp=Response(HTTP_200=schemas.ParentOut,
+                             HTTP_403=schemas.ErrorResponse), tags=[AUTH])
+def update_me():
+    """Change your own name, currency symbol or password.
+
+    A password change needs the current one. The shared demo account is
+    not allowed to change either its address or its password, since
+    everyone is invited to sign in as it.
+    """
+    actor = auth.require_parent()
+    user = db.session.get(models.User, actor.parent_id)
+    body = request.context.json
+
+    if body.newPassword:
+        if parent_service.is_demo_account(user.id):
+            raise errors.Forbidden(
+                'The evaluation account cannot change its password',
+                code='parent.demo_immutable')
+        if user.isgoogle:
+            raise errors.Forbidden(
+                'This account signs in with Google',
+                code='parent.google_managed')
+        if not body.oldPassword or not user.check_password(body.oldPassword):
+            raise errors.Unauthenticated(
+                'Old password did not match',
+                code='parent.bad_old_password')
+        user.set_password(body.newPassword)
+
+    if body.firstname is not None:
+        user.firstname = body.firstname
+    if body.moneySymbol is not None:
+        user.money_symbol = body.moneySymbol
+    db.session.commit()
+    return jsonify(_parent_payload(user))
+
+
+@api_bp.route('/me', methods=['DELETE'])
+@spec.validate(resp=Response(HTTP_200=schemas.OkOut,
+                             HTTP_403=schemas.ErrorResponse), tags=[AUTH])
+def delete_me():
+    """Delete your account and every child record under it.
+
+    Confirmation is ?confirm=true rather than a body: request bodies on
+    DELETE are poorly supported and are not parsed here.
+    """
+    actor = auth.require_parent()
+    if not _confirmed():
+        raise errors.ValidationFailed(
+            'You must click the box declaring you really mean it',
+            code='parent.not_confirmed',
+            field_errors={'confirm': ['required']})
+
+    user = db.session.get(models.User, actor.parent_id)
+    logout_user()
+    parent_service.delete_with_children(user)
+    return jsonify(ok=True)
+
+
+@api_bp.route('/kids/<int:kid_id>', methods=['DELETE'])
+@spec.validate(resp=Response(HTTP_200=schemas.OkOut,
+                             HTTP_404=schemas.ErrorResponse), tags=[KIDS])
+def delete_kid(kid_id):
+    """Delete a child and all their money history.
+
+    Confirmation is ?confirm=true; see delete_me.
+    """
+    actor = auth.require_parent()
+    kid = auth.resolve_kid(actor, kid_id)
+    if not _confirmed():
+        raise errors.ValidationFailed(
+            'You must click the box declaring you really mean it',
+            code='kid.not_confirmed',
+            field_errors={'confirm': ['required']})
+    kid_service.delete_kid(kid)
+    return jsonify(ok=True)
+
+
 # --- dashboard ------------------------------------------------------------
 
 @api_bp.route('/dashboard', methods=['GET'])
@@ -198,6 +335,60 @@ def list_kids():
         out.append(serializers.kid_summary(
             kid, buckets.grand_total(last) if last is not None else 0))
     return jsonify(kids=out)
+
+
+@api_bp.route('/kids', methods=['POST'])
+@spec.validate(json=schemas.KidCreateIn,
+               resp=Response(HTTP_201=schemas.KidOut,
+                             HTTP_409=schemas.ErrorResponse), tags=[KIDS])
+def create_kid():
+    """Register a child under the signed-in parent."""
+    actor = auth.require_parent()
+    body = request.context.json
+
+    kid = kid_service.create_kid(
+        parent_id=actor.parent_id,
+        firstname=body.firstname,
+        password=body.password,
+        animals=tuple(body.loginAnimals) + tuple(body.passwordAnimals),
+        accounts=[b.model_dump() for b in body.accounts],
+        locations=[b.model_dump() for b in body.locations])
+    return jsonify(serializers.kid_detail(kid)), 201
+
+
+@api_bp.route('/kids/<int:kid_id>', methods=['PATCH'])
+@spec.validate(json=schemas.KidUpdateIn,
+               resp=Response(HTTP_200=schemas.KidUpdateOut,
+                             HTTP_404=schemas.ErrorResponse), tags=[KIDS])
+def update_kid(kid_id):
+    """Change a child's credentials or buckets.
+
+    Switching a bucket off redistributes any allowance percentage pointed
+    at it. Allowances that could not be repaired -- because nothing funded
+    survived -- come back in orphanedAllowances for the parent to
+    recreate, which is what the Jinja screen flashes.
+    """
+    actor = auth.require_parent()
+    kid = auth.resolve_kid(actor, kid_id)
+    body = request.context.json
+
+    animals = None
+    if body.loginAnimals is not None or body.passwordAnimals is not None:
+        login_pair = body.loginAnimals or [kid.animal1, kid.animal2]
+        password_pair = body.passwordAnimals or [kid.animal3, kid.animal4]
+        animals = tuple(login_pair) + tuple(password_pair)
+
+    kid, orphaned = kid_service.update_kid(
+        kid,
+        firstname=body.firstname,
+        password=body.password,
+        animals=animals,
+        accounts=([b.model_dump() for b in body.accounts]
+                  if body.accounts is not None else None),
+        locations=([b.model_dump() for b in body.locations]
+                   if body.locations is not None else None))
+    return jsonify(kid=serializers.kid_detail(kid),
+                   orphanedAllowances=orphaned)
 
 
 @api_bp.route('/kids/available-animal-pairs', methods=['GET'])

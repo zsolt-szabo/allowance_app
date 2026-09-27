@@ -272,6 +272,36 @@
         "title": "AnimalPairsOut",
         "type": "object"
       },
+      "CaptchaOut": {
+        "description": "A registration captcha.\n\nThe digits are served as image URLs, not as text, which is the whole\npoint of it. The expected answer stays server-side in the session.",
+        "properties": {
+          "firstDigits": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Firstdigits",
+            "type": "array"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "secondDigits": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Seconddigits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "operation",
+          "firstDigits",
+          "secondDigits"
+        ],
+        "title": "CaptchaOut",
+        "type": "object"
+      },
       "ChildLoginIn": {
         "description": "A child's credential is a nickname plus two animals, then a\npassword plus two more.",
         "properties": {
@@ -472,6 +502,112 @@
         "title": "ErrorBody",
         "type": "object"
       },
+      "KidCreateIn": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/KidCreateIn.BucketIn"
+            },
+            "maxItems": 5,
+            "minItems": 5,
+            "title": "Accounts",
+            "type": "array"
+          },
+          "firstname": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Firstname",
+            "type": "string"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/KidCreateIn.BucketIn"
+            },
+            "maxItems": 7,
+            "minItems": 7,
+            "title": "Locations",
+            "type": "array"
+          },
+          "loginAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Loginanimals",
+            "type": "array"
+          },
+          "password": {
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Password",
+            "type": "string"
+          },
+          "passwordAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Passwordanimals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "firstname",
+          "password",
+          "loginAnimals",
+          "passwordAnimals",
+          "accounts",
+          "locations"
+        ],
+        "title": "KidCreateIn",
+        "type": "object"
+      },
+      "KidCreateIn.BucketIn": {
+        "properties": {
+          "active": {
+            "default": false,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "index": {
+            "maximum": 7,
+            "minimum": 1,
+            "title": "Index",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          }
+        },
+        "required": [
+          "index"
+        ],
+        "title": "BucketIn",
+        "type": "object"
+      },
       "KidListOut": {
         "properties": {
           "kids": {
@@ -622,6 +758,278 @@
           "active"
         ],
         "title": "Bucket",
+        "type": "object"
+      },
+      "KidUpdateIn": {
+        "description": "Every field optional: this is a partial update.",
+        "properties": {
+          "accounts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/KidUpdateIn.BucketIn"
+                },
+                "maxItems": 5,
+                "minItems": 5,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Accounts"
+          },
+          "firstname": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Firstname"
+          },
+          "locations": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/KidUpdateIn.BucketIn"
+                },
+                "maxItems": 7,
+                "minItems": 7,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Locations"
+          },
+          "loginAnimals": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Loginanimals"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Password"
+          },
+          "passwordAnimals": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Passwordanimals"
+          }
+        },
+        "title": "KidUpdateIn",
+        "type": "object"
+      },
+      "KidUpdateIn.BucketIn": {
+        "properties": {
+          "active": {
+            "default": false,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "index": {
+            "maximum": 7,
+            "minimum": 1,
+            "title": "Index",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          }
+        },
+        "required": [
+          "index"
+        ],
+        "title": "BucketIn",
+        "type": "object"
+      },
+      "KidUpdateOut": {
+        "properties": {
+          "kid": {
+            "$ref": "#/components/schemas/KidUpdateOut.KidOut"
+          },
+          "orphanedAllowances": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Orphanedallowances",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kid"
+        ],
+        "title": "KidUpdateOut",
+        "type": "object"
+      },
+      "KidUpdateOut.Bucket": {
+        "description": "A sub-account or money location.\n\n`index` is 1-based and is the bucket's identity, not merely its\nposition -- see app/api/serializers.py.",
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          }
+        },
+        "required": [
+          "index",
+          "active"
+        ],
+        "title": "Bucket",
+        "type": "object"
+      },
+      "KidUpdateOut.KidOut": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/KidUpdateOut.Bucket"
+            },
+            "title": "Accounts",
+            "type": "array"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/KidUpdateOut.Bucket"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "loginAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Loginanimals",
+            "type": "array"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Password"
+          },
+          "passwordAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Passwordanimals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "firstname",
+          "loginAnimals",
+          "passwordAnimals",
+          "accounts",
+          "locations"
+        ],
+        "title": "KidOut",
         "type": "object"
       },
       "LedgerEntryIn": {
@@ -1018,6 +1426,41 @@
         "title": "OkOut",
         "type": "object"
       },
+      "ParentCreateIn": {
+        "properties": {
+          "captcha": {
+            "title": "Captcha",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "moneySymbol": {
+            "default": "$",
+            "maxLength": 2,
+            "minLength": 1,
+            "title": "Moneysymbol",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "firstname",
+          "password",
+          "captcha"
+        ],
+        "title": "ParentCreateIn",
+        "type": "object"
+      },
       "ParentLoginIn": {
         "properties": {
           "email": {
@@ -1034,6 +1477,102 @@
           "password"
         ],
         "title": "ParentLoginIn",
+        "type": "object"
+      },
+      "ParentOut": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "firstname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Firstname"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "isGoogle": {
+            "title": "Isgoogle",
+            "type": "boolean"
+          },
+          "moneySymbol": {
+            "title": "Moneysymbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "moneySymbol",
+          "isGoogle"
+        ],
+        "title": "ParentOut",
+        "type": "object"
+      },
+      "ParentUpdateIn": {
+        "properties": {
+          "firstname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Firstname"
+          },
+          "moneySymbol": {
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Moneysymbol"
+          },
+          "newPassword": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Newpassword"
+          },
+          "oldPassword": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Oldpassword"
+          }
+        },
+        "title": "ParentUpdateIn",
         "type": "object"
       },
       "SessionOut": {
@@ -1246,6 +1785,39 @@
         "summary": "The animal alphabet a child login is built from.",
         "tags": [
           "kids"
+        ]
+      }
+    },
+    "/api/auth/captcha": {
+      "get": {
+        "description": "Kept in the session exactly as the Jinja flow does, so both registration paths validate against the same stored value.",
+        "operationId": "get__api_auth_captcha",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptchaOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Issue a registration captcha and remember the answer.",
+        "tags": [
+          "auth"
         ]
       }
     },
@@ -1538,6 +2110,57 @@
         "tags": [
           "kids"
         ]
+      },
+      "post": {
+        "description": "",
+        "operationId": "post__api_kids",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KidCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KidOut"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Register a child under the signed-in parent.",
+        "tags": [
+          "kids"
+        ]
       }
     },
     "/api/kids/available-animal-pairs": {
@@ -1584,6 +2207,58 @@
       }
     },
     "/api/kids/{kid_id}": {
+      "delete": {
+        "description": "Confirmation is ?confirm=true; see delete_me.",
+        "operationId": "delete__api_kids_{kid_id}",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Delete a child and all their money history.",
+        "tags": [
+          "kids"
+        ]
+      },
       "get": {
         "description": "The password is only included for the owning parent, and only on request -- it is stored in clear text so a parent can read it back to their child, but it should not travel in every response.",
         "operationId": "get__api_kids_{kid_id}",
@@ -1632,6 +2307,68 @@
           }
         },
         "summary": "A child's settings.",
+        "tags": [
+          "kids"
+        ]
+      },
+      "patch": {
+        "description": "Switching a bucket off redistributes any allowance percentage pointed at it. Allowances that could not be repaired -- because nothing funded survived -- come back in orphanedAllowances for the parent to recreate, which is what the Jinja screen flashes.",
+        "operationId": "patch__api_kids_{kid_id}",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KidUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KidUpdateOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Change a child's credentials or buckets.",
         "tags": [
           "kids"
         ]
@@ -1868,6 +2605,194 @@
         "summary": "Add or subtract money. A child may only subtract.",
         "tags": [
           "money"
+        ]
+      }
+    },
+    "/api/me": {
+      "delete": {
+        "description": "Confirmation is ?confirm=true rather than a body: request bodies on DELETE are poorly supported and are not parsed here.",
+        "operationId": "delete__api_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Delete your account and every child record under it.",
+        "tags": [
+          "auth"
+        ]
+      },
+      "get": {
+        "description": "",
+        "operationId": "get__api_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "get_me <GET>",
+        "tags": [
+          "auth"
+        ]
+      },
+      "patch": {
+        "description": "A password change needs the current one. The shared demo account is not allowed to change either its address or its password, since everyone is invited to sign in as it.",
+        "operationId": "patch__api_me",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Change your own name, currency symbol or password.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/parents": {
+      "post": {
+        "description": "",
+        "operationId": "post__api_parents",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentOut"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Register, and sign the new parent in.",
+        "tags": [
+          "auth"
         ]
       }
     },
