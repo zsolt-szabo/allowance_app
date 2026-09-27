@@ -1,7 +1,31 @@
 import os
 
 WTF_CSRF_ENABLED = True
+
+#  CSRF tokens are sent as a header by JSON clients; forms keep using the
+#  hidden field that FlaskForm already renders.
+WTF_CSRF_HEADERS = ['X-CSRFToken', 'X-CSRF-Token']
+
+#  The placeholder that ships in the repo. create_app refuses to start if
+#  this is still the effective value, so an unconfigured deployment fails
+#  loudly instead of signing cookies with a public key.
+INSECURE_SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'
+
+#  NOTE: keep this on one line and byte-identical to INSECURE_SECRET_KEY
+#  above. local_deployment_params.py rewrites it at deploy time by matching
+#  the literal text, and aborts the deploy if the pattern is not found.
+#  The environment override and the placeholder check live in create_app.
 SECRET_KEY = 'you-should-change-this-to-something-secure-and-different'
+
+#  Session cookie hardening. SECURE is off by default so the dev server on
+#  plain http still works; the deployment runs behind TLS and should set
+#  KIDALLOWANCE_SECURE_COOKIES=1.
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = os.environ.get('KIDALLOWANCE_SECURE_COOKIES') == '1'
+REMEMBER_COOKIE_HTTPONLY = True
+REMEMBER_COOKIE_SAMESITE = 'Lax'
+REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -12,7 +36,8 @@ SERVER_CONFIG_JSON = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
-SQLALCHEMY_TRACK_MODIFICATIONS = True
+#  Deprecated and pure overhead; the app never used the signals.
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 FLASK_LOG_LEVEL = 'DEBUG'
 FLASK_LOG_LOCATION = basedir + "/allowance_app.log"

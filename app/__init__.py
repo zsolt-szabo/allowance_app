@@ -16,10 +16,12 @@
 # USA.
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
+import os
 import sqlite3
 
 from flask import Flask
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
@@ -32,6 +34,7 @@ import config
 #  have an isolated one instead of re-initialising a module-level app.
 db = SQLAlchemy()
 migrate = Migrate()
+csrf = CSRFProtect()
 lm = LoginManager()
 lm.login_view = 'login'
 lm.session_protection = "basic"
@@ -63,6 +66,31 @@ def _configure_logging(app):
     app.logger.addHandler(handler)
 
 
+def _check_secret_key(app):
+    """Refuse to sign cookies with the key that ships in the repository.
+
+    The environment wins over config.py, so a deployment can supply the key
+    without a file rewrite. If the effective key is still the published
+    placeholder this is CRITICAL rather than fatal by default -- a hard
+    failure at import time would break the dev server and the test suite,
+    both of which legitimately run on the placeholder. Set
+    KIDALLOWANCE_REQUIRE_SECURE_KEY=1 in the deployment to make it fatal.
+    """
+    from_env = os.environ.get('KIDALLOWANCE_SECRET_KEY')
+    if from_env:
+        app.config['SECRET_KEY'] = from_env
+
+    insecure = getattr(config, 'INSECURE_SECRET_KEY', None)
+    if insecure is not None and app.config.get('SECRET_KEY') == insecure:
+        message = ('SECRET_KEY is still the placeholder published in this '
+                   'repository. Session cookies, CSRF tokens and support '
+                   'login links are all forgeable. Set '
+                   'KIDALLOWANCE_SECRET_KEY in the environment.')
+        if os.environ.get('KIDALLOWANCE_REQUIRE_SECURE_KEY') == '1':
+            raise RuntimeError(message)
+        app.logger.critical(message)
+
+
 def create_app(config_object='config', **overrides):
     """Build an application.
 
@@ -79,7 +107,13 @@ def create_app(config_object='config', **overrides):
     db.init_app(app)
     migrate.init_app(app, db)
     lm.init_app(app)
+    #  WTF_CSRF_ENABLED was True all along, but CSRFProtect was never
+    #  instantiated -- so only routes going through FlaskForm.validate_on_
+    #  submit() were checked. Anything reading request.form directly, or
+    #  acting on GET, was not protected at all.
+    csrf.init_app(app)
     _configure_logging(app)
+    _check_secret_key(app)
 
     #  Imported here rather than at module scope: views imports the lib
     #  layer, which imports models, which imports db from this module.
