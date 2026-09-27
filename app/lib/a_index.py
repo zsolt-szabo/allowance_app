@@ -1,6 +1,7 @@
 from flask import render_template
 from flask_login import current_user
 from app import models
+from app import session_ids
 from app import db
 from app.services import payout
 import logging
@@ -18,8 +19,13 @@ def process_view():
     monthly_outlay = 0
     money_symbol = ''
     allow = []
-    if user is not None and user.get_id() is not None and \
-            type(user.get_id()).__name__ != 'tuple':
+    #  Which kind of identity this is used to be inferred from the Python
+    #  type of get_id() -- a tuple meant a child. The kind is carried
+    #  explicitly in the stored id now; see app/session_ids.py.
+    kind, _row_id = session_ids.parse(
+        user.get_id() if user is not None else None)
+
+    if kind == session_ids.PARENT:
         # User is Parent
         kids = models.Kid.query.filter(models.Kid.parent_id == user.id)
         name = user.firstname
@@ -38,7 +44,7 @@ def process_view():
             allow += kallow
             for pay in kallow:
                 monthly_outlay += pay[0].amount
-    elif user is not None and user.get_id() is not None:
+    elif kind == session_ids.CHILD:
         # User is Kid
         name = user.firstname
         kids = models.Kid.query.filter(models.Kid.id == user.id)
@@ -55,7 +61,7 @@ def process_view():
                 models.Allowance.id == models.AllowanceDays.allowance_id). \
                 filter(models.Allowance.kid_id == each_kid.id).all()
             allow += kallow
-    if user is not None and user.get_id() is not None:
+    if kind is not None:
         check_and_update_allowances(allow)
     return render_template('index.html', title='Home', name=name,
                            is_child=is_child, kids=kids,

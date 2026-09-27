@@ -17,13 +17,13 @@
 from app import db
 from flask import g
 from app import models
+from app import session_ids
 from app.lib import a_index
 from app.lib import a_login
 from app.lib import a_child_login
 from app.lib import a_finance
 from flask_login import login_required
 from flask import render_template
-import traceback
 import logging
 
 
@@ -31,36 +31,44 @@ logger = logging.getLogger(__name__)
 
 
 def load_user(id):
-    # TBD: tuple means child, this is not ideal
-    # revisit this design  ('child', id)
-    # Security Note: Since we are working with two
-    # tables User/Kid, we need to ensure we never
-    # accidentally take an ID from one table and retrieve
-    # from another table (IE Kid logs in but a page thinks
-    # its a parent).  This is protected by using two different
-    # parameters with the g variable g.kid_id/g.user_id
-    # Each page view will have to make determiniations
-    # as to what to do when viewed as child or adult,
-    # but the different variables will prevent accidental
-    # viewing of other account information.
+    """Resolve a stored session id back to a parent or a child.
+
+    Security note, inherited from the original and still the point of this
+    function: two tables act as identities, so an id must never be looked
+    up against the wrong one. The kind is now carried explicitly in the
+    stored value (see app/session_ids.py) instead of being inferred from
+    its Python type, and the per-request context still uses two separate
+    names -- g.user_id for a parent, g.kid_id for a child -- so a child id
+    cannot be mistaken for a parent id downstream.
+
+    A failure here returns None, i.e. anonymous, rather than raising.
+    """
     logger.info("load_user triggered, id is %s" % str(id))
-    user = None
+    kind, row_id = session_ids.parse(id)
+    if kind is None:
+        logger.warning("Unusable session id %r; treating as anonymous" % (id,))
+        return None
+
     try:
-        if type(id).__name__ == 'tuple':
-            user = db.session.get(models.Kid, int(id[1]))
+        if kind == session_ids.CHILD:
+            user = db.session.get(models.Kid, row_id)
+            if user is None:
+                return None
             g.is_child = True
             g.kid_id = user.id
-        else:
-            user = db.session.get(models.User, int(id))
-        if not type(id).__name__ == 'tuple' and user is not None:
-            g.user = user.email
-            g.isgoogle = user.isgoogle
-            g.user_id = user.id
-            g.money_symbol = user.money_symbol
-    except:
-        msg = traceback.format_exc()
-        logger.error(msg + "User loading failed")
-    return user
+            return user
+
+        user = db.session.get(models.User, row_id)
+        if user is None:
+            return None
+        g.user = user.email
+        g.isgoogle = user.isgoogle
+        g.user_id = user.id
+        g.money_symbol = user.money_symbol
+        return user
+    except Exception:
+        logger.exception("User loading failed")
+        return None
 
 
 def index():

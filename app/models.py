@@ -17,6 +17,7 @@
 from werkzeug.security import generate_password_hash, \
     check_password_hash
 from app import db
+from app import session_ids
 from datetime import datetime, timedelta, timezone
 
 
@@ -40,7 +41,9 @@ class User(db.Model):
         return False
 
     def get_id(self):
-        return str(self.id)
+        #  Prefixed so a parent id and a child id can never be confused in
+        #  the session cookie. See app/session_ids.py.
+        return session_ids.PARENT_PREFIX + str(self.id)
 
     def __repr__(self):
         return '<User %r>' % (self.firstname)
@@ -124,7 +127,12 @@ class Kid(db.Model):
         return False
 
     def get_id(self):
-        return ('child', str(self.id))
+        #  This used to return the tuple ('child', str(id)), which only
+        #  round-tripped because Flask's TaggedJSONSerializer happens to
+        #  preserve tuples -- an undocumented detail that a Flask upgrade
+        #  could break, silently resolving a child id against the User
+        #  table. A prefixed string does not depend on that.
+        return session_ids.CHILD_PREFIX + str(self.id)
 
     def __repr__(self):
         return '<User %r>' % (self.firstname)
