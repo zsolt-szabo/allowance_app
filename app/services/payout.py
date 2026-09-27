@@ -234,3 +234,14 @@ def check_and_update_allowances(allowances=[]):
                     today, datetime.min.time())
                 db.session.commit()
         return update_occurred
+
+
+def due_rows_for_kid(kid):
+    '''The (Allowance, AllowanceDays) rows the engine expects, for one kid.
+
+    Same inner join run_payouts uses, narrowed to a single child so the
+    dashboard does not sweep the whole system on every page load.
+    '''
+    return db.session.query(models.Allowance, models.AllowanceDays).filter(
+        models.Allowance.id == models.AllowanceDays.allowance_id).filter(
+        models.Allowance.kid_id == kid.id).all()

@@ -25,7 +25,7 @@ turns it into the JSON envelope with the right status.
 '''
 import logging
 
-from flask import jsonify, request
+from flask import current_app, jsonify, request
 from flask_login import login_user, logout_user
 from flask_wtf.csrf import generate_csrf
 from spectree import Response
@@ -146,6 +146,20 @@ def dashboard():
             models.Kid.parent_id == actor.parent_id).all()
     else:
         kids = [auth.resolve_kid(actor, actor.kid_id)]
+
+    #  Parity with the Jinja index, which calls the payout engine on every
+    #  page load. Without this the SPA would silently stop paying
+    #  allowances for any family that never opens the old UI.
+    #
+    #  Must happen BEFORE the balances are read: a payout made here has to
+    #  be reflected in the totals this same response reports.
+    if current_app.config.get('PAYOUT_ON_DASHBOARD_READ'):
+        due = []
+        for kid in kids:
+            due.extend(payout_service.due_rows_for_kid(kid))
+        if due:
+            payout_service.check_and_update_allowances(due)
+            db.session.commit()
 
     summaries = []
     total_owed = 0.0
@@ -341,7 +355,6 @@ def run_payouts():
     Guarded by a shared secret rather than a session, because the caller
     is cron. Disabled unless PAYOUT_TRIGGER_TOKEN is configured.
     '''
-    from flask import current_app
     expected = current_app.config.get('PAYOUT_TRIGGER_TOKEN')
     supplied = request.headers.get('X-Payout-Token')
     if not expected or not supplied or supplied != expected:

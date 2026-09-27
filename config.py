@@ -46,6 +46,13 @@ FLASK_LOG_RETAIN = 10
 
 ENABLE_GOOGLE_LOGIN = False
 
+#  The Jinja dashboard runs the allowance payout sweep on every page
+#  load, as well as from cron. The JSON dashboard does the same while both
+#  UIs are live, so behaviour does not depend on which one a family uses.
+#  Turn this off once the cron job is proven, and payouts become
+#  cron-only -- which is where they belong.
+PAYOUT_ON_DASHBOARD_READ = True
+
 ANON_C = 9999999999  # The database id for anonymous@coward.com
 
 # Tech support no longer uses a shared master password.  Mint a short-lived,

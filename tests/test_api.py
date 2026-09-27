@@ -395,3 +395,72 @@ def test_unknown_non_api_path_still_returns_html(world):
 
 def test_payout_trigger_is_refused_without_the_shared_secret(world):
     assert world["client"].post("/api/payouts/run").status_code == 403
+
+
+# --- payout parity --------------------------------------------------------
+
+def test_dashboard_pays_due_allowances_like_the_jinja_index(world):
+    """The Jinja index runs the payout sweep on every page load. If the
+    JSON dashboard did not, a family that only ever used the SPA would
+    quietly stop being paid."""
+    import datetime
+    import time_machine
+
+    client = world["client"]
+    frozen = datetime.datetime(2026, 3, 15, 12, 0,
+                               tzinfo=datetime.timezone.utc)
+    with time_machine.travel(frozen, tick=False):
+        f.make_allowance(world["amy"], amount=4.0, payout_days=(15,),
+                         account_percs=(100, 0, 0, 0, 0),
+                         location_percs=(100, 0, 0, 0, 0, 0, 0),
+                         last_ledger_update=f.days_ago(1))
+        login_parent(client, "alice@example.com")
+
+        assert models.Ledger.query.count() == 0
+        body = client.get("/api/dashboard").get_json()
+
+        assert models.Ledger.query.count() == 1, "the payout did not run"
+        assert body["totalOwed"] == 4.0
+
+
+def test_dashboard_payout_can_be_switched_off(world, flask_obj):
+    """The flag is how payouts become cron-only once cron is proven."""
+    import datetime
+    import time_machine
+
+    client = world["client"]
+    frozen = datetime.datetime(2026, 3, 15, 12, 0,
+                               tzinfo=datetime.timezone.utc)
+    flask_obj.config["PAYOUT_ON_DASHBOARD_READ"] = False
+    try:
+        with time_machine.travel(frozen, tick=False):
+            f.make_allowance(world["amy"], amount=4.0, payout_days=(15,),
+                             account_percs=(100, 0, 0, 0, 0),
+                             location_percs=(100, 0, 0, 0, 0, 0, 0),
+                             last_ledger_update=f.days_ago(1))
+            login_parent(client, "alice@example.com")
+            client.get("/api/dashboard")
+            assert models.Ledger.query.count() == 0
+    finally:
+        flask_obj.config["PAYOUT_ON_DASHBOARD_READ"] = True
+
+
+def test_dashboard_payout_only_touches_the_requesting_family(world):
+    """due_rows_for_kid narrows the sweep; a parent opening their
+    dashboard must not run another family's payouts."""
+    import datetime
+    import time_machine
+
+    client = world["client"]
+    frozen = datetime.datetime(2026, 3, 15, 12, 0,
+                               tzinfo=datetime.timezone.utc)
+    with time_machine.travel(frozen, tick=False):
+        f.make_allowance(world["ben"], amount=9.0, payout_days=(15,),
+                         account_percs=(100, 0, 0, 0, 0),
+                         location_percs=(100, 0, 0, 0, 0, 0, 0),
+                         last_ledger_update=f.days_ago(1))
+        login_parent(client, "alice@example.com")
+        client.get("/api/dashboard")
+
+        assert models.Ledger.query.filter_by(
+            kid_id=world["ben"].id).count() == 0
