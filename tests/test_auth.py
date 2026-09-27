@@ -6,7 +6,7 @@ reaching anything but their own record.  It is currently hand-written in five
 places; these tests cover the one implementation that replaces them.
 """
 import pytest
-from flask import g
+from flask_login import login_user, logout_user
 
 from app import auth
 from app.services import errors
@@ -25,19 +25,27 @@ def two_families(db_):
     return alice, alice_kid, bob, bob_kid
 
 
+@pytest.fixture(autouse=True)
+def request_context(flask_obj):
+    """Sign-in state lives on the request, so these need one.
+
+    current_actor derives from flask_login.current_user rather than from
+    g, because a JSON endpoint has no @login_required to populate g.
+    """
+    with flask_obj.test_request_context():
+        yield
+
+
 def as_parent(parent):
-    vars(g).clear()
-    g.user_id = parent.id
+    login_user(parent)
 
 
 def as_child(kid):
-    vars(g).clear()
-    g.is_child = True
-    g.kid_id = kid.id
+    login_user(kid)
 
 
 def as_anonymous():
-    vars(g).clear()
+    logout_user()
 
 
 # --- Actor -----------------------------------------------------------------

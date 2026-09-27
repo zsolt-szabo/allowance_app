@@ -38,9 +38,11 @@ than design; there should be one of it, with one set of tests.
 import functools
 import logging
 
-from flask import g
+from flask import has_request_context
+from flask_login import current_user
 
 from app import models
+from app import session_ids
 from app.services import errors
 
 logger = logging.getLogger(__name__)
@@ -98,18 +100,33 @@ class Actor:
 
 
 def current_actor():
-    '''The Actor for this request, or None when nobody is signed in.
+    """The Actor for this request, or None when nobody is signed in.
 
-    Reads the request context that Flask-Login's user_loader populates as a
-    side effect (app/views.py:load_user).  Stage 2 replaces that with an
-    explicit loader; until then this is the single place that knows the shape
-    of it.
-    '''
-    if getattr(g, 'is_child', False) is True and getattr(g, 'kid_id', None):
-        return Actor.child(g.kid_id)
-    user_id = getattr(g, 'user_id', None)
-    if user_id is not None:
-        return Actor.parent(user_id)
+    Derived from flask_login.current_user, which resolves the session on
+    first access. It deliberately does NOT depend on g.user_id / g.kid_id
+    being populated: those are set as a side effect of the user loader,
+    which only runs if something already touched current_user. The Jinja
+    views get that for free from @login_required, but a JSON endpoint has
+    no such decorator, so reading g alone reported "anonymous" for a
+    perfectly valid session.
+    """
+    #  No request, no actor. The payout cron and the CLI scripts run
+    #  inside an app context only, and must not blow up asking who is
+    #  signed in.
+    if not has_request_context():
+        return None
+
+    user = current_user
+    if user is None or getattr(user, 'is_anonymous', True):
+        return None
+
+    kind, row_id = session_ids.parse(user.get_id())
+    if kind == session_ids.CHILD:
+        return Actor.child(row_id)
+    if kind == session_ids.PARENT:
+        return Actor.parent(row_id)
+
+    logger.warning('Signed-in user has an unusable id %r' % (user.get_id(),))
     return None
 
 

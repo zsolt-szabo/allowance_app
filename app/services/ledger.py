@@ -198,3 +198,34 @@ def entries_for_kid(kid):
     return models.Ledger.query.filter(
         models.Ledger.kid_id == kid.id).order_by(
         models.Ledger.last_ledger_update.desc()).all()
+
+
+def visible_slots(kid, last_entry):
+    '''Which buckets the ledger screen should show.
+
+    A bucket is hidden only when it is BOTH switched off AND empty. A
+    deactivated bucket that still holds money stays visible, otherwise the
+    money in it could never be taken out.
+
+    Returns (account_slots, location_slots), both 1-based and sorted.
+    '''
+    totals_acc = (buckets.account_totals(last_entry)
+                  if last_entry is not None
+                  else [0] * len(buckets.ACCOUNT_SLOTS))
+    totals_loc = (buckets.location_totals(last_entry)
+                  if last_entry is not None
+                  else [0] * len(buckets.LOCATION_SLOTS))
+
+    accounts = [i for n, i in enumerate(buckets.ACCOUNT_SLOTS)
+                if buckets.account_used(kid, i) or _round(totals_acc[n]) != 0]
+    locations = [j for n, j in enumerate(buckets.LOCATION_SLOTS)
+                 if buckets.location_used(kid, j)
+                 or _round(totals_loc[n]) != 0]
+    return accounts, locations
+
+
+def latest_entry(kid):
+    '''The kid's most recent ledger row, or None.'''
+    return models.Ledger.query.filter(
+        models.Ledger.kid_id == kid.id).order_by(
+        models.Ledger.last_ledger_update.desc()).first()

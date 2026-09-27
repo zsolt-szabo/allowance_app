@@ -121,6 +121,11 @@ def create_app(config_object='config', **overrides):
     from app import views
     views.init_app(app, lm)
 
+    #  The JSON API mounts alongside the Jinja screens rather than
+    #  replacing them; both call the same services until the SPA lands.
+    from app import api
+    api.init_app(app)
+
     return app
 
 
