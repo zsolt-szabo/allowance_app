@@ -1,0 +1,1930 @@
+{
+  "components": {
+    "schemas": {
+      "AllowanceCreateIn": {
+        "properties": {
+          "accountPercents": {
+            "items": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxItems": 5,
+            "minItems": 5,
+            "title": "Accountpercents",
+            "type": "array"
+          },
+          "amount": {
+            "maximum": 500,
+            "minimum": 0.01,
+            "title": "Amount",
+            "type": "number"
+          },
+          "locationPercents": {
+            "items": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxItems": 7,
+            "minItems": 7,
+            "title": "Locationpercents",
+            "type": "array"
+          },
+          "nickname": {
+            "default": "Allowance",
+            "title": "Nickname",
+            "type": "string"
+          },
+          "payoutDays": {
+            "items": {
+              "maximum": 28,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Payoutdays",
+            "type": "array"
+          }
+        },
+        "required": [
+          "amount",
+          "payoutDays",
+          "accountPercents",
+          "locationPercents"
+        ],
+        "title": "AllowanceCreateIn",
+        "type": "object"
+      },
+      "AllowanceListOut": {
+        "properties": {
+          "allowances": {
+            "items": {
+              "$ref": "#/components/schemas/AllowanceListOut.AllowanceOut"
+            },
+            "title": "Allowances",
+            "type": "array"
+          }
+        },
+        "required": [
+          "allowances"
+        ],
+        "title": "AllowanceListOut",
+        "type": "object"
+      },
+      "AllowanceListOut.AllowanceOut": {
+        "properties": {
+          "accountPercents": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Accountpercents",
+            "type": "array"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "number"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Createdat"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kidId": {
+            "title": "Kidid",
+            "type": "integer"
+          },
+          "locationPercents": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Locationpercents",
+            "type": "array"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nickname"
+          },
+          "payoutDays": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Payoutdays",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "kidId",
+          "amount",
+          "payoutDays",
+          "accountPercents",
+          "locationPercents"
+        ],
+        "title": "AllowanceOut",
+        "type": "object"
+      },
+      "AllowanceOut": {
+        "properties": {
+          "accountPercents": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Accountpercents",
+            "type": "array"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "number"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Createdat"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kidId": {
+            "title": "Kidid",
+            "type": "integer"
+          },
+          "locationPercents": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Locationpercents",
+            "type": "array"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nickname"
+          },
+          "payoutDays": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Payoutdays",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "kidId",
+          "amount",
+          "payoutDays",
+          "accountPercents",
+          "locationPercents"
+        ],
+        "title": "AllowanceOut",
+        "type": "object"
+      },
+      "AnimalListOut": {
+        "properties": {
+          "animals": {
+            "items": {
+              "$ref": "#/components/schemas/AnimalListOut.AnimalOut"
+            },
+            "title": "Animals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "animals"
+        ],
+        "title": "AnimalListOut",
+        "type": "object"
+      },
+      "AnimalListOut.AnimalOut": {
+        "properties": {
+          "imageUrl": {
+            "title": "Imageurl",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "imageUrl"
+        ],
+        "title": "AnimalOut",
+        "type": "object"
+      },
+      "AnimalPairsOut": {
+        "properties": {
+          "availablePairs": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Availablepairs",
+            "type": "array"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstname",
+          "availablePairs"
+        ],
+        "title": "AnimalPairsOut",
+        "type": "object"
+      },
+      "ChildLoginIn": {
+        "description": "A child's credential is a nickname plus two animals, then a\npassword plus two more.",
+        "properties": {
+          "animal1": {
+            "title": "Animal1",
+            "type": "string"
+          },
+          "animal2": {
+            "title": "Animal2",
+            "type": "string"
+          },
+          "animal3": {
+            "title": "Animal3",
+            "type": "string"
+          },
+          "animal4": {
+            "title": "Animal4",
+            "type": "string"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstname",
+          "animal1",
+          "animal2",
+          "password",
+          "animal3",
+          "animal4"
+        ],
+        "title": "ChildLoginIn",
+        "type": "object"
+      },
+      "CsrfOut": {
+        "properties": {
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "CsrfOut",
+        "type": "object"
+      },
+      "DashboardOut": {
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/DashboardOut.ActorOut"
+          },
+          "kids": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardOut.KidSummary"
+            },
+            "title": "Kids",
+            "type": "array"
+          },
+          "moneySymbol": {
+            "title": "Moneysymbol",
+            "type": "string"
+          },
+          "monthlyOutlay": {
+            "title": "Monthlyoutlay",
+            "type": "number"
+          },
+          "totalOwed": {
+            "title": "Totalowed",
+            "type": "number"
+          }
+        },
+        "required": [
+          "actor",
+          "kids",
+          "totalOwed",
+          "monthlyOutlay",
+          "moneySymbol"
+        ],
+        "title": "DashboardOut",
+        "type": "object"
+      },
+      "DashboardOut.ActorOut": {
+        "properties": {
+          "firstname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Firstname"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "parent",
+              "child"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "moneySymbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Moneysymbol"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ],
+        "title": "ActorOut",
+        "type": "object"
+      },
+      "DashboardOut.KidSummary": {
+        "properties": {
+          "balance": {
+            "title": "Balance",
+            "type": "number"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "loginAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Loginanimals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "firstname",
+          "loginAnimals",
+          "balance"
+        ],
+        "title": "KidSummary",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorResponse.ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "ErrorResponse.ErrorBody": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "fieldErrors": {
+            "additionalProperties": true,
+            "default": {},
+            "title": "Fielderrors",
+            "type": "object"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "KidListOut": {
+        "properties": {
+          "kids": {
+            "items": {
+              "$ref": "#/components/schemas/KidListOut.KidSummary"
+            },
+            "title": "Kids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kids"
+        ],
+        "title": "KidListOut",
+        "type": "object"
+      },
+      "KidListOut.KidSummary": {
+        "properties": {
+          "balance": {
+            "title": "Balance",
+            "type": "number"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "loginAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Loginanimals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "firstname",
+          "loginAnimals",
+          "balance"
+        ],
+        "title": "KidSummary",
+        "type": "object"
+      },
+      "KidOut": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/KidOut.Bucket"
+            },
+            "title": "Accounts",
+            "type": "array"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/KidOut.Bucket"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "loginAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Loginanimals",
+            "type": "array"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Password"
+          },
+          "passwordAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Passwordanimals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "firstname",
+          "loginAnimals",
+          "passwordAnimals",
+          "accounts",
+          "locations"
+        ],
+        "title": "KidOut",
+        "type": "object"
+      },
+      "KidOut.Bucket": {
+        "description": "A sub-account or money location.\n\n`index` is 1-based and is the bucket's identity, not merely its\nposition -- see app/api/serializers.py.",
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          }
+        },
+        "required": [
+          "index",
+          "active"
+        ],
+        "title": "Bucket",
+        "type": "object"
+      },
+      "LedgerEntryIn": {
+        "properties": {
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerEntryIn.LedgerCellIn"
+            },
+            "minItems": 1,
+            "title": "Cells",
+            "type": "array"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "noComment": {
+            "default": false,
+            "title": "Nocomment",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "cells"
+        ],
+        "title": "LedgerEntryIn",
+        "type": "object"
+      },
+      "LedgerEntryIn.LedgerCellIn": {
+        "description": "One cell of the 5x7 grid: an amount against an (account, location).",
+        "properties": {
+          "account": {
+            "maximum": 5,
+            "minimum": 1,
+            "title": "Account",
+            "type": "integer"
+          },
+          "amount": {
+            "maximum": 1000,
+            "minimum": -1000,
+            "title": "Amount",
+            "type": "number"
+          },
+          "location": {
+            "maximum": 7,
+            "minimum": 1,
+            "title": "Location",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "account",
+          "location",
+          "amount"
+        ],
+        "title": "LedgerCellIn",
+        "type": "object"
+      },
+      "LedgerEntryOut": {
+        "properties": {
+          "accountChanges": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Accountchanges",
+            "type": "array"
+          },
+          "accountTotals": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Accounttotals",
+            "type": "array"
+          },
+          "adjustedByParent": {
+            "title": "Adjustedbyparent",
+            "type": "boolean"
+          },
+          "adjusterName": {
+            "title": "Adjustername",
+            "type": "string"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kidId": {
+            "title": "Kidid",
+            "type": "integer"
+          },
+          "locationChanges": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Locationchanges",
+            "type": "array"
+          },
+          "locationTotals": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Locationtotals",
+            "type": "array"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "kidId",
+          "adjusterName",
+          "adjustedByParent",
+          "accountTotals",
+          "locationTotals",
+          "accountChanges",
+          "locationChanges"
+        ],
+        "title": "LedgerEntryOut",
+        "type": "object"
+      },
+      "LedgerOut": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerOut.LedgerEntryOut"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "grandTotal": {
+            "title": "Grandtotal",
+            "type": "number"
+          },
+          "kid": {
+            "$ref": "#/components/schemas/LedgerOut.KidOut"
+          },
+          "moneySymbol": {
+            "title": "Moneysymbol",
+            "type": "string"
+          },
+          "visibleAccounts": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Visibleaccounts",
+            "type": "array"
+          },
+          "visibleLocations": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Visiblelocations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kid",
+          "entries",
+          "grandTotal",
+          "moneySymbol",
+          "visibleAccounts",
+          "visibleLocations"
+        ],
+        "title": "LedgerOut",
+        "type": "object"
+      },
+      "LedgerOut.Bucket": {
+        "description": "A sub-account or money location.\n\n`index` is 1-based and is the bucket's identity, not merely its\nposition -- see app/api/serializers.py.",
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          }
+        },
+        "required": [
+          "index",
+          "active"
+        ],
+        "title": "Bucket",
+        "type": "object"
+      },
+      "LedgerOut.KidOut": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerOut.Bucket"
+            },
+            "title": "Accounts",
+            "type": "array"
+          },
+          "firstname": {
+            "title": "Firstname",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerOut.Bucket"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "loginAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Loginanimals",
+            "type": "array"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Password"
+          },
+          "passwordAnimals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Passwordanimals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "firstname",
+          "loginAnimals",
+          "passwordAnimals",
+          "accounts",
+          "locations"
+        ],
+        "title": "KidOut",
+        "type": "object"
+      },
+      "LedgerOut.LedgerEntryOut": {
+        "properties": {
+          "accountChanges": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Accountchanges",
+            "type": "array"
+          },
+          "accountTotals": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Accounttotals",
+            "type": "array"
+          },
+          "adjustedByParent": {
+            "title": "Adjustedbyparent",
+            "type": "boolean"
+          },
+          "adjusterName": {
+            "title": "Adjustername",
+            "type": "string"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Comment"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kidId": {
+            "title": "Kidid",
+            "type": "integer"
+          },
+          "locationChanges": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Locationchanges",
+            "type": "array"
+          },
+          "locationTotals": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Locationtotals",
+            "type": "array"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "kidId",
+          "adjusterName",
+          "adjustedByParent",
+          "accountTotals",
+          "locationTotals",
+          "accountChanges",
+          "locationChanges"
+        ],
+        "title": "LedgerEntryOut",
+        "type": "object"
+      },
+      "OkOut": {
+        "properties": {
+          "ok": {
+            "default": true,
+            "title": "Ok",
+            "type": "boolean"
+          }
+        },
+        "title": "OkOut",
+        "type": "object"
+      },
+      "ParentLoginIn": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "ParentLoginIn",
+        "type": "object"
+      },
+      "SessionOut": {
+        "properties": {
+          "actor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionOut.ActorOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "authenticated": {
+            "title": "Authenticated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "authenticated"
+        ],
+        "title": "SessionOut",
+        "type": "object"
+      },
+      "SessionOut.ActorOut": {
+        "properties": {
+          "firstname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Firstname"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "parent",
+              "child"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "moneySymbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Moneysymbol"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ],
+        "title": "ActorOut",
+        "type": "object"
+      },
+      "ValidationError": {
+        "description": "Model of a validation error response.",
+        "items": {
+          "$ref": "#/components/schemas/ValidationError.ValidationErrorElement"
+        },
+        "title": "ValidationErrorType",
+        "type": "array"
+      },
+      "ValidationError.ValidationErrorElement": {
+        "description": "Model of a validation error response element.",
+        "properties": {
+          "ctx": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Error context"
+          },
+          "loc": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing field name",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Error message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationErrorElement",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "kidallowance API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/allowances/{allowance_id}": {
+      "delete": {
+        "description": "The Jinja screen still removes an allowance with a GET, which means an <img src> can delete one. That route goes away at cutover.",
+        "operationId": "delete__api_allowances_{allowance_id}",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "allowance_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "DELETE, not GET.",
+        "tags": [
+          "money"
+        ]
+      }
+    },
+    "/api/animals": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_animals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnimalListOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "The animal alphabet a child login is built from.",
+        "tags": [
+          "kids"
+        ]
+      }
+    },
+    "/api/auth/child/login": {
+      "post": {
+        "description": "",
+        "operationId": "post__api_auth_child_login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChildLoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "child_login <POST>",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "",
+        "operationId": "post__api_auth_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "POST, not GET: logging out is a state change and must not be reachable from an <img> tag.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/parent/login": {
+      "post": {
+        "description": "",
+        "operationId": "post__api_auth_parent_login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentLoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "parent_login <POST>",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_auth_session",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Who is signed in. 200 even when nobody is, so the SPA can decide which of the three landing states to render without treating \"logged out\" as an error.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/csrf": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_csrf",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsrfOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "A CSRF token for a JSON client to send back as X-CSRFToken.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_dashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "The home screen: a parent sees their kids, a child sees themselves.",
+        "tags": [
+          "kids"
+        ]
+      }
+    },
+    "/api/kids": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_kids",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KidListOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "list_kids <GET>",
+        "tags": [
+          "kids"
+        ]
+      }
+    },
+    "/api/kids/available-animal-pairs": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_kids_available-animal-pairs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnimalPairsOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Animal pairs still free for a nickname, for the registration screen.",
+        "tags": [
+          "kids"
+        ]
+      }
+    },
+    "/api/kids/{kid_id}": {
+      "get": {
+        "description": "The password is only included for the owning parent, and only on request -- it is stored in clear text so a parent can read it back to their child, but it should not travel in every response.",
+        "operationId": "get__api_kids_{kid_id}",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KidOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "A child's settings.",
+        "tags": [
+          "kids"
+        ]
+      }
+    },
+    "/api/kids/{kid_id}/allowances": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_kids_{kid_id}_allowances",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllowanceListOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "list_allowances <GET>",
+        "tags": [
+          "money"
+        ]
+      },
+      "post": {
+        "description": "",
+        "operationId": "post__api_kids_{kid_id}_allowances",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AllowanceCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllowanceOut"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Children may view allowances but never create them.",
+        "tags": [
+          "money"
+        ]
+      }
+    },
+    "/api/kids/{kid_id}/ledger": {
+      "get": {
+        "description": "",
+        "operationId": "get__api_kids_{kid_id}_ledger",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "get_ledger <GET>",
+        "tags": [
+          "money"
+        ]
+      }
+    },
+    "/api/kids/{kid_id}/ledger/entries": {
+      "post": {
+        "description": "",
+        "operationId": "post__api_kids_{kid_id}_ledger_entries",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kid_id",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LedgerEntryIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerEntryOut"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Add or subtract money. A child may only subtract.",
+        "tags": [
+          "money"
+        ]
+      }
+    },
+    "/api/payouts/run": {
+      "post": {
+        "description": "Guarded by a shared secret rather than a session, because the caller is cron. Disabled unless PAYOUT_TRIGGER_TOKEN is configured.",
+        "operationId": "post__api_payouts_run",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Trigger the allowance payout sweep.",
+        "tags": [
+          "money"
+        ]
+      }
+    }
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "auth"
+    },
+    {
+      "name": "kids"
+    },
+    {
+      "name": "money"
+    }
+  ]
+}

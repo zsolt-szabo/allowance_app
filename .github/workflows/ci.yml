@@ -37,6 +37,12 @@ jobs:
       - name: Characterization and unit tests
         run: pytest -q
 
+      - name: OpenAPI description is up to date
+        # The committed openapi.json is what the TypeScript client will be
+        # generated from. Without this gate it silently rots the moment an
+        # endpoint changes.
+        run: python scripts/dump_openapi.py --check
+
       - name: Legacy functional suite
         # Kept running unchanged through Stages 0-3: it asserts against
         # rendered HTML, which is exactly what catches regressions while the
