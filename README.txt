@@ -50,6 +50,31 @@ Running the test suites
     Lint with 'flake8 .'.  setup.cfg carries a documented baseline of
     pre-existing findings so that only NEW violations fail.
 
+Dependencies
+    py_requirements.txt   what the application needs to run. Curated by
+                          hand, direct dependencies only, loose floors.
+    requirements-dev.txt  adds the test and lint tooling. Includes the
+                          file above, so this is the one to install for
+                          development.
+    requirements-lock.txt every package pinned, including transitive
+                          ones. Generated, never hand-edited. This is
+                          what a deploy installs, so the server runs the
+                          versions that were tested.
+
+    After changing py_requirements.txt, regenerate the lock and commit it:
+
+        ./scripts/lock_requirements.sh
+
+    It builds a throwaway virtualenv containing only the production
+    requirements, so development tooling cannot leak into it. Rerunning it
+    also picks up newer upstream releases, so run the test suite afterwards
+    before committing.
+
+    CI deliberately installs requirements-dev.txt rather than the lock: the
+    floors let it fail early when an upstream release breaks something,
+    which is information worth having. The deploy uses the lock, because a
+    server should not pick up a new version by surprise.
+
 Checking a database for integrity problems
     scripts/verify_prod_snapshot.py reports on invariants the application
     relies on but never enforces -- most importantly that a kid's money

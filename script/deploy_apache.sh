@@ -64,6 +64,35 @@ then
     check=$?
     test_stat $check "not continuing failure in local_deployment_params.py"
 
+    # Install dependencies into the support virtualenv.
+    #
+    # This step did not used to exist: the apache deploy simply assumed the
+    # virtualenv already had everything, so adding a new dependency produced
+    # a deploy that looked fine and then failed to import on the next time
+    # mod_wsgi recycled its daemon -- i.e. a delayed, unattended outage.
+    #
+    # requirements-lock.txt pins exact versions and is what we install when
+    # it is present; py_requirements.txt is the curated direct-dependency
+    # list and the fallback. See scripts/lock_requirements.sh.
+    if [ -f requirements-lock.txt ]
+    then
+        echo Installing pinned dependencies from requirements-lock.txt
+        pip install -r requirements-lock.txt
+    else
+        echo Installing dependencies from py_requirements.txt
+        pip install -r py_requirements.txt
+    fi
+    check=$?
+    test_stat $check "dependency install failed, not progressing"
+
+    # Prove the application actually imports under this virtualenv before
+    # anything is swapped into place. A missing dependency is a hard failure
+    # here rather than a broken site later.
+    echo Verifying the application imports
+    python -c "from run import app; print('  imports OK, %d routes' % len(list(app.url_map.iter_rules())))"
+    check=$?
+    test_stat $check "application failed to import, not progressing"
+
     # db_migrate.py runs BOTH flask_migrate.migrate() and upgrade(), so there
     # is no separate upgrade step.  This previously called "python
     # db_upgrade.py", a file that does not exist in this repository, so the
