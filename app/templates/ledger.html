@@ -2,17 +2,33 @@
 {% block content %}
 <script src="/static/ms-Dropdown-master/js/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
 <script language="javascript">
+  //  Colour withdrawals red.
+  //
+  //  The amount comes from the cell's data-amount attribute, which the
+  //  server writes as a plain number. It used to be recovered from the
+  //  rendered text by stripping the currency symbol with a regex
+  //  hardcoded to "$" -- so for any other symbol the value stayed
+  //  unparseable, compared as NaN, and negatives were never coloured
+  //  (issue #24). Building that regex at runtime instead would still have
+  //  to escape symbols that are regex metacharacters; not parsing the
+  //  text at all sidesteps the whole problem.
+  //
+  //  Selecting on [data-amount] also means only money cells are
+  //  considered. The old loop ran over every .deltas cell including the
+  //  comment, so a comment of "-5" was rewritten as if it were an amount.
   $(document).ready(function() {
-     var vals = $('.deltas');
-     for (i = 0; i < vals.length; i++){
-        var num = vals[i].innerHTML.replace(/\$/,'');
-        if (num < 0) {
-            vals[i].innerHTML = '<font color="red">-{{parent.money_symbol}}' + Math.round(Math.abs(num) * 100, 2)/100 + '</font>';
-        }
-   
-     }
+    var symbol = {{ parent.money_symbol | tojson }};
+    $('.deltas[data-amount]').each(function() {
+      var amount = parseFloat($(this).attr('data-amount'));
+      if (!isNaN(amount) && amount < 0) {
+        //  .text() rather than string-concatenated HTML, so the symbol is
+        //  inserted as text and cannot carry markup.
+        $(this).empty().append(
+          $('<font color="red"></font>').text(
+            '-' + symbol + Math.abs(amount).toFixed(2)));
+      }
+    });
   });
-  
 </script>
 <h2>Ledger for {{kid_data[0]}}-{{kid_data[1]}}-{{kid_data[2]}}</h2>
 <hr>
@@ -121,19 +137,19 @@ Child <a href="kid_manage?kid={{kid_data[0]}}:{{kid_data[1]}}:{{kid_data[2]}}">A
   <tr>
         <td class="deltas">Changes</td>
         {% if 1 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc1}}</td>
+        <td class="deltas" data-amount="{{'%0.2f' % entry.change_acc1}}">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc1}}</td>
         {% endif %}
         {% if 2 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc2}}</td>
+        <td class="deltas" data-amount="{{'%0.2f' % entry.change_acc2}}">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc2}}</td>
         {% endif %}
         {% if 3 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc3}}</td>
+        <td class="deltas" data-amount="{{'%0.2f' % entry.change_acc3}}">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc3}}</td>
         {% endif %}
         {% if 4 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc4}}</td>
+        <td class="deltas" data-amount="{{'%0.2f' % entry.change_acc4}}">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc4}}</td>
         {% endif %}
         {% if 5 not in hidden_columns %}
-        <td class="deltas">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc5}}</td>
+        <td class="deltas" data-amount="{{'%0.2f' % entry.change_acc5}}">{{parent.money_symbol}}{{'%0.2f' % entry.change_acc5}}</td>
         {% endif %}
 
         <td class="deltas">{{entry.comment}}</td>
